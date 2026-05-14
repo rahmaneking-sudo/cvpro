@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, ArrowLeft, Check, Search, X, ArrowRight, Lock, Crown, Sparkles } from 'lucide-react';
 import { templates, seriesLabels, tierLabels } from '../../data/templates';
-import { sampleCVData, sampleExperiences } from '../../data/sampleCV';
+import { sampleCVData, sampleExperiences, sampleEducation } from '../../data/sampleCV';
 import CVPreview from './CVPreview';
 import { useAuth } from '../../store/AuthContext';
 
@@ -173,7 +173,7 @@ function PreviewModal({ template, onClose, onSelect, isLoggedIn }) {
         <div className="overflow-y-auto max-h-[calc(92vh-72px)] bg-[#1a1a1a]">
           <div className="p-6 flex justify-center">
             <div className="w-full max-w-[595px] shadow-[0_25px_80px_rgba(0,0,0,0.6)] rounded-lg overflow-hidden">
-              <CVPreview template={template} cvData={sampleCVData} experiences={sampleExperiences} />
+              <CVPreview template={template} cvData={sampleCVData} experiences={sampleExperiences} educations={sampleEducation} />
             </div>
           </div>
         </div>

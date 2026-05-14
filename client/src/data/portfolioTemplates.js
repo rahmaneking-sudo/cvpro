@@ -85,6 +85,16 @@ export const portfolioTemplates = [
     description: 'Vert forêt africaine. Nature et modernité.',
   },
   {
+    id: 'portfolio-cineaste', name: 'Le Cinéaste', series: 'premium', tier: 'premium', type: 'audiovisual',
+    accent: '#E50914', bg: '#000000', text: '#FFFFFF', secondary: '#141414',
+    description: 'Format cinéma. Spécialement conçu pour les réalisateurs et l\'audiovisuel.',
+  },
+  {
+    id: 'portfolio-video-maker', name: 'Video Maker', series: 'creative', tier: 'premium', type: 'audiovisual',
+    accent: '#00E5FF', bg: '#0D0D12', text: '#F0F0F5', secondary: '#1A1A24',
+    description: 'Grille vidéo dynamique. Idéal pour les monteurs et vidéastes.',
+  },
+  {
     id: 'portfolio-aurora', name: 'Aurora', series: 'creative', tier: 'premium',
     accent: '#A78BFA', bg: '#020617', text: '#E2E8F0', secondary: '#0F172A',
     description: 'Aurore boréale. Effets visuels spectaculaires.',
@@ -93,11 +103,6 @@ export const portfolioTemplates = [
     id: 'portfolio-diamond', name: 'Diamond', series: 'premium', tier: 'premium',
     accent: '#FFD700', bg: '#050510', text: '#FAFAFA', secondary: '#0D0D20',
     description: 'Diamant & or. Le summum du luxe digital.',
-  },
-  {
-    id: 'portfolio-kigali', name: 'Kigali', series: 'african', tier: 'premium',
-    accent: '#0891B2', bg: '#0C1017', text: '#E0F7FA', secondary: '#162028',
-    description: 'Modernité africaine. Cyan et noir futuriste.',
   },
   {
     id: 'portfolio-cyber', name: 'Cyber', series: 'tech', tier: 'premium',

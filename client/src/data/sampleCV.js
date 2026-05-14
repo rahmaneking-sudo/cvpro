@@ -35,7 +35,30 @@ export const sampleExperiences = [
     position: 'Chef de projet digital',
     description: '• Piloté la transformation digitale du service client\n• Déployé un chatbot IA servant 50 000+ clients/mois\n• Réduit le temps moyen de résolution de 45%',
     startDate: 'Sep 2016',
-    endDate: 'Fév 2019',
     logoUrl: '',
   },
+];
+
+export const sampleEducation = [
+  {
+    institution: 'Université de Dakar (UCAD)',
+    degree: 'Master en Gestion de Projet',
+    startDate: '2014',
+    endDate: '2016',
+    description: 'Spécialisation en management des systèmes d\'information.',
+  },
+  {
+    institution: 'Université Gaston Berger',
+    degree: 'Licence Informatique',
+    startDate: '2011',
+    endDate: '2014',
+    description: 'Développement logiciel et architecture web.',
+  },
+  {
+    institution: 'Lycée Limamou Laye',
+    degree: 'Baccalauréat S2',
+    startDate: '2011',
+    endDate: '',
+    description: 'Mention Bien.',
+  }
 ];

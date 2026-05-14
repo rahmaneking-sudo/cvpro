@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Search, Eye, Check, X, ArrowRight, Globe, Layout, Lock, Crown, Sparkles } from 'lucide-react';
+import { ArrowLeft, Search, Eye, Check, X, ArrowRight, Globe, Layout, Lock, Crown, Sparkles, Play } from 'lucide-react';
 import { portfolioTemplates, portfolioSeriesLabels, portfolioTierLabels } from '../../data/portfolioTemplates';
 import { useAuth } from '../../store/AuthContext';
 
@@ -171,22 +171,45 @@ function PortfolioPreviewModal({ template, onClose, onSelect, isLoggedIn }) {
             </p>
           </div>
 
-          {/* Projects */}
+          {/* Projects or Videos */}
           <div className="px-8 pb-16">
-            <h2 className="text-xs font-bold uppercase tracking-[3px] mb-8 text-center" style={{ color: accent }}>Projets sélectionnés</h2>
-            <div className="grid grid-cols-2 gap-4">
-              {['Wave Mobile Banking', 'Orange Learning Platform', 'Sonatel AI Chatbot', 'Dakar Tech Hub'].map((project, i) => (
-                <div key={i} className="rounded-xl overflow-hidden" style={{ background: secondary }}>
-                  <div className="aspect-video flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${accent}${20 + i * 5}, ${accent}${10 + i * 3})` }}>
-                    <Layout size={24} style={{ color: `${accent}80` }} />
+            <h2 className="text-xs font-bold uppercase tracking-[3px] mb-8 text-center" style={{ color: accent }}>
+              {template.type === 'audiovisual' ? 'Bande Démo & Réalisations' : 'Projets sélectionnés'}
+            </h2>
+            
+            {template.type === 'audiovisual' ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {['Showreel 2024', 'Court-Métrage "Dakar"', 'Campagne Publicitaire'].map((video, i) => (
+                  <div key={i} className="group relative rounded-xl overflow-hidden cursor-pointer" style={{ background: secondary }}>
+                    <div className="aspect-video w-full flex items-center justify-center relative overflow-hidden">
+                      <div className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style={{ backgroundImage: `url('https://images.unsplash.com/photo-${[ '1485846234645-a62644f84728', '1536240478700-b869070f9279', '1601506521937-0121a7ef2ad6'][i]}?w=800&q=80')` }} />
+                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
+                      <div className="relative z-10 w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-md border shadow-2xl transition-transform group-hover:scale-110" style={{ background: `${accent}40`, borderColor: accent, color: '#FFF' }}>
+                        <Play size={20} className="ml-1" />
+                      </div>
+                    </div>
+                    <div className="p-4 relative z-20" style={{ background: secondary }}>
+                      <p className="text-sm font-semibold mb-1">{video}</p>
+                      <p className="text-xs" style={{ color: `${text}60` }}>Réalisation • Montage • Étalonnage</p>
+                    </div>
                   </div>
-                  <div className="p-4">
-                    <p className="text-sm font-semibold mb-1">{project}</p>
-                    <p className="text-xs" style={{ color: `${text}60` }}>Design • Développement • Stratégie</p>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4">
+                {['Wave Mobile Banking', 'Orange Learning Platform', 'Sonatel AI Chatbot', 'Dakar Tech Hub'].map((project, i) => (
+                  <div key={i} className="rounded-xl overflow-hidden" style={{ background: secondary }}>
+                    <div className="aspect-video flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${accent}${20 + i * 5}, ${accent}${10 + i * 3})` }}>
+                      <Layout size={24} style={{ color: `${accent}80` }} />
+                    </div>
+                    <div className="p-4">
+                      <p className="text-sm font-semibold mb-1">{project}</p>
+                      <p className="text-xs" style={{ color: `${text}60` }}>Design • Développement • Stratégie</p>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="text-center py-12 border-t" style={{ borderColor: `${text}08` }}>

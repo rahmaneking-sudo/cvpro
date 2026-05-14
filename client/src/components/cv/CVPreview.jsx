@@ -39,7 +39,7 @@ function SkillBadge({ skill, accent }) {
    1. SINGLE COLUMN (Classic ATS Layout)
    - Highly structured, single column, clear headers.
    ========================================================= */
-function LayoutSingleColumn({ template, cvData, experiences, colors }) {
+function LayoutSingleColumn({ template, cvData, experiences, educations, colors }) {
   const { accent, text, secondary } = template;
   const { mutedColor, dividerColor } = colors;
 
@@ -90,6 +90,30 @@ function LayoutSingleColumn({ template, cvData, experiences, colors }) {
         </section>
       )}
 
+      {educations?.length > 0 && (
+        <section className="mb-8">
+          <h3 className="text-[11px] font-bold uppercase tracking-widest mb-4 pb-2 border-b" style={{ color: text, borderColor: dividerColor }}>
+            Formation
+          </h3>
+          <div className="space-y-4">
+            {educations.filter(e => e.institution || e.degree).map((edu, i) => (
+              <article key={i}>
+                <div className="flex items-baseline justify-between mb-1">
+                  <h4 className="font-bold text-[12px]" style={{ color: text }}>{edu.degree}</h4>
+                  <span className="text-[10px] font-medium" style={{ color: accent }}>
+                    {edu.startDate}{edu.endDate ? ` — ${edu.endDate}` : ''}
+                  </span>
+                </div>
+                <div className="text-[11px] font-medium mb-1" style={{ color: text, opacity: 0.8 }}>{edu.institution}</div>
+                {edu.description && (
+                  <p className="text-[11px] leading-[1.7]" style={{ color: mutedColor }}>{edu.description}</p>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
       <div className="flex gap-8">
         {cvData.skills?.length > 0 && (
           <section className="flex-1">
@@ -124,7 +148,7 @@ function LayoutSingleColumn({ template, cvData, experiences, colors }) {
    2. TWO COLUMN (Modern Sidebar Layout)
    - Left sidebar for info/skills, right for content.
    ========================================================= */
-function LayoutTwoColumn({ template, cvData, experiences, colors }) {
+function LayoutTwoColumn({ template, cvData, experiences, educations, colors }) {
   const { accent, text, secondary } = template;
   const { mutedColor, dividerColor } = colors;
 
@@ -223,6 +247,30 @@ function LayoutTwoColumn({ template, cvData, experiences, colors }) {
             </div>
           </section>
         )}
+
+        {educations?.length > 0 && (
+          <section className="mt-8">
+            <h3 className="text-[12px] font-bold uppercase tracking-widest mb-5 flex items-center gap-3" style={{ color: text }}>
+              Formation
+              <div className="flex-1 h-[1px]" style={{ background: dividerColor }} />
+            </h3>
+            <div className="space-y-5">
+              {educations.filter(e => e.institution || e.degree).map((edu, i) => (
+                <article key={i} className="flex gap-4">
+                  <Initials name={edu.institution} accent={accent} />
+                  <div>
+                    <h4 className="font-bold text-[12px] mb-0.5" style={{ color: text }}>{edu.degree}</h4>
+                    <div className="flex items-center gap-2 text-[10px] mb-1" style={{ color: mutedColor }}>
+                      <span className="font-semibold" style={{ color: accent }}>{edu.institution}</span>
+                      <span>•</span>
+                      <span>{edu.startDate}{edu.endDate ? ` - ${edu.endDate}` : ''}</span>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );
@@ -232,7 +280,7 @@ function LayoutTwoColumn({ template, cvData, experiences, colors }) {
    3. GRID (Grid Timeline Layout)
    - Left small col for dates, right for content. Tech feel.
    ========================================================= */
-function LayoutGrid({ template, cvData, experiences, colors }) {
+function LayoutGrid({ template, cvData, experiences, educations, colors }) {
   const { accent, text, secondary } = template;
   const { mutedColor, dividerColor } = colors;
 
@@ -276,6 +324,24 @@ function LayoutGrid({ template, cvData, experiences, colors }) {
           </div>
         </section>
 
+        {educations?.length > 0 && (
+          <section className="mt-8">
+            <h3 className="text-xs font-bold uppercase mb-4" style={{ color: text }}>&gt; Formation</h3>
+            <div className="relative border-l ml-2" style={{ borderColor: dividerColor }}>
+              {educations.filter(e => e.institution || e.degree).map((edu, i) => (
+                <article key={i} className="mb-5 pl-4 relative">
+                  <div className="absolute w-2 h-2 rounded-full -left-[5px] top-1" style={{ background: accent }} />
+                  <div className="text-[9px] font-bold uppercase mb-1" style={{ color: accent }}>
+                    {edu.startDate} - {edu.endDate || 'PRÉSENT'}
+                  </div>
+                  <h4 className="font-bold text-[12px] uppercase mb-0.5" style={{ color: text }}>{edu.degree}</h4>
+                  <div className="text-[10px]" style={{ color: mutedColor }}>@ {edu.institution}</div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+
         <aside className="space-y-8">
           <section>
             <h3 className="text-xs font-bold uppercase mb-3" style={{ color: text }}>&gt; Stack Tech</h3>
@@ -301,7 +367,7 @@ function LayoutGrid({ template, cvData, experiences, colors }) {
    4. ASYMMETRIC (Editorial Asymmetric Layout)
    - Heavy typography, large names, luxurious feel.
    ========================================================= */
-function LayoutAsymmetric({ template, cvData, experiences, colors }) {
+function LayoutAsymmetric({ template, cvData, experiences, educations, colors }) {
   const { accent, text, secondary } = template;
   const { mutedColor, dividerColor } = colors;
 
@@ -349,6 +415,25 @@ function LayoutAsymmetric({ template, cvData, experiences, colors }) {
               ))}
             </div>
           </section>
+
+          {educations?.length > 0 && (
+            <section className="mt-10">
+              <h3 className="text-[9px] font-bold uppercase tracking-[0.3em] mb-6" style={{ color: accent }}>Formation</h3>
+              <div className="space-y-5">
+                {educations.filter(e => e.institution || e.degree).map((edu, i) => (
+                  <article key={i} className="flex gap-6 border-b pb-5" style={{ borderColor: dividerColor }}>
+                    <div className="w-24 shrink-0 text-[9px] font-bold uppercase tracking-wider pt-1" style={{ color: mutedColor }}>
+                      {edu.startDate}<br/>|<br/>{edu.endDate}
+                    </div>
+                    <div>
+                      <h4 className="text-[14px] font-bold uppercase tracking-wide mb-1" style={{ color: text }}>{edu.degree}</h4>
+                      <p className="text-[11px] font-serif italic" style={{ color: accent }}>{edu.institution}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
         </main>
 
         <aside className="w-[200px] shrink-0 space-y-10">
@@ -378,7 +463,7 @@ function LayoutAsymmetric({ template, cvData, experiences, colors }) {
    5. CREATIVE (Creative Floating Layout)
    - Rounded corners, vibrant, badges everywhere.
    ========================================================= */
-function LayoutCreative({ template, cvData, experiences, colors }) {
+function LayoutCreative({ template, cvData, experiences, educations, colors }) {
   const { accent, text, secondary, bg } = template;
   const { mutedColor, dividerColor } = colors;
 
@@ -421,6 +506,25 @@ function LayoutCreative({ template, cvData, experiences, colors }) {
               ))}
             </div>
           </section>
+
+          {educations?.length > 0 && (
+            <section className="mt-8">
+              <h3 className="text-sm font-black uppercase mb-4 pl-2 border-l-4" style={{ color: text, borderColor: accent }}>Formation</h3>
+              <div className="space-y-4">
+                {educations.filter(e => e.institution || e.degree).map((edu, i) => (
+                  <article key={i} className="p-4 rounded-xl transition-transform" style={{ background: secondary }}>
+                    <div className="flex justify-between items-start mb-1">
+                      <div>
+                        <h4 className="font-bold text-[13px]" style={{ color: text }}>{edu.degree}</h4>
+                        <div className="text-[11px] font-semibold" style={{ color: accent }}>{edu.institution}</div>
+                      </div>
+                      <span className="text-[10px] font-bold px-2 py-1 rounded bg-black/5" style={{ color: mutedColor }}>{edu.startDate} - {edu.endDate}</span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
 
         <div className="space-y-6">
@@ -453,7 +557,7 @@ function LayoutCreative({ template, cvData, experiences, colors }) {
 /* =========================================================
    MAIN EXPORT
    ========================================================= */
-export default function CVPreview({ template, cvData, experiences }) {
+export default function CVPreview({ template, cvData, experiences, educations }) {
   if (!template) return null;
 
   const { bg, text, layout } = template;
@@ -480,7 +584,7 @@ export default function CVPreview({ template, cvData, experiences }) {
         color: text,
       }}
     >
-      <LayoutComponent template={template} cvData={cvData} experiences={experiences} colors={colors} />
+      <LayoutComponent template={template} cvData={cvData} experiences={experiences} educations={educations} colors={colors} />
     </div>
   );
 }
