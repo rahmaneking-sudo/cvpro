@@ -1,0 +1,163 @@
+{
+  "nav": {
+    "features": "Fonctionnalités",
+    "templates": "Modèles",
+    "pricing": "Tarification",
+    "testimonials": "Témoignages",
+    "login": "Connexion",
+    "signup": "Commencer",
+    "dashboard": "Dashboard"
+  },
+  "hero": {
+    "title": "Votre carrière mérite une présentation d'exception",
+    "subtitle": "Créez des CV et portfolios cinématographiques qui captivent les recruteurs. Propulsé par l'intelligence artificielle.",
+    "cta": "Créer mon CV",
+    "cta2": "Découvrir les modèles",
+    "trusted": "Utilisé par des professionnels en Afrique et en Europe"
+  },
+  "stats": {
+    "title": "Des résultats qui parlent",
+    "cvCreated": "CV créés",
+    "countries": "Pays",
+    "satisfaction": "Satisfaction",
+    "templates": "Modèles premium"
+  },
+  "features": {
+    "title": "Tout ce dont vous avez besoin",
+    "subtitle": "Une suite complète d'outils pour transformer votre carrière",
+    "cv": {
+      "title": "Créateur de CV",
+      "desc": "16 modèles cinématographiques, prévisualisation en temps réel, export PDF haute qualité"
+    },
+    "ai": {
+      "title": "Amélioration par l'IA",
+      "desc": "GPT-4o analyse et réécrit votre CV existant pour maximiser votre impact"
+    },
+    "online": {
+      "title": "CV en ligne",
+      "desc": "Votre CV devient une page web animée avec un lien unique partageable"
+    },
+    "portfolio": {
+      "title": "Portfolio Premium",
+      "desc": "Page web cinématographique avec vidéos, projets et animations haut de gamme"
+    },
+    "portfolioSimple": {
+      "title": "Portfolio Simple",
+      "desc": "Documents portfolio élégants avec 8 modèles et export PDF"
+    },
+    "payment": {
+      "title": "Paiement flexible",
+      "desc": "Stripe, Wave et Orange Money pour l'Europe et l'Afrique"
+    }
+  },
+  "templates": {
+    "title": "Des modèles d'exception",
+    "subtitle": "Chaque modèle est conçu comme une affiche de cinéma — élégant, audacieux, inoubliable",
+    "executive": "Série Executive",
+    "creative": "Série Créative",
+    "tech": "Série Tech",
+    "african": "Série Africaine Premium",
+    "preview": "Prévisualiser",
+    "select": "Choisir ce modèle"
+  },
+  "testimonials": {
+    "title": "Ils nous font confiance",
+    "subtitle": "Des professionnels du monde entier transforment leur carrière avec CV Pro"
+  },
+  "pricing": {
+    "title": "Investissez dans votre avenir",
+    "subtitle": "Des forfaits adaptés à chaque ambition",
+    "cvUnit": {
+      "name": "CV — À l'unité",
+      "price_eur": "2,29€",
+      "price_xof": "1 500 FCFA",
+      "features": [
+        "1 modèle CV au choix",
+        "Accès à vie",
+        "Modifications gratuites",
+        "Retéléchargement illimité",
+        "Logos d'entreprises inclus"
+      ]
+    },
+    "cvPack": {
+      "name": "CV — Pack Pro",
+      "price_eur": "9€",
+      "price_xof": "5 900 FCFA",
+      "badge": "Populaire",
+      "features": [
+        "5 modèles CV au choix",
+        "CV en ligne activé",
+        "IA incluse",
+        "Logos inclus",
+        "QR Code de partage"
+      ]
+    },
+    "aiEnhance": {
+      "name": "Amélioration IA",
+      "price_eur": "2,29€",
+      "price_xof": "1 500 FCFA",
+      "per": "/ utilisation",
+      "features": [
+        "Upload PDF ou Word",
+        "Analyse complète par GPT-4o",
+        "Éditeur interactif",
+        "Régénération par section",
+        "Téléchargement PDF"
+      ]
+    },
+    "portfolioUnit": {
+      "name": "Portfolio Simple",
+      "price_eur": "3,05€",
+      "price_xof": "2 000 FCFA",
+      "features": [
+        "1 modèle portfolio",
+        "Accès à vie",
+        "IA incluse",
+        "Modifications gratuites",
+        "Export PDF"
+      ]
+    },
+    "portfolioPack": {
+      "name": "Portfolio — Pack",
+      "price_eur": "7,62€",
+      "price_xof": "5 000 FCFA",
+      "features": [
+        "8 modèles portfolio",
+        "IA incluse",
+        "Export illimité",
+        "Modifications gratuites à vie"
+      ]
+    },
+    "portfolioPremium": {
+      "name": "Portfolio Premium",
+      "price_eur": "Sur devis",
+      "price_xof": "Sur devis",
+      "features": [
+        "Page web cinématographique",
+        "Vidéos intégrées",
+        "Domaine personnalisé",
+        "Analytics",
+        "Priorité IA"
+      ]
+    },
+    "cta": "Choisir ce forfait",
+    "quote": "Demander un devis"
+  },
+  "cta": {
+    "title": "Prêt à impressionner ?",
+    "subtitle": "Rejoignez des milliers de professionnels qui ont transformé leur carrière avec CV Pro",
+    "button": "Commencer maintenant"
+  },
+  "footer": {
+    "tagline": "L'excellence au service de votre carrière",
+    "product": "Produit",
+    "company": "Entreprise",
+    "legal": "Légal",
+    "about": "À propos",
+    "contact": "Contact",
+    "blog": "Blog",
+    "privacy": "Confidentialité",
+    "terms": "CGU",
+    "rights": "Tous droits réservés"
+  }
+}

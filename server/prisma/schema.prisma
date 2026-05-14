@@ -1,0 +1,134 @@
+// CV Pro — Prisma Schema
+// All modules share this single schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ==========================================
+// USER & AUTH
+// ==========================================
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String?
+  name          String?
+  username      String?   @unique
+  avatar        String?
+  provider      String    @default("email") // "email" | "google"
+  emailVerified Boolean   @default(false)
+  verifyToken   String?
+  resetToken    String?
+  resetExpires  DateTime?
+  locale        String    @default("fr")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  cvs           CV[]
+  purchases     Purchase[]
+  portfolios    Portfolio[]
+  enhancements  CVEnhancement[]
+
+  @@map("users")
+}
+
+// ==========================================
+// CV MODULE
+// ==========================================
+
+model CV {
+  id          String       @id @default(uuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  templateId  String
+  title       String?
+  data        Json         // Full CV data (name, title, summary, skills, languages, links, photo)
+  isPublic    Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  experiences Experience[]
+
+  @@map("cvs")
+}
+
+model Experience {
+  id          String  @id @default(uuid())
+  cvId        String
+  cv          CV      @relation(fields: [cvId], references: [id], onDelete: Cascade)
+  company     String
+  position    String
+  description String? @db.Text
+  startDate   String
+  endDate     String?
+  logoUrl     String? // Cloudinary URL
+  order       Int     @default(0)
+
+  @@map("experiences")
+}
+
+// ==========================================
+// PORTFOLIO MODULE
+// ==========================================
+
+model Portfolio {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        String   // "simple" | "premium"
+  templateId  String?
+  title       String?
+  data        Json     // Portfolio content
+  isPublic    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("portfolios")
+}
+
+// ==========================================
+// CV ENHANCEMENT (AI)
+// ==========================================
+
+model CVEnhancement {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  originalContent Json     // Original extracted text
+  enhancedContent Json?    // AI-enhanced content
+  fileUrl         String?  // Uploaded file URL
+  fileType        String?  // "pdf" | "docx"
+  status          String   @default("pending") // "pending" | "processing" | "completed" | "failed"
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("cv_enhancements")
+}
+
+// ==========================================
+// PURCHASES & PAYMENTS
+// ==========================================
+
+model Purchase {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product     String   // "cv_template", "cv_pack", "cv_enhance", "portfolio_simple", "portfolio_pack", "portfolio_premium", "cv_website"
+  productId   String?  // Specific template/model ID
+  provider    String   // "stripe", "wave", "orange_money"
+  currency    String   // "EUR", "XOF"
+  amount      Float
+  status      String   @default("pending") // "pending", "completed", "failed", "refunded"
+  webhookId   String?  // External payment ID
+  metadata    Json?    // Additional payment data
+  createdAt   DateTime @default(now())
+
+  @@map("purchases")
+}

@@ -1,0 +1,21 @@
+{
+  "name": "cv-pro",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CV Pro — SaaS cinématographique de création de CV et portfolios",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
+    "dev:client": "npm run dev --workspace=client",
+    "dev:server": "npm run dev --workspace=server",
+    "build": "npm run build --workspace=client",
+    "db:push": "npm run db:push --workspace=server",
+    "db:generate": "npm run db:generate --workspace=server"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

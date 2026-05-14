@@ -1,0 +1,163 @@
+{
+  "nav": {
+    "features": "Features",
+    "templates": "Templates",
+    "pricing": "Pricing",
+    "testimonials": "Testimonials",
+    "login": "Log in",
+    "signup": "Get Started",
+    "dashboard": "Dashboard"
+  },
+  "hero": {
+    "title": "Your career deserves an exceptional presentation",
+    "subtitle": "Create cinematic CVs and portfolios that captivate recruiters. Powered by artificial intelligence.",
+    "cta": "Create my CV",
+    "cta2": "Explore templates",
+    "trusted": "Trusted by professionals across Africa and Europe"
+  },
+  "stats": {
+    "title": "Results that speak",
+    "cvCreated": "CVs created",
+    "countries": "Countries",
+    "satisfaction": "Satisfaction",
+    "templates": "Premium templates"
+  },
+  "features": {
+    "title": "Everything you need",
+    "subtitle": "A complete suite of tools to transform your career",
+    "cv": {
+      "title": "CV Creator",
+      "desc": "16 cinematic templates, real-time preview, high-quality PDF export"
+    },
+    "ai": {
+      "title": "AI Enhancement",
+      "desc": "GPT-4o analyzes and rewrites your existing CV to maximize your impact"
+    },
+    "online": {
+      "title": "Online CV",
+      "desc": "Your CV becomes an animated web page with a unique shareable link"
+    },
+    "portfolio": {
+      "title": "Premium Portfolio",
+      "desc": "Cinematic web page with videos, projects and high-end animations"
+    },
+    "portfolioSimple": {
+      "title": "Simple Portfolio",
+      "desc": "Elegant portfolio documents with 8 templates and PDF export"
+    },
+    "payment": {
+      "title": "Flexible Payment",
+      "desc": "Stripe, Wave and Orange Money for Europe and Africa"
+    }
+  },
+  "templates": {
+    "title": "Exceptional templates",
+    "subtitle": "Each template is designed like a movie poster — elegant, bold, unforgettable",
+    "executive": "Executive Series",
+    "creative": "Creative Series",
+    "tech": "Tech Series",
+    "african": "African Premium Series",
+    "preview": "Preview",
+    "select": "Select this template"
+  },
+  "testimonials": {
+    "title": "They trust us",
+    "subtitle": "Professionals worldwide are transforming their careers with CV Pro"
+  },
+  "pricing": {
+    "title": "Invest in your future",
+    "subtitle": "Plans tailored to every ambition",
+    "cvUnit": {
+      "name": "CV — Single",
+      "price_eur": "€2.29",
+      "price_xof": "1,500 FCFA",
+      "features": [
+        "1 CV template of your choice",
+        "Lifetime access",
+        "Free modifications",
+        "Unlimited re-downloads",
+        "Company logos included"
+      ]
+    },
+    "cvPack": {
+      "name": "CV — Pro Pack",
+      "price_eur": "€9",
+      "price_xof": "5,900 FCFA",
+      "badge": "Popular",
+      "features": [
+        "5 CV templates of your choice",
+        "Online CV activated",
+        "AI included",
+        "Logos included",
+        "Sharing QR Code"
+      ]
+    },
+    "aiEnhance": {
+      "name": "AI Enhancement",
+      "price_eur": "€2.29",
+      "price_xof": "1,500 FCFA",
+      "per": "/ use",
+      "features": [
+        "Upload PDF or Word",
+        "Full GPT-4o analysis",
+        "Interactive editor",
+        "Per-section regeneration",
+        "PDF download"
+      ]
+    },
+    "portfolioUnit": {
+      "name": "Simple Portfolio",
+      "price_eur": "€3.05",
+      "price_xof": "2,000 FCFA",
+      "features": [
+        "1 portfolio template",
+        "Lifetime access",
+        "AI included",
+        "Free modifications",
+        "PDF export"
+      ]
+    },
+    "portfolioPack": {
+      "name": "Portfolio — Pack",
+      "price_eur": "€7.62",
+      "price_xof": "5,000 FCFA",
+      "features": [
+        "8 portfolio templates",
+        "AI included",
+        "Unlimited export",
+        "Lifetime free modifications"
+      ]
+    },
+    "portfolioPremium": {
+      "name": "Premium Portfolio",
+      "price_eur": "Custom quote",
+      "price_xof": "Custom quote",
+      "features": [
+        "Cinematic web page",
+        "Embedded videos",
+        "Custom domain",
+        "Analytics",
+        "AI priority"
+      ]
+    },
+    "cta": "Choose this plan",
+    "quote": "Request a quote"
+  },
+  "cta": {
+    "title": "Ready to impress?",
+    "subtitle": "Join thousands of professionals who transformed their careers with CV Pro",
+    "button": "Get started now"
+  },
+  "footer": {
+    "tagline": "Excellence at the service of your career",
+    "product": "Product",
+    "company": "Company",
+    "legal": "Legal",
+    "about": "About",
+    "contact": "Contact",
+    "blog": "Blog",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "rights": "All rights reserved"
+  }
+}
