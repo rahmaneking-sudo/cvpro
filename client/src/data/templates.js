@@ -52,8 +52,8 @@ export const seriesLabels = {
 };
 
 export const tierLabels = {
-  standard: { fr: 'Standard', en: 'Standard', color: '#43A047' },
-  premium: { fr: 'Premium', en: 'Premium', color: '#C9A96E' },
+  standard: { fr: 'Standard (1 500 F - 1 CV)', shortFr: 'Standard', en: 'Standard', color: '#43A047', tooltip: 'Forfait 1 500 FCFA : Téléchargement unique d\'un design standard.' },
+  premium: { fr: 'Pack Premium (5 000 F - CV illimités)', shortFr: 'Premium', en: 'Premium', color: '#C9A96E', tooltip: 'Forfait 5 000 FCFA : Accès illimité à tous les modèles premiums et Media Kits pour 1 mois.' },
 };
 
 export function getTemplate(id) {

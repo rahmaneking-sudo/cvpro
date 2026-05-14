@@ -17,7 +17,7 @@ function TierBadge({ tier }) {
     <div className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider"
       style={{ background: `${info.color}25`, color: info.color, border: `1px solid ${info.color}40` }}>
       <Crown size={9} />
-      {info.fr}
+      {info.shortFr || info.fr}
     </div>
   );
 }
