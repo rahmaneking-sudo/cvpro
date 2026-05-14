@@ -1,12 +1,31 @@
 import { useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Search, Eye, Check, X, ExternalLink, ArrowRight, Globe, Layout } from 'lucide-react';
-import { portfolioTemplates, portfolioSeriesLabels } from '../../data/portfolioTemplates';
+import { ArrowLeft, Search, Eye, Check, X, ArrowRight, Globe, Layout, Lock, Crown, Sparkles } from 'lucide-react';
+import { portfolioTemplates, portfolioSeriesLabels, portfolioTierLabels } from '../../data/portfolioTemplates';
 import { useAuth } from '../../store/AuthContext';
 
+/* =====================================================
+   TIER BADGE
+   ====================================================== */
+function TierBadge({ tier }) {
+  if (tier === 'free') return null;
+  const info = portfolioTierLabels[tier];
+  return (
+    <div className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider"
+      style={{ background: `${info.color}25`, color: info.color, border: `1px solid ${info.color}40` }}>
+      {tier === 'business' ? <Crown size={9} /> : <Sparkles size={9} />}
+      {info.fr}
+    </div>
+  );
+}
+
+/* =====================================================
+   PORTFOLIO CARD
+   ====================================================== */
 function PortfolioCard({ template, isSelected, onClick, onPreview }) {
-  const { bg, text, accent, secondary } = template;
+  const { bg, text, accent, secondary, tier } = template;
+  const isPremium = tier !== 'free';
 
   return (
     <motion.div whileHover={{ y: -6 }} transition={{ duration: 0.3 }} className="cursor-pointer group">
@@ -19,8 +38,10 @@ function PortfolioCard({ template, isSelected, onClick, onPreview }) {
         }`}
         style={{ background: bg }}
       >
+        <TierBadge tier={tier} />
+
         <div className="p-5 h-full flex flex-col" style={{ color: text }}>
-          {/* Fake browser bar */}
+          {/* Browser bar */}
           <div className="flex items-center gap-1.5 mb-3">
             <div className="w-2 h-2 rounded-full" style={{ background: '#FF5F57' }} />
             <div className="w-2 h-2 rounded-full" style={{ background: '#FFBD2E' }} />
@@ -28,13 +49,12 @@ function PortfolioCard({ template, isSelected, onClick, onPreview }) {
             <div className="flex-1 mx-3 h-3 rounded-full" style={{ background: `${text}08` }} />
           </div>
 
-          {/* Hero section mock */}
+          {/* Hero mock */}
           <div className="flex-1 flex flex-col items-center justify-center text-center gap-2">
             <div className="w-10 h-10 rounded-full mb-1" style={{ background: `linear-gradient(135deg, ${accent}, ${accent}70)` }} />
             <div className="h-2.5 rounded-full" style={{ background: `${text}40`, width: '55%' }} />
             <div className="h-1.5 rounded-full" style={{ background: `${accent}50`, width: '35%' }} />
             <div className="h-1 rounded-full mt-1" style={{ background: `${text}15`, width: '70%' }} />
-            <div className="h-1 rounded-full" style={{ background: `${text}10`, width: '50%' }} />
           </div>
 
           {/* Project grid mock */}
@@ -47,12 +67,19 @@ function PortfolioCard({ template, isSelected, onClick, onPreview }) {
 
         {/* Hover overlay */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-          <button
-            onClick={(e) => { e.stopPropagation(); onPreview(template); }}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[var(--color-champagne)] text-[var(--color-obsidian)] text-xs font-semibold hover:scale-105 transition-transform"
-          >
-            <Eye size={14} /> Prévisualiser
-          </button>
+          <div className="flex flex-col items-center gap-2">
+            <button
+              onClick={(e) => { e.stopPropagation(); onPreview(template); }}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[var(--color-champagne)] text-[var(--color-obsidian)] text-xs font-semibold hover:scale-105 transition-transform"
+            >
+              <Eye size={14} /> Prévisualiser
+            </button>
+            {isPremium && (
+              <span className="flex items-center gap-1 text-[10px] text-white/70">
+                <Lock size={10} /> Forfait {portfolioTierLabels[tier].fr} requis
+              </span>
+            )}
+          </div>
         </div>
 
         {isSelected && (
@@ -72,9 +99,14 @@ function PortfolioCard({ template, isSelected, onClick, onPreview }) {
   );
 }
 
+/* =====================================================
+   PREVIEW MODAL
+   ====================================================== */
 function PortfolioPreviewModal({ template, onClose, onSelect, isLoggedIn }) {
   if (!template) return null;
-  const { bg, text, accent, secondary } = template;
+  const { bg, text, accent, secondary, tier } = template;
+  const isPremium = tier !== 'free';
+  const tierInfo = portfolioTierLabels[tier];
 
   return (
     <motion.div
@@ -91,11 +123,19 @@ function PortfolioPreviewModal({ template, onClose, onSelect, isLoggedIn }) {
         {/* Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-[var(--color-charcoal)] border-b border-[rgba(255,255,255,0.06)]">
           <div>
-            <h3 className="text-lg font-bold text-[var(--color-ivory)]" style={{ fontFamily: 'var(--font-serif)' }}>{template.name}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-lg font-bold text-[var(--color-ivory)]" style={{ fontFamily: 'var(--font-serif)' }}>{template.name}</h3>
+              {isPremium && (
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase" style={{ background: `${tierInfo.color}20`, color: tierInfo.color }}>
+                  {tierInfo.fr}
+                </span>
+              )}
+            </div>
             <p className="text-xs text-[var(--color-white-muted)]">{template.description}</p>
           </div>
           <div className="flex items-center gap-3">
             <button onClick={() => onSelect(template.id)} className="btn-primary !py-2.5 !px-6 !text-sm flex items-center gap-2">
+              {isPremium && <Lock size={12} />}
               {isLoggedIn ? 'Utiliser ce modèle' : 'Créer mon portfolio'} <ArrowRight size={14} />
             </button>
             <button onClick={onClose} className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-[var(--color-white-muted)]">
@@ -106,7 +146,6 @@ function PortfolioPreviewModal({ template, onClose, onSelect, isLoggedIn }) {
 
         {/* Full Portfolio Preview */}
         <div className="overflow-y-auto max-h-[calc(92vh-72px)]" style={{ background: bg, color: text }}>
-          {/* Browser bar */}
           <div className="sticky top-0 z-5 flex items-center gap-2 px-4 py-2.5 border-b" style={{ background: secondary, borderColor: `${text}10` }}>
             <div className="flex gap-1.5">
               <div className="w-3 h-3 rounded-full bg-[#FF5F57]" />
@@ -137,7 +176,7 @@ function PortfolioPreviewModal({ template, onClose, onSelect, isLoggedIn }) {
             <h2 className="text-xs font-bold uppercase tracking-[3px] mb-8 text-center" style={{ color: accent }}>Projets sélectionnés</h2>
             <div className="grid grid-cols-2 gap-4">
               {['Wave Mobile Banking', 'Orange Learning Platform', 'Sonatel AI Chatbot', 'Dakar Tech Hub'].map((project, i) => (
-                <div key={i} className="rounded-xl overflow-hidden group/p cursor-pointer" style={{ background: secondary }}>
+                <div key={i} className="rounded-xl overflow-hidden" style={{ background: secondary }}>
                   <div className="aspect-video flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${accent}${20 + i * 5}, ${accent}${10 + i * 3})` }}>
                     <Layout size={24} style={{ color: `${accent}80` }} />
                   </div>
@@ -150,7 +189,6 @@ function PortfolioPreviewModal({ template, onClose, onSelect, isLoggedIn }) {
             </div>
           </div>
 
-          {/* Contact */}
           <div className="text-center py-12 border-t" style={{ borderColor: `${text}08` }}>
             <p className="text-xs uppercase tracking-[3px] mb-2" style={{ color: accent }}>Contact</p>
             <p className="text-sm" style={{ color: `${text}60` }}>abdou.diallo@email.com • Dakar, Sénégal</p>
@@ -161,6 +199,9 @@ function PortfolioPreviewModal({ template, onClose, onSelect, isLoggedIn }) {
   );
 }
 
+/* =====================================================
+   MAIN GALLERY
+   ====================================================== */
 export default function PortfolioGallery() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -170,16 +211,26 @@ export default function PortfolioGallery() {
 
   const [selectedId, setSelectedId] = useState(null);
   const [activeSeries, setActiveSeries] = useState('all');
+  const [activeTier, setActiveTier] = useState('all');
   const [search, setSearch] = useState('');
   const [previewTemplate, setPreviewTemplate] = useState(null);
 
   const series = ['all', 'premium', 'creative', 'tech', 'african'];
+  const tiers = ['all', 'free', 'pro', 'business'];
 
   const filtered = useMemo(() => portfolioTemplates.filter(t => {
     if (activeSeries !== 'all' && t.series !== activeSeries) return false;
+    if (activeTier !== 'all' && t.tier !== activeTier) return false;
     if (search && !t.name.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
-  }), [activeSeries, search]);
+  }), [activeSeries, activeTier, search]);
+
+  const counts = useMemo(() => ({
+    all: portfolioTemplates.length,
+    free: portfolioTemplates.filter(t => t.tier === 'free').length,
+    pro: portfolioTemplates.filter(t => t.tier === 'pro').length,
+    business: portfolioTemplates.filter(t => t.tier === 'business').length,
+  }), []);
 
   const handleSelect = (id) => {
     const templateId = id || selectedId;
@@ -199,11 +250,11 @@ export default function PortfolioGallery() {
           <h1 className="text-3xl md:text-4xl font-bold text-[var(--color-ivory)] mb-2" style={{ fontFamily: 'var(--font-serif)' }}>
             Choisissez votre portfolio
           </h1>
-          <p className="text-[var(--color-white-muted)] mb-8">8 portfolios web cinématographiques pour mettre en valeur vos projets</p>
+          <p className="text-[var(--color-white-muted)] mb-8">{portfolioTemplates.length} portfolios web cinématographiques pour mettre en valeur vos projets</p>
         </motion.div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap items-center gap-4 mb-8">
+        {/* Series Filters */}
+        <div className="flex flex-wrap items-center gap-4 mb-4">
           <div className="flex flex-wrap gap-2">
             {series.map(s => (
               <button key={s} onClick={() => setActiveSeries(s)}
@@ -225,10 +276,28 @@ export default function PortfolioGallery() {
           </div>
         </div>
 
-        {/* Grid — 2 cols for portfolios (wider cards) */}
+        {/* Tier Filters */}
+        <div className="flex flex-wrap gap-2 mb-8">
+          {tiers.map(t => (
+            <button key={t} onClick={() => setActiveTier(t)}
+              className={`px-3 py-1.5 rounded-full text-[11px] font-medium transition-all duration-300 flex items-center gap-1.5 ${
+                activeTier === t
+                  ? 'bg-white/15 text-[var(--color-ivory)] border border-white/20'
+                  : 'bg-white/3 text-[var(--color-white-muted)] hover:bg-white/8 border border-transparent'
+              }`}
+            >
+              {t === 'free' && <span className="w-2 h-2 rounded-full bg-[#43A047]" />}
+              {t === 'pro' && <span className="w-2 h-2 rounded-full bg-[#C9A96E]" />}
+              {t === 'business' && <span className="w-2 h-2 rounded-full bg-[#6366F1]" />}
+              {t === 'all' ? `Tous (${counts.all})` : `${portfolioTierLabels[t].fr} (${counts[t]})`}
+            </button>
+          ))}
+        </div>
+
+        {/* Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pb-24">
           {filtered.map((tmpl, i) => (
-            <motion.div key={tmpl.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06, duration: 0.4 }}>
+            <motion.div key={tmpl.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.4 }}>
               <PortfolioCard
                 template={tmpl}
                 isSelected={selectedId === tmpl.id}
