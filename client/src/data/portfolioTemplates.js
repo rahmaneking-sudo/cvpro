@@ -125,5 +125,5 @@ export const portfolioSeriesLabels = {
 
 export const portfolioTierLabels = {
   standard: { fr: 'Standard (2 000 F - 1 Portfolio)', shortFr: 'Standard', en: 'Standard', color: '#43A047', tooltip: 'Forfait 2 000 FCFA : Création d\'un portfolio simple.' },
-  premium: { fr: 'Pack Premium (9 000 F - Portfolios illimités)', shortFr: 'Premium', en: 'Premium', color: '#C9A96E', tooltip: 'Forfait 9 000 FCFA : Accès illimité aux portfolios vidéos et designs avancés.' },
+  premium: { fr: 'Pack Premium (5 000 F - Portfolios illimités)', shortFr: 'Premium', en: 'Premium', color: '#C9A96E', tooltip: 'Forfait 5 000 FCFA : Accès illimité aux portfolios vidéos, images illimitées et designs avancés.' },
 };

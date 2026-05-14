@@ -212,6 +212,39 @@ function PortfolioPreviewModal({ template, onClose, onSelect, isLoggedIn }) {
             )}
           </div>
 
+          {/* Infinite Gallery / Media */}
+          <div className="px-8 pb-16">
+            <h2 className="text-xs font-bold uppercase tracking-[3px] mb-8 text-center" style={{ color: accent }}>
+              Galerie (Images & Documents)
+            </h2>
+            <div className="flex gap-4 overflow-x-auto pb-4" style={{ scrollbarWidth: 'none' }}>
+              {[1, 2, 3, 4, 5].map((item, i) => (
+                <div key={i} className="min-w-[220px] h-[160px] rounded-xl flex-shrink-0 relative overflow-hidden group border" style={{ background: secondary, borderColor: `${text}10` }}>
+                  {i % 3 === 0 ? (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+                      <div className="w-12 h-16 bg-white/5 rounded mb-3 flex items-center justify-center border shadow-lg" style={{ borderColor: `${text}20` }}>
+                        <span className="text-[11px] font-bold" style={{ color: text }}>PDF</span>
+                      </div>
+                      <p className="text-[11px] font-medium text-center" style={{ color: `${text}70` }}>Document_{i}.pdf</p>
+                    </div>
+                  ) : (
+                    <div className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style={{ backgroundImage: `url('https://images.unsplash.com/photo-${[ '1498050108023-c5249f4df085', '1481481325911-5819e61db1d1', '1454165804606-c3d57bc86b40'][i % 3]}?w=500&q=80')` }} />
+                  )}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                    <span className="text-xs font-bold text-white px-4 py-2 rounded-full border border-white/30 backdrop-blur-md">Ouvrir</span>
+                  </div>
+                </div>
+              ))}
+              <div className="min-w-[220px] h-[160px] rounded-xl flex-shrink-0 flex items-center justify-center border-2 border-dashed" style={{ borderColor: `${accent}40`, background: `${accent}05` }}>
+                <div className="text-center">
+                  <p className="text-2xl font-light mb-1" style={{ color: accent }}>∞</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: accent }}>Illimité</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
           <div className="text-center py-12 border-t" style={{ borderColor: `${text}08` }}>
             <p className="text-xs uppercase tracking-[3px] mb-4" style={{ color: accent }}>Contact & Réseaux</p>
             <p className="text-sm mb-6" style={{ color: `${text}60` }}>abdou.diallo@email.com • Dakar, Sénégal</p>
