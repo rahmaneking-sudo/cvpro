@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Eye, EyeOff, ArrowRight, Loader2, CheckCircle } from 'lucide-react';
 import { useAuth } from '../store/AuthContext';
+import { useGoogleLogin } from '@react-oauth/google';
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -39,8 +40,48 @@ export default function RegisterPage() {
     }
   };
 
+  const googleSignup = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        setLoading(true);
+        setError('');
+        
+        const userInfo = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+        }).then(res => res.json());
+
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/google`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: userInfo.email,
+            name: userInfo.name,
+            avatar: userInfo.picture,
+            googleId: userInfo.sub
+          })
+        });
+
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Erreur lors de l\'inscription avec Google');
+        }
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        window.location.href = '/dashboard';
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    },
+    onError: () => {
+      setError('L\'inscription avec Google a échoué.');
+    }
+  });
+
   const handleGoogleSignup = () => {
-    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${import.meta.env.VITE_GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(window.location.origin + '/auth/google/callback')}&response_type=code&scope=openid%20email%20profile`;
+    googleSignup();
   };
 
   // Success state

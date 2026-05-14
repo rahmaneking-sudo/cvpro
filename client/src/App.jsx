@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from './store/AuthContext';
 import CustomCursor from './components/ui/CustomCursor';
 import GrainOverlay from './components/ui/GrainOverlay';
@@ -17,12 +18,15 @@ import CVEditorPage from './pages/CVEditorPage';
 import PortfolioGalleryPage from './pages/PortfolioGalleryPage';
 
 export default function App() {
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '823693875044-g9lghi0s0eqo0594roiq31cc7jf9sprr.apps.googleusercontent.com';
+
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <CustomCursor />
-        <GrainOverlay />
-        <Routes>
+    <GoogleOAuthProvider clientId={clientId}>
+      <BrowserRouter>
+        <AuthProvider>
+          <CustomCursor />
+          <GrainOverlay />
+          <Routes>
           {/* Public — accessible sans connexion */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -41,5 +45,6 @@ export default function App() {
         </Routes>
       </AuthProvider>
     </BrowserRouter>
+    </GoogleOAuthProvider>
   );
 }

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
 import { useAuth } from '../store/AuthContext';
+import { useGoogleLogin } from '@react-oauth/google';
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -37,9 +38,50 @@ export default function LoginPage() {
     }
   };
 
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        setLoading(true);
+        setError('');
+        // Fetch user info from Google
+        const userInfo = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+        }).then(res => res.json());
+
+        // Send to our backend
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/google`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: userInfo.email,
+            name: userInfo.name,
+            avatar: userInfo.picture,
+            googleId: userInfo.sub
+          })
+        });
+
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Erreur lors de la connexion Google');
+        }
+
+        // Save token (Assuming login method in AuthContext can take a token/user object or similar, but wait, AuthContext might not handle Google token parsing directly yet. Let's just store token and user in localStorage and reload/redirect)
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        window.location.href = '/dashboard';
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    },
+    onError: () => {
+      setError('La connexion avec Google a échoué.');
+    }
+  });
+
   const handleGoogleLogin = () => {
-    // Google OAuth redirect
-    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${import.meta.env.VITE_GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(window.location.origin + '/auth/google/callback')}&response_type=code&scope=openid%20email%20profile`;
+    googleLogin();
   };
 
   return (
