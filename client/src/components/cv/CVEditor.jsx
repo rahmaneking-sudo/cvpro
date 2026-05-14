@@ -122,7 +122,26 @@ export default function CVEditor() {
       {/* Editor area */}
       <div className="flex flex-1 overflow-hidden">
         {/* LEFT — Form */}
-        <div className="w-[45%] overflow-y-auto p-6 space-y-6 border-r border-[rgba(255,255,255,0.06)]">
+        <div className="w-[45%] overflow-y-auto p-6 space-y-8 border-r border-[rgba(255,255,255,0.06)]">
+          {/* AI Import Box */}
+          <section className="relative overflow-hidden rounded-2xl border border-[rgba(201,169,110,0.3)] bg-gradient-to-br from-[rgba(201,169,110,0.05)] to-transparent p-6 group cursor-pointer transition-colors hover:border-[var(--color-champagne)]">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-champagne)] opacity-5 blur-[60px] rounded-full group-hover:opacity-10 transition-opacity" />
+            <div className="flex items-start gap-4 relative z-10">
+              <div className="w-12 h-12 rounded-full bg-[rgba(201,169,110,0.15)] flex items-center justify-center text-[var(--color-champagne)] shrink-0">
+                <Wand2 size={24} />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-[var(--color-champagne)] mb-1">Magie IA : Scannez votre CV</h3>
+                <p className="text-xs text-[var(--color-white-muted)] mb-3 leading-relaxed">
+                  Importez une photo ou un PDF de votre ancien CV. L'IA de CV Pro va lire le document et remplir toutes les cases ci-dessous instantanément.
+                </p>
+                <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--color-champagne)] text-[var(--color-obsidian)] text-xs font-bold hover:scale-105 transition-transform">
+                  <Upload size={14} /> Importer un document
+                </button>
+              </div>
+            </div>
+          </section>
+
           {/* Personal Info */}
           <section>
             <h3 className="text-lg font-bold text-[var(--color-ivory)] mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-serif)' }}>
@@ -201,15 +220,15 @@ export default function CVEditor() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    {/* Logo circle */}
-                    <div className="w-11 h-11 rounded-full border-2 border-dashed border-[rgba(201,169,110,0.3)] flex items-center justify-center cursor-pointer hover:border-[var(--color-champagne)] transition-colors group">
-                      {exp.logoUrl ? (
-                        <img src={exp.logoUrl} alt="" className="w-full h-full rounded-full object-cover" />
-                      ) : (
-                        <span className="text-xs text-[var(--color-white-muted)] group-hover:text-[var(--color-champagne)]">
-                          {exp.company ? exp.company.substring(0, 2).toUpperCase() : <Upload size={14} />}
-                        </span>
-                      )}
+                    <div className="flex flex-col items-center gap-2 group cursor-pointer">
+                      <div className="w-12 h-12 rounded-full border-2 border-dashed border-[rgba(201,169,110,0.3)] flex items-center justify-center hover:border-[var(--color-champagne)] hover:bg-[rgba(201,169,110,0.05)] transition-all">
+                        {exp.logoUrl ? (
+                          <img src={exp.logoUrl} alt="" className="w-full h-full rounded-full object-cover" />
+                        ) : (
+                          <Upload size={16} className="text-[var(--color-champagne)] opacity-50 group-hover:opacity-100" />
+                        )}
+                      </div>
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-[var(--color-champagne)] opacity-60 group-hover:opacity-100 transition-opacity">Logo</span>
                     </div>
                     <span className="text-sm font-medium text-[var(--color-ivory)]">Expérience {idx + 1}</span>
                   </div>
