@@ -18,6 +18,16 @@ export const sampleCVData = {
     engagement: '14.2%',
   },
   collaborations: ['L\'Oréal', 'Samsung', 'Orange', 'Canal+'],
+  mediaKitDetails: {
+    primaryNetwork: 'TikTok',
+    editorial: ['Lifestyle', 'Tech Reviews', 'Voyage', 'Vlogs'],
+    demographics: [
+      { location: 'Sénégal (Global)', percentage: 55 },
+      { location: 'Dakar', percentage: 35 },
+      { location: 'France / Diaspora', percentage: 25 },
+      { location: 'Reste de l\'Afrique', percentage: 20 }
+    ]
+  }
 };
 
 export const sampleExperiences = [

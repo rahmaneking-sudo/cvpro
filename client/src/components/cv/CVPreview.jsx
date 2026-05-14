@@ -609,23 +609,40 @@ function LayoutMediaKit({ template, cvData, experiences, educations, colors }) {
 
         <div className="grid grid-cols-2 gap-8 mt-4">
           <section>
-            <h3 className="text-xs font-black uppercase mb-4 tracking-widest border-b pb-2" style={{ color: accent, borderColor: dividerColor }}>Audience & Niche</h3>
+            <h3 className="text-xs font-black uppercase mb-4 tracking-widest border-b pb-2" style={{ color: accent, borderColor: dividerColor }}>
+              Ligne Éditoriale & Thèmes
+            </h3>
             <div className="flex flex-wrap gap-2">
-              {cvData.skills?.map((skill, i) => (
+              {(cvData.mediaKitDetails?.editorial || cvData.skills)?.map((theme, i) => (
                 <span key={i} className="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase" style={{ background: secondary, color: text }}>
-                  {skill}
+                  {theme}
                 </span>
               ))}
             </div>
+            {cvData.mediaKitDetails?.primaryNetwork && (
+              <div className="mt-4 pt-4 border-t" style={{ borderColor: dividerColor }}>
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: mutedColor }}>Réseau Principal</p>
+                <p className="text-sm font-black" style={{ color: accent }}>{cvData.mediaKitDetails.primaryNetwork}</p>
+              </div>
+            )}
           </section>
           
           <section>
-            <h3 className="text-xs font-black uppercase mb-4 tracking-widest border-b pb-2" style={{ color: accent, borderColor: dividerColor }}>Langues & Localisation</h3>
-            <div className="space-y-2">
-              <ContactItem icon={MapPin} value={cvData.location} color={text} />
-              <div className="text-[11px] mt-2" style={{ color: mutedColor }}>
-                {cvData.languages?.join(' • ')}
-              </div>
+            <h3 className="text-xs font-black uppercase mb-4 tracking-widest border-b pb-2" style={{ color: accent, borderColor: dividerColor }}>
+              Localisation de l'Audience
+            </h3>
+            <div className="space-y-3">
+              {cvData.mediaKitDetails?.demographics.map((demo, i) => (
+                <div key={i}>
+                  <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: text }}>
+                    <span>{demo.location}</span>
+                    <span style={{ color: accent }}>{demo.percentage}%</span>
+                  </div>
+                  <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: secondary }}>
+                    <div className="h-full rounded-full transition-all" style={{ width: `${demo.percentage}%`, background: accent }} />
+                  </div>
+                </div>
+              ))}
             </div>
           </section>
         </div>

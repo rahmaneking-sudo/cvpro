@@ -42,6 +42,11 @@ function TemplateMiniCard({ template, isSelected, onClick, onPreview }) {
         style={{ background: bg }}
       >
         <TierBadge tier={tier} />
+        {layout === 'media-kit' && (
+          <div className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded-sm text-[8px] font-black uppercase tracking-widest bg-white text-black shadow-xl border border-black/10">
+            Media Kit
+          </div>
+        )}
 
         <div className="p-4 h-full flex flex-col" style={{ color: text }}>
           <div className="flex items-center gap-2 mb-2">
