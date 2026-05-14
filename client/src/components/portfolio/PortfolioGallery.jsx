@@ -9,12 +9,12 @@ import { useAuth } from '../../store/AuthContext';
    TIER BADGE
    ====================================================== */
 function TierBadge({ tier }) {
-  if (tier === 'free') return null;
+  if (tier === 'standard') return null;
   const info = portfolioTierLabels[tier];
   return (
     <div className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider"
       style={{ background: `${info.color}25`, color: info.color, border: `1px solid ${info.color}40` }}>
-      {tier === 'business' ? <Crown size={9} /> : <Sparkles size={9} />}
+      <Crown size={9} />
       {info.fr}
     </div>
   );
@@ -25,7 +25,7 @@ function TierBadge({ tier }) {
    ====================================================== */
 function PortfolioCard({ template, isSelected, onClick, onPreview }) {
   const { bg, text, accent, secondary, tier } = template;
-  const isPremium = tier !== 'free';
+  const isPremium = tier !== 'standard';
 
   return (
     <motion.div whileHover={{ y: -6 }} transition={{ duration: 0.3 }} className="cursor-pointer group">
@@ -105,7 +105,7 @@ function PortfolioCard({ template, isSelected, onClick, onPreview }) {
 function PortfolioPreviewModal({ template, onClose, onSelect, isLoggedIn }) {
   if (!template) return null;
   const { bg, text, accent, secondary, tier } = template;
-  const isPremium = tier !== 'free';
+  const isPremium = tier !== 'standard';
   const tierInfo = portfolioTierLabels[tier];
 
   return (
@@ -216,7 +216,7 @@ export default function PortfolioGallery() {
   const [previewTemplate, setPreviewTemplate] = useState(null);
 
   const series = ['all', 'premium', 'creative', 'tech', 'african'];
-  const tiers = ['all', 'free', 'pro', 'business'];
+  const tiers = ['all', 'standard', 'premium'];
 
   const filtered = useMemo(() => portfolioTemplates.filter(t => {
     if (activeSeries !== 'all' && t.series !== activeSeries) return false;
@@ -227,9 +227,8 @@ export default function PortfolioGallery() {
 
   const counts = useMemo(() => ({
     all: portfolioTemplates.length,
-    free: portfolioTemplates.filter(t => t.tier === 'free').length,
-    pro: portfolioTemplates.filter(t => t.tier === 'pro').length,
-    business: portfolioTemplates.filter(t => t.tier === 'business').length,
+    standard: portfolioTemplates.filter(t => t.tier === 'standard').length,
+    premium: portfolioTemplates.filter(t => t.tier === 'premium').length,
   }), []);
 
   const handleSelect = (id) => {
@@ -286,9 +285,8 @@ export default function PortfolioGallery() {
                   : 'bg-white/3 text-[var(--color-white-muted)] hover:bg-white/8 border border-transparent'
               }`}
             >
-              {t === 'free' && <span className="w-2 h-2 rounded-full bg-[#43A047]" />}
-              {t === 'pro' && <span className="w-2 h-2 rounded-full bg-[#C9A96E]" />}
-              {t === 'business' && <span className="w-2 h-2 rounded-full bg-[#6366F1]" />}
+              {t === 'standard' && <span className="w-2 h-2 rounded-full bg-[#43A047]" />}
+              {t === 'premium' && <span className="w-2 h-2 rounded-full bg-[#C9A96E]" />}
               {t === 'all' ? `Tous (${counts.all})` : `${portfolioTierLabels[t].fr} (${counts[t]})`}
             </button>
           ))}

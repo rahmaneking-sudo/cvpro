@@ -21,10 +21,10 @@ export default function Navbar() {
   };
 
   const navLinks = [
-    { key: 'features', href: '#features' },
-    { key: 'templates', href: '#templates' },
-    { key: 'pricing', href: '#pricing' },
-    { key: 'testimonials', href: '#testimonials' },
+    { label: 'CV & Modèles', href: '/templates' },
+    { label: 'Portfolios', href: '/portfolios' },
+    { label: 'Fonctionnalités', href: '/#features' },
+    { label: 'Tarifs', href: '/#pricing' },
   ];
 
   return (
@@ -53,13 +53,13 @@ export default function Navbar() {
 
           {/* Desktop Links */}
           <div className="hidden md:flex items-center gap-8">
-            {navLinks.map(link => (
+            {navLinks.map((link, idx) => (
               <a
-                key={link.key}
+                key={idx}
                 href={link.href}
                 className="text-sm text-[var(--color-white-muted)] hover:text-[var(--color-ivory)] transition-colors duration-300 relative group"
               >
-                {t(`nav.${link.key}`)}
+                {link.label}
                 <span className="absolute -bottom-1 left-0 w-0 h-[1.5px] bg-[var(--color-champagne)] transition-all duration-300 group-hover:w-full" />
               </a>
             ))}
@@ -107,14 +107,14 @@ export default function Navbar() {
             className="md:hidden bg-[rgba(10,10,10,0.97)] backdrop-blur-xl border-t border-[rgba(201,169,110,0.1)] overflow-hidden"
           >
             <div className="px-6 py-6 flex flex-col gap-4">
-              {navLinks.map(link => (
+              {navLinks.map((link, idx) => (
                 <a
-                  key={link.key}
+                  key={idx}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
                   className="text-lg text-[var(--color-ivory)] py-2 border-b border-[rgba(255,255,255,0.05)]"
                 >
-                  {t(`nav.${link.key}`)}
+                  {link.label}
                 </a>
               ))}
 

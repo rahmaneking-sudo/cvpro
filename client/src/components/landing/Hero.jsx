@@ -76,12 +76,15 @@ export default function Hero() {
           transition={{ duration: 0.9, delay: 1, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
-          <a href="/register" className="btn-primary text-base px-10 py-4">
+          <a href="/register" className="btn-primary text-base px-10 py-4 flex items-center gap-2">
             {t('hero.cta')}
             <ArrowRight size={18} />
           </a>
-          <a href="/templates" className="btn-ghost text-base px-10 py-4">
-            {t('hero.cta2')}
+          <a href="/templates" className="btn-ghost text-base px-8 py-4">
+            Voir les Modèles CV
+          </a>
+          <a href="/portfolios" className="btn-ghost text-base px-8 py-4">
+            Voir les Portfolios
           </a>
         </motion.div>
 

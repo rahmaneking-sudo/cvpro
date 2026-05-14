@@ -11,12 +11,12 @@ import { useAuth } from '../../store/AuthContext';
    TIER BADGE
    ====================================================== */
 function TierBadge({ tier }) {
-  if (tier === 'free') return null;
+  if (tier === 'standard') return null;
   const info = tierLabels[tier];
   return (
     <div className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider"
       style={{ background: `${info.color}25`, color: info.color, border: `1px solid ${info.color}40` }}>
-      {tier === 'business' ? <Crown size={9} /> : <Sparkles size={9} />}
+      <Crown size={9} />
       {info.fr}
     </div>
   );
@@ -28,7 +28,7 @@ function TierBadge({ tier }) {
 function TemplateMiniCard({ template, isSelected, onClick, onPreview }) {
   const { bg, text, accent, secondary, layout, tier } = template;
   const isTwoCol = layout === 'two-column' || layout === 'grid';
-  const isPremium = tier !== 'free';
+  const isPremium = tier !== 'standard';
 
   return (
     <motion.div whileHover={{ y: -6 }} transition={{ duration: 0.3 }} className="cursor-pointer group">
@@ -130,7 +130,7 @@ function TemplateMiniCard({ template, isSelected, onClick, onPreview }) {
    ====================================================== */
 function PreviewModal({ template, onClose, onSelect, isLoggedIn }) {
   if (!template) return null;
-  const isPremium = template.tier !== 'free';
+  const isPremium = template.tier !== 'standard';
   const tierInfo = tierLabels[template.tier];
 
   return (
@@ -199,7 +199,7 @@ export default function TemplateGallery() {
   const [previewTemplate, setPreviewTemplate] = useState(null);
 
   const series = ['all', 'executive', 'creative', 'tech', 'african'];
-  const tiers = ['all', 'free', 'pro', 'business'];
+  const tiers = ['all', 'standard', 'premium'];
 
   const filtered = useMemo(() => templates.filter(t => {
     if (activeSeries !== 'all' && t.series !== activeSeries) return false;
@@ -217,9 +217,8 @@ export default function TemplateGallery() {
 
   const counts = useMemo(() => ({
     all: templates.length,
-    free: templates.filter(t => t.tier === 'free').length,
-    pro: templates.filter(t => t.tier === 'pro').length,
-    business: templates.filter(t => t.tier === 'business').length,
+    standard: templates.filter(t => t.tier === 'standard').length,
+    premium: templates.filter(t => t.tier === 'premium').length,
   }), []);
 
   return (
@@ -269,9 +268,8 @@ export default function TemplateGallery() {
                   : 'bg-white/3 text-[var(--color-white-muted)] hover:bg-white/8 border border-transparent'
               }`}
             >
-              {t === 'free' && <span className="w-2 h-2 rounded-full bg-[#43A047]" />}
-              {t === 'pro' && <span className="w-2 h-2 rounded-full bg-[#C9A96E]" />}
-              {t === 'business' && <span className="w-2 h-2 rounded-full bg-[#6366F1]" />}
+              {t === 'standard' && <span className="w-2 h-2 rounded-full bg-[#43A047]" />}
+              {t === 'premium' && <span className="w-2 h-2 rounded-full bg-[#C9A96E]" />}
               {t === 'all' ? `Tous (${counts.all})` : `${tierLabels[t].fr} (${counts[t]})`}
             </button>
           ))}
