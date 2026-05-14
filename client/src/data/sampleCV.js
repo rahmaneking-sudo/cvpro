@@ -11,6 +11,13 @@ export const sampleCVData = {
   skills: ['Product Management', 'Stratégie Produit', 'UX/UI Design', 'Data Analytics', 'Agile / Scrum', 'Leadership', 'Python', 'SQL'],
   languages: ['Français (natif)', 'Anglais (courant)', 'Wolof (natif)'],
   photo: '',
+  socialStats: {
+    instagram: '125K',
+    tiktok: '450K',
+    youtube: '85K',
+    engagement: '14.2%',
+  },
+  collaborations: ['L\'Oréal', 'Samsung', 'Orange', 'Canal+'],
 };
 
 export const sampleExperiences = [

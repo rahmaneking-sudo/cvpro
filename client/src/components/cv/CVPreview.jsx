@@ -555,13 +555,112 @@ function LayoutCreative({ template, cvData, experiences, educations, colors }) {
 }
 
 /* =========================================================
+   6. MEDIA KIT (Influencer Layout)
+   - Heavy focus on stats, collaborations, brand identity.
+   ========================================================= */
+function LayoutMediaKit({ template, cvData, experiences, educations, colors }) {
+  const { accent, text, secondary, bg } = template;
+  const { mutedColor, dividerColor } = colors;
+
+  return (
+    <div className="flex flex-col min-h-[842px]" style={{ background: bg, color: text }}>
+      <header className="p-10 pb-6 flex items-center justify-between" style={{ background: secondary }}>
+        <div className="flex-1">
+          <h1 className="text-5xl font-black uppercase tracking-tighter mb-2" style={{ color: text }}>
+            {cvData.fullName || 'VOTRE NOM'}
+          </h1>
+          <h2 className="text-sm font-bold uppercase tracking-[0.3em]" style={{ color: accent }}>
+            {cvData.jobTitle || 'Influenceur & Créateur'}
+          </h2>
+        </div>
+        <div className="w-28 h-28 rounded-full border-4 shadow-2xl shrink-0 flex items-center justify-center text-4xl font-bold"
+          style={{ borderColor: accent, background: bg, color: accent }}>
+          {cvData.fullName ? cvData.fullName.split(' ').map(n => n[0]).join('').toUpperCase() : '??'}
+        </div>
+      </header>
+
+      <div className="p-10 flex-1 flex flex-col gap-8">
+        <section className="text-center">
+          <p className="text-[13px] leading-relaxed font-medium max-w-2xl mx-auto" style={{ color: mutedColor }}>
+            {cvData.summary}
+          </p>
+        </section>
+
+        {cvData.socialStats && (
+          <section className="grid grid-cols-4 gap-4">
+            <div className="p-4 rounded-xl text-center border" style={{ borderColor: dividerColor, background: secondary }}>
+              <div className="text-2xl font-black mb-1" style={{ color: text }}>{cvData.socialStats.instagram}</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: accent }}>Instagram</div>
+            </div>
+            <div className="p-4 rounded-xl text-center border" style={{ borderColor: dividerColor, background: secondary }}>
+              <div className="text-2xl font-black mb-1" style={{ color: text }}>{cvData.socialStats.tiktok}</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: accent }}>TikTok</div>
+            </div>
+            <div className="p-4 rounded-xl text-center border" style={{ borderColor: dividerColor, background: secondary }}>
+              <div className="text-2xl font-black mb-1" style={{ color: text }}>{cvData.socialStats.youtube}</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: accent }}>YouTube</div>
+            </div>
+            <div className="p-4 rounded-xl text-center border" style={{ borderColor: dividerColor, background: accent }}>
+              <div className="text-2xl font-black mb-1" style={{ color: bg }}>{cvData.socialStats.engagement}</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: bg }}>Engagement</div>
+            </div>
+          </section>
+        )}
+
+        <div className="grid grid-cols-2 gap-8 mt-4">
+          <section>
+            <h3 className="text-xs font-black uppercase mb-4 tracking-widest border-b pb-2" style={{ color: accent, borderColor: dividerColor }}>Audience & Niche</h3>
+            <div className="flex flex-wrap gap-2">
+              {cvData.skills?.map((skill, i) => (
+                <span key={i} className="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase" style={{ background: secondary, color: text }}>
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </section>
+          
+          <section>
+            <h3 className="text-xs font-black uppercase mb-4 tracking-widest border-b pb-2" style={{ color: accent, borderColor: dividerColor }}>Langues & Localisation</h3>
+            <div className="space-y-2">
+              <ContactItem icon={MapPin} value={cvData.location} color={text} />
+              <div className="text-[11px] mt-2" style={{ color: mutedColor }}>
+                {cvData.languages?.join(' • ')}
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {cvData.collaborations && (
+          <section className="mt-auto pt-6 border-t" style={{ borderColor: dividerColor }}>
+            <h3 className="text-[10px] font-bold uppercase mb-4 tracking-widest text-center" style={{ color: mutedColor }}>Ils m'ont fait confiance</h3>
+            <div className="flex justify-center flex-wrap gap-6">
+              {cvData.collaborations.map((brand, i) => (
+                <div key={i} className="text-lg font-black uppercase opacity-60 tracking-tighter" style={{ color: text, fontFamily: "'Inter', sans-serif" }}>
+                  {brand}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+
+      <footer className="p-4 text-center text-[10px] font-bold tracking-widest uppercase flex justify-center gap-6" style={{ background: accent, color: bg }}>
+        <span>{cvData.email}</span>
+        <span>{cvData.phone}</span>
+        {cvData.linkedin && <span>{cvData.linkedin.replace('linkedin.com/in/', '@')}</span>}
+      </footer>
+    </div>
+  );
+}
+
+/* =========================================================
    MAIN EXPORT
    ========================================================= */
 export default function CVPreview({ template, cvData, experiences, educations }) {
   if (!template) return null;
 
   const { bg, text, layout } = template;
-  const isDark = bg === '#0A0A0A' || bg === '#0D0D0D' || bg === '#0F0F23' || bg === '#1A0F00' || bg === '#1A1A1A' || bg === '#1B2A4A' || bg === '#2C2C2E' || bg === '#000000' || bg === '#050510' || bg === '#020617' || bg === '#0A0A14' || bg === '#0A0505';
+  const isDark = bg === '#0A0A0A' || bg === '#0D0D0D' || bg === '#0F0F23' || bg === '#1A0F00' || bg === '#1A1A1A' || bg === '#1B2A4A' || bg === '#2C2C2E' || bg === '#000000' || bg === '#050510' || bg === '#020617' || bg === '#0A0A14' || bg === '#0A0505' || bg === '#1A0B13' || bg === '#0D0D12';
   
   const colors = {
     mutedColor: isDark ? `${text}80` : `${text}90`,
@@ -573,7 +672,8 @@ export default function CVPreview({ template, cvData, experiences, educations })
     'two-column': LayoutTwoColumn,
     'grid': LayoutGrid,
     'asymmetric': LayoutAsymmetric,
-    'creative': LayoutCreative
+    'creative': LayoutCreative,
+    'media-kit': LayoutMediaKit
   }[layout] || LayoutSingleColumn;
 
   return (

@@ -213,8 +213,15 @@ function PortfolioPreviewModal({ template, onClose, onSelect, isLoggedIn }) {
           </div>
 
           <div className="text-center py-12 border-t" style={{ borderColor: `${text}08` }}>
-            <p className="text-xs uppercase tracking-[3px] mb-2" style={{ color: accent }}>Contact</p>
-            <p className="text-sm" style={{ color: `${text}60` }}>abdou.diallo@email.com • Dakar, Sénégal</p>
+            <p className="text-xs uppercase tracking-[3px] mb-4" style={{ color: accent }}>Contact & Réseaux</p>
+            <p className="text-sm mb-6" style={{ color: `${text}60` }}>abdou.diallo@email.com • Dakar, Sénégal</p>
+            <div className="flex items-center justify-center gap-4">
+              {['LinkedIn', 'Twitter', 'Instagram'].map(network => (
+                <span key={network} className="text-[11px] font-bold uppercase tracking-wider px-4 py-2 rounded-full cursor-pointer hover:opacity-80 transition-opacity" style={{ background: `${text}10`, color: text }}>
+                  {network}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </motion.div>
