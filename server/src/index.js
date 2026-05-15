@@ -12,10 +12,14 @@ import portfolioRoutes from './routes/portfolio.js';
 import uploadRoutes from './routes/upload.js';
 import adminRoutes from './routes/admin.js';
 
-// Load .env from root
+// Load .env from root (only for local dev — Vercel injects env vars directly)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-dotenv.config({ path: join(__dirname, '../../.env') });
+try {
+  dotenv.config({ path: join(__dirname, '../../.env') });
+} catch (e) {
+  // Ignore — on Vercel, env vars are injected automatically
+}
 
 const app = express();
 const PORT = process.env.PORT || 5000;
