@@ -2,6 +2,7 @@
   "name": "cv-pro",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "CV Pro — SaaS cinématographique de création de CV et portfolios",
   "workspaces": [
     "client",
