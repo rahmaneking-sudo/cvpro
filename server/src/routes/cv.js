@@ -8,6 +8,8 @@ import {
   getUserCVs,
   deleteCV,
   enhanceSection,
+  checkPurchase,
+  simulatePurchase
 } from '../controllers/cvController.js';
 
 const router = Router();
@@ -16,6 +18,9 @@ const router = Router();
 router.get('/templates', getTemplates);
 
 // Protected
+router.get('/purchase/:templateId', authMiddleware, checkPurchase);
+router.post('/purchase/simulate', authMiddleware, simulatePurchase);
+
 router.post('/', authMiddleware, createCV);
 router.get('/user', authMiddleware, getUserCVs);
 router.get('/:id', authMiddleware, getCV);

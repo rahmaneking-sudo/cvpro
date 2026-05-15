@@ -219,3 +219,64 @@ RÈGLES STRICTES :
     res.status(500).json({ error: 'Erreur lors de l\'amélioration IA' });
   }
 }
+
+// GET /api/cv/purchase/:templateId
+export async function checkPurchase(req, res) {
+  try {
+    const { templateId } = req.params;
+    const purchase = await prisma.purchase.findFirst({
+      where: {
+        userId: req.userId,
+        productId: templateId,
+        status: 'completed'
+      }
+    });
+
+    res.json({ purchased: !!purchase });
+  } catch (err) {
+    console.error('Check purchase error:', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+}
+
+// POST /api/cv/purchase/simulate
+export async function simulatePurchase(req, res) {
+  try {
+    const { templateId } = req.body;
+
+    if (!templateId) {
+      return res.status(400).json({ error: 'Template requis' });
+    }
+
+    // Check if already purchased
+    const existing = await prisma.purchase.findFirst({
+      where: {
+        userId: req.userId,
+        productId: templateId,
+        status: 'completed'
+      }
+    });
+
+    if (existing) {
+      return res.json({ success: true, message: 'Déjà acheté' });
+    }
+
+    // Create a completed purchase
+    await prisma.purchase.create({
+      data: {
+        userId: req.userId,
+        product: 'cv_template',
+        productId: templateId,
+        provider: 'simulation',
+        currency: 'XOF',
+        amount: 1500,
+        status: 'completed'
+      }
+    });
+
+    res.json({ success: true, message: 'Achat simulé avec succès' });
+  } catch (err) {
+    console.error('Simulate purchase error:', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+}

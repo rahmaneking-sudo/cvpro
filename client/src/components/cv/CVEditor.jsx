@@ -1,10 +1,99 @@
-import { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Plus, Trash2, Wand2, Upload, Loader2, Save, Download, GripVertical } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Wand2, Upload, Loader2, Save, Download, GripVertical, Camera } from 'lucide-react';
 import { getTemplate } from '../../data/templates';
 import CVPreview from './CVPreview';
+import PaymentModal from '../shared/PaymentModal';
 import api from '../../services/api';
+import { Country, State, City } from 'country-state-city';
+
+const DemographicItem = React.memo(({ demo, idx, updateDemographic, removeDemographic, inputClass }) => {
+  let countryCode = demo.countryCode || '';
+  if (!countryCode && demo.location) {
+    const match = Country.getAllCountries().find(c => demo.location.toLowerCase().includes(c.name.toLowerCase()));
+    if (match) countryCode = match.isoCode;
+  }
+
+  const states = React.useMemo(() => countryCode ? State.getStatesOfCountry(countryCode) : [], [countryCode]);
+  const cities = React.useMemo(() => {
+    if (!countryCode) return [];
+    const allCities = City.getCitiesOfCountry(countryCode);
+    // Limit to avoid DOM freeze, but keep a large enough number
+    return allCities.length > 2000 ? allCities.slice(0, 2000) : allCities;
+  }, [countryCode]);
+
+  return (
+    <div className="flex gap-3 mb-3 items-end bg-white/5 p-4 rounded-xl border border-white/10">
+      <div className="flex-1">
+        <label className="text-[10px] uppercase tracking-widest text-[var(--color-white-muted)] mb-1.5 block">Pays</label>
+        <select 
+          value={countryCode}
+          onChange={e => {
+            const code = e.target.value;
+            const countryName = code ? Country.getCountryByCode(code).name : '';
+            updateDemographic(idx, {
+              countryCode: code,
+              city: '',
+              location: countryName
+            });
+          }}
+          className={inputClass}
+        >
+          <option value="" className="text-black bg-white">Sélectionner un pays</option>
+          {Country.getAllCountries().map(c => (
+            <option key={c.isoCode} value={c.isoCode} className="text-black bg-white">{c.name}</option>
+          ))}
+        </select>
+      </div>
+      
+      <div className="flex-1">
+        <label className="text-[10px] uppercase tracking-widest text-[var(--color-white-muted)] mb-1.5 block">Région / Ville</label>
+        <select
+          value={demo.city || ''}
+          onChange={e => {
+            const city = e.target.value;
+            const countryName = countryCode ? Country.getCountryByCode(countryCode).name : '';
+            updateDemographic(idx, {
+              city: city,
+              location: city ? `${city}, ${countryName}` : countryName
+            });
+          }}
+          disabled={!countryCode || (states.length === 0 && cities.length === 0)}
+          className={`${inputClass} disabled:opacity-50`}
+        >
+          <option value="" className="text-black bg-white">Tout le pays</option>
+          {states.length > 0 && (
+            <optgroup label="Régions / États" className="text-black bg-gray-200 font-bold">
+              {states.map(s => (
+                <option key={`state-${s.isoCode}`} value={s.name} className="text-black bg-white font-normal">{s.name}</option>
+              ))}
+            </optgroup>
+          )}
+          {cities.length > 0 && (
+            <optgroup label="Villes" className="text-black bg-gray-200 font-bold">
+              {cities.map((c, i) => (
+                <option key={`city-${c.name}-${i}`} value={c.name} className="text-black bg-white font-normal">{c.name}</option>
+              ))}
+            </optgroup>
+          )}
+        </select>
+      </div>
+
+      <div className="w-24">
+        <label className="text-[10px] uppercase tracking-widest text-[var(--color-white-muted)] mb-1.5 block">Part (%)</label>
+        <div className="relative">
+          <input type="number" value={demo.percentage || ''} onChange={e => updateDemographic(idx, 'percentage', parseInt(e.target.value) || 0)} placeholder="Ex: 45" className={`${inputClass} pr-8`} />
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-white-muted)] text-sm">%</span>
+        </div>
+      </div>
+
+      <button onClick={() => removeDemographic(idx)} className="h-[46px] px-3 text-[var(--color-white-muted)] hover:text-red-400 bg-white/5 hover:bg-red-500/10 rounded-xl transition-colors border border-transparent hover:border-red-500/20 flex items-center justify-center shrink-0">
+        <Trash2 size={16} />
+      </button>
+    </div>
+  );
+});
 
 const emptyCVData = {
   fullName: '',
@@ -18,6 +107,13 @@ const emptyCVData = {
   photo: '',
   skills: [],
   languages: [],
+  socialStats: { instagram: '', tiktok: '', youtube: '', engagement: '' },
+  mediaKitDetails: {
+    editorial: [],
+    primaryNetwork: '',
+    demographics: []
+  },
+  collaborations: []
 };
 
 const emptyExperience = {
@@ -33,7 +129,9 @@ export default function CVEditor() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const templateId = searchParams.get('template') || 'midnight-executive';
+  const cvId = searchParams.get('cvId');
   const template = getTemplate(templateId);
+  const isMediaKit = template?.layout === 'media-kit';
 
   const [cvData, setCVData] = useState(emptyCVData);
   const [experiences, setExperiences] = useState([{ ...emptyExperience }]);
@@ -41,6 +139,101 @@ export default function CVEditor() {
   const [langInput, setLangInput] = useState('');
   const [enhancingSection, setEnhancingSection] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanSuccess, setScanSuccess] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [isCheckingPayment, setIsCheckingPayment] = useState(false);
+  const [isPurchasing, setIsPurchasing] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+  const [isLoadingCV, setIsLoadingCV] = useState(!!cvId);
+
+  useEffect(() => {
+    if (cvId) {
+      const loadCV = async () => {
+        try {
+          const res = await api.get(`/cv/${cvId}`);
+          if (res.data.cv) {
+            setCVData(prev => ({ ...prev, ...res.data.cv.data }));
+            if (res.data.cv.experiences?.length > 0) {
+              setExperiences(res.data.cv.experiences);
+            }
+          }
+        } catch (err) {
+          console.error('Error loading CV:', err);
+          showToast('Erreur lors du chargement du CV', 'error');
+        } finally {
+          setIsLoadingCV(false);
+        }
+      };
+      loadCV();
+    }
+  }, [cvId]);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 5000);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const payload = {
+        templateId,
+        title: `${template?.name} - ${cvData.fullName || 'Sans titre'}`,
+        data: cvData,
+        experiences
+      };
+      
+      if (cvId) {
+        await api.put(`/cv/${cvId}`, payload);
+        showToast('Modifications enregistrées !');
+      } else {
+        const res = await api.post('/cv', payload);
+        showToast('Nouveau CV sauvegardé !');
+        // Optionnel : on pourrait mettre à jour l'URL avec le nouvel ID
+        navigate(`/dashboard/cv/editor?template=${templateId}&cvId=${res.data.cv.id}`, { replace: true });
+      }
+    } catch (err) {
+      console.error('Save error:', err);
+      showToast('Erreur lors de la sauvegarde.', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleExport = async () => {
+    setIsCheckingPayment(true);
+    try {
+      const res = await api.get(`/cv/purchase/${templateId}`);
+      if (res.data.purchased) {
+        // Already purchased, trigger print
+        window.print();
+      } else {
+        // Not purchased, show payment modal
+        setShowPaymentModal(true);
+      }
+    } catch (err) {
+      console.error('Check purchase error:', err);
+      showToast('Erreur de vérification des droits.', 'error');
+    } finally {
+      setIsCheckingPayment(false);
+    }
+  };
+
+  const handleSimulatePayment = async () => {
+    setIsPurchasing(true);
+    try {
+      await api.post('/cv/purchase/simulate', { templateId });
+      setShowPaymentModal(false);
+      showToast('Paiement réussi ! Vous pouvez maintenant exporter.');
+      setTimeout(() => window.print(), 1000); // Auto-trigger print after short delay
+    } catch (err) {
+      console.error('Payment error:', err);
+      showToast('Erreur lors du paiement.', 'error');
+    } finally {
+      setIsPurchasing(false);
+    }
+  };
 
   const updateField = useCallback((field, value) => {
     setCVData(prev => ({ ...prev, [field]: value }));
@@ -79,6 +272,94 @@ export default function CVEditor() {
     setCVData(prev => ({ ...prev, languages: prev.languages.filter((_, i) => i !== index) }));
   };
 
+  // --- MEDIA KIT HELPERS ---
+  const updateSocialStat = (field, value) => {
+    setCVData(prev => ({
+      ...prev,
+      socialStats: { ...(prev.socialStats || {}), [field]: value }
+    }));
+  };
+
+  const updateMediaKitDetail = (field, value) => {
+    setCVData(prev => ({
+      ...prev,
+      mediaKitDetails: { ...(prev.mediaKitDetails || {}), [field]: value }
+    }));
+  };
+
+  const [themeInput, setThemeInput] = useState('');
+  const addTheme = () => {
+    if (!themeInput.trim()) return;
+    const current = cvData.mediaKitDetails?.editorial || [];
+    updateMediaKitDetail('editorial', [...current, themeInput.trim()]);
+    setThemeInput('');
+  };
+  const removeTheme = (index) => {
+    const current = cvData.mediaKitDetails?.editorial || [];
+    updateMediaKitDetail('editorial', current.filter((_, i) => i !== index));
+  };
+
+  const [collabInput, setCollabInput] = useState('');
+  const addCollaboration = () => {
+    if (!collabInput.trim()) return;
+    setCVData(prev => ({ ...prev, collaborations: [...(prev.collaborations || []), collabInput.trim()] }));
+    setCollabInput('');
+  };
+  const removeCollaboration = (index) => {
+    setCVData(prev => ({ ...prev, collaborations: (prev.collaborations || []).filter((_, i) => i !== index) }));
+  };
+
+  const addDemographic = () => {
+    const current = cvData.mediaKitDetails?.demographics || [];
+    updateMediaKitDetail('demographics', [...current, { location: '', percentage: 0 }]);
+  };
+  const updateDemographic = useCallback((index, fieldOrUpdates, value) => {
+    setCVData(prev => {
+      const current = prev.mediaKitDetails?.demographics || [];
+      const updated = current.map((demo, i) => {
+        if (i !== index) return demo;
+        if (typeof fieldOrUpdates === 'object') {
+          return { ...demo, ...fieldOrUpdates };
+        }
+        return { ...demo, [fieldOrUpdates]: value };
+      });
+      return {
+        ...prev,
+        mediaKitDetails: { ...(prev.mediaKitDetails || {}), demographics: updated }
+      };
+    });
+  }, []);
+  const removeDemographic = (index) => {
+    const current = cvData.mediaKitDetails?.demographics || [];
+    updateMediaKitDetail('demographics', current.filter((_, i) => i !== index));
+  };
+
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploadingPhoto(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      showToast('Upload de la photo en cours...', 'success');
+      const res = await api.post('/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      if (res.data.url) {
+        updateField('photo', res.data.url);
+        showToast('Photo uploadée avec succès !');
+      }
+    } catch (err) {
+      console.error('Photo upload error:', err);
+      showToast('Erreur lors de l\'upload.', 'error');
+    } finally {
+      setIsUploadingPhoto(false);
+    }
+  };
+
   const enhanceSection = async (section, content, setter) => {
     if (!content?.trim()) return;
     setEnhancingSection(section);
@@ -92,13 +373,71 @@ export default function CVEditor() {
     }
   };
 
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsScanning(true);
+    setScanSuccess(false);
+
+    const formData = new FormData();
+    formData.append('document', file);
+
+    try {
+      const res = await api.post('/ai/scan', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      if (res.data.success && res.data.data) {
+        const parsed = res.data.data;
+        
+        // Update basic info
+        setCVData(prev => ({
+          ...prev,
+          fullName: parsed.fullName || prev.fullName,
+          jobTitle: parsed.jobTitle || prev.jobTitle,
+          summary: parsed.summary || prev.summary,
+          email: parsed.email || prev.email,
+          phone: parsed.phone || prev.phone,
+          location: parsed.location || prev.location,
+          linkedin: parsed.linkedin || prev.linkedin,
+          skills: parsed.skills?.length > 0 ? parsed.skills : prev.skills,
+          languages: parsed.languages?.length > 0 ? parsed.languages : prev.languages,
+        }));
+
+        // Update experiences
+        if (parsed.experiences && parsed.experiences.length > 0) {
+          setExperiences(parsed.experiences.map(exp => ({
+            company: exp.company || '',
+            position: exp.position || '',
+            description: exp.description || '',
+            startDate: exp.startDate || '',
+            endDate: exp.endDate || '',
+            logoUrl: ''
+          })));
+        }
+
+        setScanSuccess(true);
+        showToast('Analyse IA terminée avec succès !');
+        setTimeout(() => setScanSuccess(false), 3000);
+      }
+    } catch (err) {
+      console.error('AI Scan Error:', err);
+      showToast('Le service d\'analyse est momentanément indisponible. Veuillez réessayer plus tard.', 'error');
+    } finally {
+      setIsScanning(false);
+      // Reset input so the same file can be uploaded again if needed
+      e.target.value = null;
+    }
+  };
+
   const inputClass = "w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-[var(--color-ivory)] placeholder:text-[var(--color-white-muted)] focus:outline-none focus:border-[var(--color-champagne)] focus:ring-1 focus:ring-[var(--color-champagne)] transition-all text-sm";
   const labelClass = "block text-sm font-medium text-[var(--color-white-muted)] mb-1.5";
 
   return (
-    <div className="min-h-screen bg-[var(--color-obsidian)] flex flex-col">
+    <div className="min-h-screen bg-[var(--color-obsidian)] flex flex-col print:bg-white print:min-h-0">
       {/* Top bar */}
-      <div className="h-16 border-b border-[rgba(255,255,255,0.06)] bg-[var(--color-charcoal)] flex items-center justify-between px-6 shrink-0">
+      <div className="h-16 border-b border-[rgba(255,255,255,0.06)] bg-[var(--color-charcoal)] flex items-center justify-between px-6 shrink-0 print:hidden">
         <div className="flex items-center gap-4">
           <button onClick={() => navigate('/dashboard')} className="text-[var(--color-white-muted)] hover:text-[var(--color-ivory)] transition-colors">
             <ArrowLeft size={20} />
@@ -110,19 +449,29 @@ export default function CVEditor() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="btn-ghost !py-2 !px-4 !text-xs flex items-center gap-1.5">
-            <Save size={14} /> Sauvegarder
+          <button 
+            onClick={handleSave}
+            disabled={saving}
+            className="btn-ghost !py-2 !px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50"
+          >
+            {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} 
+            {saving ? 'Sauvegarde...' : 'Sauvegarder'}
           </button>
-          <button className="btn-primary !py-2 !px-4 !text-xs flex items-center gap-1.5">
-            <Download size={14} /> Exporter PDF
+          <button 
+            onClick={handleExport}
+            disabled={isCheckingPayment}
+            className="btn-primary !py-2 !px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50"
+          >
+            {isCheckingPayment ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} 
+            Exporter PDF
           </button>
         </div>
       </div>
 
       {/* Editor area */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden print:overflow-visible">
         {/* LEFT — Form */}
-        <div className="w-[45%] overflow-y-auto p-6 space-y-8 border-r border-[rgba(255,255,255,0.06)]">
+        <div className="w-[45%] overflow-y-auto p-6 space-y-8 border-r border-[rgba(255,255,255,0.06)] print:hidden">
           {/* AI Import Box */}
           <section className="relative overflow-hidden rounded-2xl border border-[rgba(201,169,110,0.3)] bg-gradient-to-br from-[rgba(201,169,110,0.05)] to-transparent p-6 group cursor-pointer transition-colors hover:border-[var(--color-champagne)]">
             <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-champagne)] opacity-5 blur-[60px] rounded-full group-hover:opacity-10 transition-opacity" />
@@ -135,9 +484,30 @@ export default function CVEditor() {
                 <p className="text-xs text-[var(--color-white-muted)] mb-3 leading-relaxed">
                   Importez une photo ou un PDF de votre ancien CV. L'IA de CV Pro va lire le document et remplir toutes les cases ci-dessous instantanément.
                 </p>
-                <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--color-champagne)] text-[var(--color-obsidian)] text-xs font-bold hover:scale-105 transition-transform">
-                  <Upload size={14} /> Importer un document
-                </button>
+                <label className={`relative inline-block ${isScanning ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+                  <input
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    disabled={isScanning}
+                  />
+                  <div
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                      scanSuccess 
+                        ? 'bg-green-500 text-white' 
+                        : 'bg-[var(--color-champagne)] text-[var(--color-obsidian)] hover:scale-105'
+                    } ${isScanning ? 'opacity-70 scale-100' : ''}`}
+                  >
+                    {isScanning ? (
+                      <><Loader2 size={14} className="animate-spin" /> Analyse en cours...</>
+                    ) : scanSuccess ? (
+                      <>Import réussi !</>
+                    ) : (
+                      <><Upload size={14} /> Importer un document</>
+                    )}
+                  </div>
+                </label>
               </div>
             </div>
           </section>
@@ -149,9 +519,37 @@ export default function CVEditor() {
               Informations personnelles
             </h3>
             <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
-                <label className={labelClass}>Nom complet *</label>
-                <input type="text" value={cvData.fullName} onChange={e => updateField('fullName', e.target.value)} placeholder="Abdou Diallo" className={inputClass} />
+              <div className="col-span-2 flex gap-4">
+                <div className="flex-1">
+                  <label className={labelClass}>Nom complet *</label>
+                  <input type="text" value={cvData.fullName} onChange={e => updateField('fullName', e.target.value)} placeholder="Abdou Diallo" className={inputClass} />
+                </div>
+                <div className="shrink-0 flex flex-col items-center justify-end pb-1 relative">
+                  {cvData.photo && !isUploadingPhoto && (
+                    <button 
+                      onClick={() => updateField('photo', '')} 
+                      className="absolute -top-1 -right-1 z-10 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600 transition-colors shadow-sm"
+                      title="Supprimer la photo"
+                    >
+                      <Trash2 size={10} />
+                    </button>
+                  )}
+                  <label className="cursor-pointer group relative" title="Ajouter une photo de profil">
+                    <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" disabled={isUploadingPhoto} />
+                    <div className="w-[46px] h-[46px] rounded-full border-2 border-dashed border-[rgba(201,169,110,0.3)] flex items-center justify-center overflow-hidden bg-[rgba(201,169,110,0.05)] hover:border-[var(--color-champagne)] transition-all">
+                      {isUploadingPhoto ? (
+                        <Loader2 size={20} className="animate-spin text-[var(--color-champagne)]" />
+                      ) : cvData.photo ? (
+                        <img src={cvData.photo} alt="Profil" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="flex flex-col items-center gap-1 opacity-50 group-hover:opacity-100 transition-opacity text-[var(--color-champagne)]">
+                          <Camera size={16} />
+                          <span className="text-[8px] font-bold uppercase tracking-wider">Photo</span>
+                        </div>
+                      )}
+                    </div>
+                  </label>
+                </div>
               </div>
               <div className="col-span-2">
                 <label className={labelClass}>Titre du poste *</label>
@@ -205,6 +603,8 @@ export default function CVEditor() {
             </div>
           </section>
 
+          {!isMediaKit ? (
+            <>
           {/* Experiences */}
           <section>
             <h3 className="text-lg font-bold text-[var(--color-ivory)] mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-serif)' }}>
@@ -334,15 +734,141 @@ export default function CVEditor() {
               <button onClick={addLanguage} className="btn-ghost !py-2 !px-4 !text-xs shrink-0">Ajouter</button>
             </div>
           </section>
+            </>
+          ) : (
+            <>
+              {/* Media Kit Fields */}
+              <section>
+                <h3 className="text-lg font-bold text-[var(--color-ivory)] mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-serif)' }}>
+                  <span className="w-7 h-7 rounded-lg bg-[rgba(201,169,110,0.15)] flex items-center justify-center text-xs text-[var(--color-champagne)] font-bold">3</span>
+                  Statistiques Réseaux Sociaux
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelClass}>Abonnés Instagram</label>
+                    <input type="text" value={cvData.socialStats?.instagram || ''} onChange={e => updateSocialStat('instagram', e.target.value)} placeholder="Ex: 10.5K" className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Abonnés TikTok</label>
+                    <input type="text" value={cvData.socialStats?.tiktok || ''} onChange={e => updateSocialStat('tiktok', e.target.value)} placeholder="Ex: 50K" className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Abonnés YouTube</label>
+                    <input type="text" value={cvData.socialStats?.youtube || ''} onChange={e => updateSocialStat('youtube', e.target.value)} placeholder="Ex: 5K" className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Taux d'Engagement</label>
+                    <input type="text" value={cvData.socialStats?.engagement || ''} onChange={e => updateSocialStat('engagement', e.target.value)} placeholder="Ex: 4.5%" className={inputClass} />
+                  </div>
+                </div>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-bold text-[var(--color-ivory)] mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-serif)' }}>
+                  <span className="w-7 h-7 rounded-lg bg-[rgba(201,169,110,0.15)] flex items-center justify-center text-xs text-[var(--color-champagne)] font-bold">4</span>
+                  Ligne Éditoriale
+                </h3>
+                <div className="mb-4">
+                  <label className={labelClass}>Réseau Principal</label>
+                  <input type="text" value={cvData.mediaKitDetails?.primaryNetwork || ''} onChange={e => updateMediaKitDetail('primaryNetwork', e.target.value)} placeholder="Ex: TIKTOK" className={inputClass} />
+                </div>
+                <label className={labelClass}>Thèmes abordés (Entrée pour ajouter)</label>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {(cvData.mediaKitDetails?.editorial || []).map((theme, i) => (
+                    <span key={i} className="px-3 py-1.5 rounded-full bg-[rgba(201,169,110,0.1)] border border-[rgba(201,169,110,0.2)] text-xs text-[var(--color-champagne)] flex items-center gap-1.5">
+                      {theme}
+                      <button onClick={() => removeTheme(i)} className="hover:text-red-400">×</button>
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input type="text" value={themeInput} onChange={e => setThemeInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addTheme())} placeholder="Ex: Lifestyle, Mode, Tech..." className={`${inputClass} flex-1`} />
+                  <button onClick={addTheme} className="btn-ghost !py-2 !px-4 !text-xs shrink-0">Ajouter</button>
+                </div>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-bold text-[var(--color-ivory)] mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-serif)' }}>
+                  <span className="w-7 h-7 rounded-lg bg-[rgba(201,169,110,0.15)] flex items-center justify-center text-xs text-[var(--color-champagne)] font-bold">5</span>
+                  Localisation de l'Audience
+                </h3>
+                {(cvData.mediaKitDetails?.demographics || []).map((demo, idx) => (
+                  <DemographicItem 
+                    key={idx} 
+                    demo={demo} 
+                    idx={idx} 
+                    updateDemographic={updateDemographic} 
+                    removeDemographic={removeDemographic} 
+                    inputClass={inputClass} 
+                  />
+                ))}
+                <button onClick={addDemographic} className="text-sm font-medium text-[var(--color-champagne)] mt-3 flex items-center gap-1.5 hover:bg-[rgba(201,169,110,0.1)] px-3 py-1.5 rounded-lg transition-colors"><Plus size={16} /> Ajouter une localisation</button>
+              </section>
+
+              <section className="pb-8">
+                <h3 className="text-lg font-bold text-[var(--color-ivory)] mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-serif)' }}>
+                  <span className="w-7 h-7 rounded-lg bg-[rgba(201,169,110,0.15)] flex items-center justify-center text-xs text-[var(--color-champagne)] font-bold">6</span>
+                  Collaborations & Marques
+                </h3>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {(cvData.collaborations || []).map((collab, i) => (
+                    <span key={i} className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-[var(--color-ivory)] flex items-center gap-1.5">
+                      {collab}
+                      <button onClick={() => removeCollaboration(i)} className="hover:text-red-400">×</button>
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input type="text" value={collabInput} onChange={e => setCollabInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCollaboration())} placeholder="Ex: L'Oréal, Nike, Samsung..." className={`${inputClass} flex-1`} />
+                  <button onClick={addCollaboration} className="btn-ghost !py-2 !px-4 !text-xs shrink-0">Ajouter</button>
+                </div>
+              </section>
+            </>
+          )}
         </div>
 
         {/* RIGHT — Live Preview */}
-        <div className="flex-1 overflow-y-auto bg-[var(--color-graphite)] p-8 flex items-start justify-center">
-          <div className="w-full max-w-[600px] shadow-[var(--shadow-cinematic)] rounded-lg overflow-hidden">
-            <CVPreview template={template} cvData={cvData} experiences={experiences} />
+        <div className="flex-1 overflow-y-auto bg-[var(--color-graphite)] p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:absolute print:inset-0 print:block print:w-full print:h-full">
+          <div className="w-full max-w-[600px] shadow-[var(--shadow-cinematic)] rounded-lg overflow-hidden print:max-w-none print:shadow-none print:rounded-none print:w-[210mm] print:h-[297mm] print:mx-auto">
+            <CVPreview 
+              template={template} 
+              cvData={cvData} 
+              experiences={experiences} 
+              onPhotoUpload={handlePhotoUpload}
+              onPhotoRemove={() => updateField('photo', '')}
+              isUploadingPhoto={isUploadingPhoto}
+            />
           </div>
         </div>
       </div>
+
+      {/* Toast Notification */}
+      {toast.show && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className={`px-6 py-3 rounded-full shadow-lg border flex items-center gap-3 text-sm font-medium
+            ${toast.type === 'error' 
+              ? 'bg-red-500/10 border-red-500/20 text-red-400' 
+              : 'bg-green-500/10 border-green-500/20 text-green-400'
+            }`}
+          >
+            {toast.type === 'error' ? '⚠️' : '✅'}
+            {toast.message}
+          </div>
+        </div>
+      )}
+
+      {/* Payment Modal Simulation */}
+      <PaymentModal 
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        onSuccess={() => {
+          showToast('Paiement réussi ! Vous pouvez maintenant exporter.');
+          // setTimeout(() => window.print(), 500);
+        }}
+        templateId={templateId}
+        templateName={`Modèle: ${template?.name || templateId}`}
+        price={isMediaKit ? "2 000" : "1 500"}
+      />
     </div>
   );
 }

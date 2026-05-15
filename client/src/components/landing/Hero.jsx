@@ -8,7 +8,7 @@ export default function Hero() {
   const parallaxY = useParallax(0.3);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[100svh] flex flex-col items-center justify-center overflow-hidden pt-32 md:pt-40 pb-20 md:pb-12">
       {/* Background gradient orbs */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div
@@ -33,18 +33,6 @@ export default function Hero() {
 
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto px-6 text-center" style={{ transform: `translateY(${parallaxY * -0.2}px)` }}>
-        {/* Badge */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[rgba(201,169,110,0.1)] border border-[rgba(201,169,110,0.2)] mb-8"
-        >
-          <Sparkles size={14} className="text-[var(--color-champagne)]" />
-          <span className="text-xs font-medium text-[var(--color-champagne)] tracking-wider uppercase">
-            Propulsé par GPT-4o
-          </span>
-        </motion.div>
 
         {/* Title */}
         <motion.h1
@@ -87,6 +75,20 @@ export default function Hero() {
             Voir les Portfolios
           </a>
         </motion.div>
+
+        {/* Badge - Moved from top to not overlap nav */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 1.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[rgba(201,169,110,0.1)] border border-[rgba(201,169,110,0.2)] mt-12"
+        >
+          <Sparkles size={14} className="text-[var(--color-champagne)]" />
+          <span className="text-xs font-medium text-[var(--color-champagne)] tracking-wider uppercase">
+            Propulsé par GPT-4o
+          </span>
+        </motion.div>
+
 
         {/* Trust line */}
         <motion.p

@@ -7,6 +7,10 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import authRoutes from './routes/auth.js';
 import cvRoutes from './routes/cv.js';
+import aiRoutes from './routes/ai.js';
+import portfolioRoutes from './routes/portfolio.js';
+import uploadRoutes from './routes/upload.js';
+import adminRoutes from './routes/admin.js';
 
 // Load .env from root
 const __filename = fileURLToPath(import.meta.url);
@@ -23,7 +27,7 @@ const isProd = process.env.NODE_ENV === 'production';
 
 // Helmet — Headers de sécurité HTTP
 app.use(helmet({
-  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  crossOriginResourcePolicy: { policy: 'cross-origin' }, // Permet de charger les images cross-origin
   contentSecurityPolicy: isProd ? undefined : false,
 }));
 
@@ -56,8 +60,11 @@ const apiLimiter = rateLimit({
 });
 
 // Body parsing avec limite
-app.use(express.json({ limit: '5mb' }));
-app.use(express.urlencoded({ extended: true, limit: '5mb' }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Static files (Uploads)
+app.use('/uploads', express.static(join(__dirname, '../public/uploads')));
 
 // ==========================================
 // ROUTES
@@ -80,8 +87,19 @@ app.use('/api/auth', authLimiter, authRoutes);
 // CV routes avec rate limiting standard
 app.use('/api/cv', apiLimiter, cvRoutes);
 
+// AI routes avec rate limiting standard
+app.use('/api/ai', apiLimiter, aiRoutes);
+
+// Portfolio routes
+app.use('/api/portfolios', apiLimiter, portfolioRoutes);
+
+// Upload routes (Files, Images)
+app.use('/api/upload', apiLimiter, uploadRoutes);
+
+// Admin routes
+app.use('/api/admin', adminRoutes);
+
 // Future routes
-// app.use('/api/portfolio', apiLimiter, portfolioRoutes);
 // app.use('/api/enhance', apiLimiter, enhanceRoutes);
 // app.use('/api/payment', apiLimiter, paymentRoutes);
 

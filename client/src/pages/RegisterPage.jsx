@@ -6,7 +6,7 @@ import { useAuth } from '../store/AuthContext';
 import { useGoogleLogin } from '@react-oauth/google';
 
 export default function RegisterPage() {
-  const { register } = useAuth();
+  const { register, googleLogin: contextGoogleLogin } = useAuth();
   const navigate = useNavigate();
 
   const [name, setName] = useState('');
@@ -50,28 +50,16 @@ export default function RegisterPage() {
           headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
         }).then(res => res.json());
 
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/google`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: userInfo.email,
-            name: userInfo.name,
-            avatar: userInfo.picture,
-            googleId: userInfo.sub
-          })
+        await contextGoogleLogin({
+          email: userInfo.email,
+          name: userInfo.name,
+          avatar: userInfo.picture,
+          googleId: userInfo.sub
         });
 
-        const data = await response.json();
-        
-        if (!response.ok) {
-          throw new Error(data.error || 'Erreur lors de l\'inscription avec Google');
-        }
-
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        window.location.href = '/dashboard';
+        navigate('/dashboard');
       } catch (err) {
-        setError(err.message);
+        setError(err.response?.data?.error || err.message || 'Erreur lors de l\'inscription avec Google');
         setLoading(false);
       }
     },

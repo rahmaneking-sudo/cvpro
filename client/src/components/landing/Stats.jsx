@@ -12,7 +12,7 @@ function StatCard({ value, suffix, label, delay }) {
         <div className="text-4xl md:text-5xl font-bold text-gradient-gold mb-2" style={{ fontFamily: 'var(--font-serif)' }}>
           {count.toLocaleString()}{suffix}
         </div>
-        <div className="text-sm text-[var(--color-white-muted)] uppercase tracking-wider">{label}</div>
+        <div className="text-sm text-[var(--color-white-muted)] uppercase tracking-wider break-words">{label}</div>
         <div className="divider-gold mx-auto mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       </div>
     </RevealSection>

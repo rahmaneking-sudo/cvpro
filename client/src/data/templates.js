@@ -39,9 +39,9 @@ export const templates = [
   { id: 'african-royalty', name: 'African Royalty', series: 'african', tier: 'premium', accent: '#B8860B', bg: '#0A0505', text: '#FFF8E7', secondary: '#1A0F08', layout: 'asymmetric' },
   { id: 'le-parisien', name: 'Le Parisien', series: 'executive', tier: 'premium', accent: '#1A1A1A', bg: '#FFFDF5', text: '#1A1A1A', secondary: '#F5F0E5', layout: 'asymmetric' },
   { id: 'matrix-dev', name: 'Matrix Dev', series: 'tech', tier: 'premium', accent: '#22C55E', bg: '#000000', text: '#00FF41', secondary: '#0A0A0A', layout: 'two-column' },
-  { id: 'media-kit-influence', name: 'Media Kit Influence', series: 'creative', tier: 'premium', accent: '#FF1493', bg: '#1A0B13', text: '#FFFFFF', secondary: '#2D1422', layout: 'media-kit' },
-  { id: 'media-kit-creator', name: 'Media Kit Creator', series: 'tech', tier: 'premium', accent: '#FFCC00', bg: '#0A0A0A', text: '#FFFFFF', secondary: '#1A1A1A', layout: 'media-kit' },
-  { id: 'media-kit-brand', name: 'Media Kit Brand', series: 'executive', tier: 'premium', accent: '#000000', bg: '#FFFFFF', text: '#1A1A1A', secondary: '#F5F5F5', layout: 'media-kit' },
+  { id: 'media-kit-influence', name: 'Media Kit Influence', series: 'creative', tier: 'media-kit', accent: '#FF1493', bg: '#1A0B13', text: '#FFFFFF', secondary: '#2D1422', layout: 'media-kit' },
+  { id: 'media-kit-creator', name: 'Media Kit Creator', series: 'tech', tier: 'media-kit', accent: '#FFCC00', bg: '#0A0A0A', text: '#FFFFFF', secondary: '#1A1A1A', layout: 'media-kit' },
+  { id: 'media-kit-brand', name: 'Media Kit Brand', series: 'executive', tier: 'media-kit', accent: '#000000', bg: '#FFFFFF', text: '#1A1A1A', secondary: '#F5F5F5', layout: 'media-kit' },
 ];
 
 export const seriesLabels = {
@@ -53,7 +53,8 @@ export const seriesLabels = {
 
 export const tierLabels = {
   standard: { fr: 'Standard (1 500 F - 1 CV)', shortFr: 'Standard', en: 'Standard', color: '#43A047', tooltip: 'Forfait 1 500 FCFA : Téléchargement unique d\'un design standard.' },
-  premium: { fr: 'Pack Premium (5 000 F - CV illimités)', shortFr: 'Premium', en: 'Premium', color: '#C9A96E', tooltip: 'Forfait 5 000 FCFA : Accès illimité à tous les modèles premiums et Media Kits pour 1 mois.' },
+  premium: { fr: 'Pack Premium (5 000 F - CV illimités)', shortFr: 'Premium', en: 'Premium', color: '#C9A96E', tooltip: 'Forfait 5 000 FCFA : Accès illimité à tous les modèles premiums.' },
+  'media-kit': { fr: 'Media Kit Pro (2 000 F)', shortFr: 'Media Kit', en: 'Media Kit', color: '#8B5CF6', tooltip: 'Forfait 2 000 FCFA : Téléchargement d\'un Media Kit professionnel pour influenceurs.' },
 };
 
 export function getTemplate(id) {

@@ -33,8 +33,8 @@ export default function Navbar() {
       animate={{ y: 0 }}
       transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
       className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${
-        scrolled
-          ? 'bg-[rgba(10,10,10,0.85)] backdrop-blur-xl border-b border-[rgba(201,169,110,0.1)]'
+        scrolled || mobileOpen
+          ? 'bg-[rgba(10,10,10,0.95)] backdrop-blur-2xl border-b border-[rgba(201,169,110,0.1)]'
           : 'bg-transparent'
       }`}
     >

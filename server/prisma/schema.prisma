@@ -132,3 +132,15 @@ model Purchase {
 
   @@map("purchases")
 }
+
+// ==========================================
+// ANALYTICS & ADMIN
+// ==========================================
+
+model Analytics {
+  id        String   @id @default("global")
+  views     Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@map("analytics")
+}

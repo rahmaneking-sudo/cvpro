@@ -1,12 +1,12 @@
 import { useAuth } from '../store/AuthContext';
 import { motion } from 'framer-motion';
-import { FileText, Wand2, Globe, Briefcase, Layout, LogOut, User, ShoppingBag } from 'lucide-react';
+import { FileText, Wand2, Globe, Briefcase, Layout, LogOut, User, ShoppingBag, ShieldAlert } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 const modules = [
   { id: 'cv-creator', icon: FileText, label: 'Créateur de CV', desc: '16 modèles cinématographiques', color: '#C9A96E', route: '/dashboard/cv/templates' },
-  { id: 'cv-enhance', icon: Wand2, label: 'Améliorer mon CV', desc: 'IA GPT-4o • 2,29€/utilisation', color: '#D4B878', route: '#' },
-  { id: 'cv-online', icon: Globe, label: 'CV en ligne', desc: 'Page web publique animée', color: '#43A047', route: '#' },
+  { id: 'cv-enhance', icon: Wand2, label: 'Améliorer mon CV', desc: 'IA GPT-4o • 2,29€/utilisation', color: '#D4B878', route: '/dashboard/cv/enhance' },
+  { id: 'cv-online', icon: Globe, label: 'CV en ligne', desc: 'Page web publique animée', color: '#43A047', route: '/dashboard/cv/online' },
   { id: 'portfolio-premium', icon: Briefcase, label: 'Portfolio Premium', desc: '8 modèles cinématographiques', color: '#6366F1', route: '/dashboard/portfolio/templates' },
   { id: 'portfolio-simple', icon: Layout, label: 'Portfolio Simple', desc: '8 modèles avec export PDF', color: '#FF6B35', route: '/dashboard/portfolio/templates' },
 ];
@@ -37,6 +37,7 @@ export default function DashboardPage() {
           {modules.map((mod, i) => (
             <motion.button
               key={mod.id}
+              onClick={() => navigate(mod.route)}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.08, duration: 0.4 }}
@@ -55,7 +56,14 @@ export default function DashboardPage() {
           {/* Separator */}
           <div className="!my-4 h-[1px] bg-white/5" />
 
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left hover:bg-white/5 transition-colors">
+          {user?.email === 'rahmaneking@gmail.com' && (
+            <button onClick={() => navigate('/admin')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left bg-[var(--color-champagne)]/10 hover:bg-[var(--color-champagne)]/20 transition-colors mb-2">
+              <ShieldAlert size={18} className="text-[var(--color-champagne)]" />
+              <span className="text-sm font-bold text-[var(--color-champagne)]">Admin Dashboard</span>
+            </button>
+          )}
+
+          <button onClick={() => navigate('/dashboard/purchases')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left hover:bg-white/5 transition-colors">
             <ShoppingBag size={18} className="text-[var(--color-white-muted)]" />
             <span className="text-sm text-[var(--color-white-muted)]">Mes achats</span>
           </button>

@@ -8,7 +8,7 @@ import { useGoogleLogin } from '@react-oauth/google';
 
 export default function LoginPage() {
   const { t } = useTranslation();
-  const { login } = useAuth();
+  const { login, googleLogin: contextGoogleLogin } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
@@ -43,35 +43,21 @@ export default function LoginPage() {
       try {
         setLoading(true);
         setError('');
-        // Fetch user info from Google
+        
         const userInfo = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
           headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
         }).then(res => res.json());
 
-        // Send to our backend
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/google`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: userInfo.email,
-            name: userInfo.name,
-            avatar: userInfo.picture,
-            googleId: userInfo.sub
-          })
+        await contextGoogleLogin({
+          email: userInfo.email,
+          name: userInfo.name,
+          avatar: userInfo.picture,
+          googleId: userInfo.sub
         });
 
-        const data = await response.json();
-        
-        if (!response.ok) {
-          throw new Error(data.error || 'Erreur lors de la connexion Google');
-        }
-
-        // Save token (Assuming login method in AuthContext can take a token/user object or similar, but wait, AuthContext might not handle Google token parsing directly yet. Let's just store token and user in localStorage and reload/redirect)
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        window.location.href = '/dashboard';
+        navigate('/dashboard');
       } catch (err) {
-        setError(err.message);
+        setError(err.response?.data?.error || err.message || 'La connexion avec Google a échoué');
         setLoading(false);
       }
     },

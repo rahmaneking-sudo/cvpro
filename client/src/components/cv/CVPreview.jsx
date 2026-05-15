@@ -1,14 +1,22 @@
-import { Mail, Phone, MapPin, Globe, Link2 } from 'lucide-react';
+import { Mail, Phone, MapPin, Globe, Link2, Camera, Trash2, Loader2 } from 'lucide-react';
 
 /* =========================================================
    UTILITIES & COMPONENTS
    ========================================================= */
 
-function Initials({ name, accent, isDark }) {
+function Initials({ name, accent, photo }) {
+  if (photo) {
+    return (
+      <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border-2" style={{ borderColor: accent }}>
+        <img src={photo} alt={name} className="w-full h-full object-cover" />
+      </div>
+    );
+  }
+
   const initials = name ? name.substring(0, 2).toUpperCase() : '??';
   return (
     <div
-      className="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
+      className="w-12 h-12 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
       style={{ background: `${accent}20`, color: accent, border: `1px solid ${accent}30` }}
     >
       {initials}
@@ -45,7 +53,10 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
 
   return (
     <div className="p-10">
-      <header className="text-center mb-8 pb-6 border-b" style={{ borderColor: dividerColor }}>
+      <header className="flex flex-col items-center text-center mb-8 pb-6 border-b" style={{ borderColor: dividerColor }}>
+        <div className="mb-4">
+          <Initials name={cvData.fullName} accent={accent} photo={cvData.photo} />
+        </div>
         <h1 className="text-3xl font-bold tracking-tight mb-2 uppercase" style={{ color: text }}>
           {cvData.fullName || 'Votre Nom'}
         </h1>
@@ -155,9 +166,13 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors }) 
   return (
     <div className="flex min-h-[842px]">
       <aside className="w-[32%] p-8 flex flex-col" style={{ background: secondary }}>
-        <div className="w-24 h-24 rounded-full mb-6 mx-auto flex items-center justify-center text-2xl font-bold shadow-lg"
+        <div className="w-24 h-24 rounded-full mb-6 mx-auto flex items-center justify-center text-2xl font-bold shadow-lg overflow-hidden relative"
           style={{ background: `linear-gradient(135deg, ${accent}, ${accent}80)`, color: secondary }}>
-          {cvData.fullName ? cvData.fullName.split(' ').map(n => n[0]).join('').toUpperCase() : '??'}
+          {cvData.photo ? (
+            <img src={cvData.photo} alt={cvData.fullName} className="w-full h-full object-cover absolute inset-0" />
+          ) : (
+            cvData.fullName ? cvData.fullName.split(' ').map(n => n[0]).join('').toUpperCase() : '??'
+          )}
         </div>
 
         <section className="space-y-3 mb-8">
@@ -558,7 +573,7 @@ function LayoutCreative({ template, cvData, experiences, educations, colors }) {
    6. MEDIA KIT (Influencer Layout)
    - Heavy focus on stats, collaborations, brand identity.
    ========================================================= */
-function LayoutMediaKit({ template, cvData, experiences, educations, colors }) {
+function LayoutMediaKit({ template, cvData, experiences, educations, colors, onPhotoUpload, onPhotoRemove, isUploadingPhoto }) {
   const { accent, text, secondary, bg } = template;
   const { mutedColor, dividerColor } = colors;
 
@@ -573,9 +588,43 @@ function LayoutMediaKit({ template, cvData, experiences, educations, colors }) {
             {cvData.jobTitle || 'Influenceur & Créateur'}
           </h2>
         </div>
-        <div className="w-28 h-28 rounded-full border-4 shadow-2xl shrink-0 flex items-center justify-center text-4xl font-bold"
-          style={{ borderColor: accent, background: bg, color: accent }}>
-          {cvData.fullName ? cvData.fullName.split(' ').map(n => n[0]).join('').toUpperCase() : '??'}
+        <div className="relative shrink-0 group">
+          {cvData.photo && !isUploadingPhoto && onPhotoRemove && (
+            <button 
+              onClick={onPhotoRemove}
+              className="absolute -top-2 -right-2 z-20 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600 transition-colors shadow-lg opacity-0 group-hover:opacity-100 print:hidden"
+              title="Supprimer la photo"
+            >
+              <Trash2 size={14} />
+            </button>
+          )}
+
+          <div className="w-28 h-28 rounded-full border-4 shadow-2xl flex items-center justify-center text-4xl font-bold overflow-hidden relative"
+            style={{ borderColor: accent, background: bg, color: accent }}>
+
+            {isUploadingPhoto ? (
+              <Loader2 size={32} className="animate-spin text-current z-10" />
+            ) : cvData.photo ? (
+              <img src={cvData.photo} alt={cvData.fullName} className="w-full h-full object-cover absolute inset-0 z-0" />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center z-0 opacity-50">
+                {cvData.fullName ? cvData.fullName.split(' ').map(n => n[0]).join('').toUpperCase() : '??'}
+              </div>
+            )}
+
+            {/* Upload overlay */}
+            {onPhotoUpload && (
+              <label className={`absolute inset-0 cursor-pointer flex flex-col items-center justify-center text-white transition-opacity z-10 print:hidden ${cvData.photo ? 'bg-black/40 opacity-0 group-hover:opacity-100' : 'bg-black/20 hover:bg-black/40 opacity-100'}`}>
+                <input type="file" accept="image/*" onChange={onPhotoUpload} className="hidden" disabled={isUploadingPhoto} />
+                {!isUploadingPhoto && (
+                  <>
+                    <Camera size={24} className="mb-1" />
+                    <span className="text-[9px] font-bold uppercase tracking-widest">Photo</span>
+                  </>
+                )}
+              </label>
+            )}
+          </div>
         </div>
       </header>
 
@@ -673,7 +722,7 @@ function LayoutMediaKit({ template, cvData, experiences, educations, colors }) {
 /* =========================================================
    MAIN EXPORT
    ========================================================= */
-export default function CVPreview({ template, cvData, experiences, educations }) {
+export default function CVPreview({ template, cvData, experiences, educations, onPhotoUpload, onPhotoRemove, isUploadingPhoto }) {
   if (!template) return null;
 
   const { bg, text, layout } = template;
@@ -695,13 +744,22 @@ export default function CVPreview({ template, cvData, experiences, educations })
 
   return (
     <div
-      className="w-full min-h-[842px] relative"
+      className="w-full min-h-[297mm] relative print:min-h-[297mm]"
       style={{
         background: bg,
         color: text,
       }}
     >
-      <LayoutComponent template={template} cvData={cvData} experiences={experiences} educations={educations} colors={colors} />
+      <LayoutComponent 
+        template={template} 
+        cvData={cvData} 
+        experiences={experiences} 
+        educations={educations} 
+        colors={colors}
+        onPhotoUpload={onPhotoUpload}
+        onPhotoRemove={onPhotoRemove}
+        isUploadingPhoto={isUploadingPhoto}
+      />
     </div>
   );
 }

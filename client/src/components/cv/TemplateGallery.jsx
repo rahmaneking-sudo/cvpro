@@ -204,7 +204,7 @@ export default function TemplateGallery() {
   const [previewTemplate, setPreviewTemplate] = useState(null);
 
   const series = ['all', 'executive', 'creative', 'tech', 'african'];
-  const tiers = ['all', 'standard', 'premium'];
+  const tiers = ['all', 'standard', 'media-kit', 'premium'];
 
   const filtered = useMemo(() => templates.filter(t => {
     if (activeSeries !== 'all' && t.series !== activeSeries) return false;
@@ -224,6 +224,7 @@ export default function TemplateGallery() {
     all: templates.length,
     standard: templates.filter(t => t.tier === 'standard').length,
     premium: templates.filter(t => t.tier === 'premium').length,
+    'media-kit': templates.filter(t => t.tier === 'media-kit').length,
   }), []);
 
   return (
@@ -274,6 +275,7 @@ export default function TemplateGallery() {
               }`}
             >
               {t === 'standard' && <span className="w-2 h-2 rounded-full bg-[#43A047]" />}
+              {t === 'media-kit' && <span className="w-2 h-2 rounded-full bg-[#8B5CF6]" />}
               {t === 'premium' && <span className="w-2 h-2 rounded-full bg-[#C9A96E]" />}
               {t === 'all' ? `Tous (${counts.all})` : `${tierLabels[t].fr} (${counts[t]})`}
             </button>
