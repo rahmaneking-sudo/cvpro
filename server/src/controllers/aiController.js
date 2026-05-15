@@ -87,7 +87,7 @@ Si une information est manquante, mets une chaîne vide "" ou un tableau vide []
     }
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4o-mini",
       messages: messages,
       response_format: { type: "json_object" },
       temperature: 0.2,

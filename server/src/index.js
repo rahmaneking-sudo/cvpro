@@ -121,9 +121,13 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`\n  🎬 CV Pro API running on http://localhost:${PORT}`);
-  console.log(`  🔒 Mode: ${isProd ? 'PRODUCTION' : 'DEVELOPMENT'}\n`);
-});
+// Vercel Serverless Functions doesn't need app.listen()
+// We only start the server if it's run directly
+if (process.env.NODE_ENV !== 'production' || process.env.RUN_LOCAL === 'true') {
+  app.listen(PORT, () => {
+    console.log(`\n  🎬 CV Pro API running on http://localhost:${PORT}`);
+    console.log(`  🔒 Mode: ${isProd ? 'PRODUCTION' : 'DEVELOPMENT'}\n`);
+  });
+}
 
 export default app;
