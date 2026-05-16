@@ -115,6 +115,17 @@
     background: var(--color-champagne);
     border-radius: var(--radius-full);
   }
+
+  /* Select dropdowns - force dark scheme for readability */
+  select {
+    color-scheme: dark;
+  }
+  
+  select option {
+    background-color: #1C1C1E;
+    color: #F5F0EB;
+    padding: 8px;
+  }
 }
 
 /* ========================================

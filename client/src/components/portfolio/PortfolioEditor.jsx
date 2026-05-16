@@ -403,18 +403,19 @@ export default function PortfolioEditor() {
                     <select 
                       value={link.platform} 
                       onChange={e => updateSocialLink(i, 'platform', e.target.value)}
-                      className={inputClass}
+                      className={`${inputClass} appearance-none`}
+                      style={{ colorScheme: 'dark' }}
                     >
-                      <option value="LinkedIn">LinkedIn</option>
-                      <option value="Twitter">Twitter / X</option>
-                      <option value="Instagram">Instagram</option>
-                      <option value="TikTok">TikTok</option>
-                      <option value="Facebook">Facebook</option>
-                      <option value="YouTube">YouTube</option>
-                      <option value="Vimeo">Vimeo</option>
-                      <option value="Pinterest">Pinterest</option>
-                      <option value="Site Web">Site Web</option>
-                      <option value="Autre">Autre</option>
+                      <option value="LinkedIn" className="bg-[#1C1C1E] text-white">LinkedIn</option>
+                      <option value="Twitter" className="bg-[#1C1C1E] text-white">Twitter / X</option>
+                      <option value="Instagram" className="bg-[#1C1C1E] text-white">Instagram</option>
+                      <option value="TikTok" className="bg-[#1C1C1E] text-white">TikTok</option>
+                      <option value="Facebook" className="bg-[#1C1C1E] text-white">Facebook</option>
+                      <option value="YouTube" className="bg-[#1C1C1E] text-white">YouTube</option>
+                      <option value="Vimeo" className="bg-[#1C1C1E] text-white">Vimeo</option>
+                      <option value="Pinterest" className="bg-[#1C1C1E] text-white">Pinterest</option>
+                      <option value="Site Web" className="bg-[#1C1C1E] text-white">Site Web</option>
+                      <option value="Autre" className="bg-[#1C1C1E] text-white">Autre</option>
                     </select>
                   </div>
                   <div className="flex-1 relative">
