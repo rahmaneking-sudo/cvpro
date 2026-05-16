@@ -6,8 +6,7 @@ const router = Router();
 const prisma = new PrismaClient();
 
 const ADMIN_EMAIL = 'rahmaneking@gmail.com';
-// Hardcoded fallback if env not set
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'RahmanAdmin2026';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 // Middleware de vérification Admin
 const requireAdmin = async (req, res, next) => {
@@ -18,7 +17,7 @@ const requireAdmin = async (req, res, next) => {
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'cvpro_super_secret_key_2024');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     if (decoded.role !== 'superadmin' || decoded.email !== ADMIN_EMAIL) {
       return res.status(403).json({ error: 'Accès refusé. Réservé à l\'administrateur.' });
@@ -38,7 +37,7 @@ router.post('/login', async (req, res) => {
     if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
       const token = jwt.sign(
         { role: 'superadmin', email: ADMIN_EMAIL },
-        process.env.JWT_SECRET || 'cvpro_super_secret_key_2024',
+        process.env.JWT_SECRET,
         { expiresIn: '7d' }
       );
       return res.json({ success: true, token });
