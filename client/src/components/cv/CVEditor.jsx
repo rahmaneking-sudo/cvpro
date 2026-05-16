@@ -431,41 +431,41 @@ export default function CVEditor() {
   return (
     <div className="min-h-screen bg-[var(--color-obsidian)] flex flex-col print:bg-white print:min-h-0 print:block">
       {/* Top bar */}
-      <div className="h-16 border-b border-[rgba(255,255,255,0.06)] bg-[var(--color-charcoal)] flex items-center justify-between px-6 shrink-0 print:hidden">
-        <div className="flex items-center gap-4">
+      <div className="h-auto min-h-[3.5rem] border-b border-[rgba(255,255,255,0.06)] bg-[var(--color-charcoal)] flex items-center justify-between px-3 lg:px-6 py-2 shrink-0 print:hidden flex-wrap gap-2">
+        <div className="flex items-center gap-3">
           <button onClick={() => navigate('/dashboard')} className="text-[var(--color-white-muted)] hover:text-[var(--color-ivory)] transition-colors">
             <ArrowLeft size={20} />
           </button>
           <div>
             <h2 className="text-sm font-semibold text-[var(--color-ivory)]">Éditeur de CV</h2>
-            <p className="text-[11px] text-[var(--color-white-muted)]">{template?.name || templateId}</p>
+            <p className="text-[11px] text-[var(--color-white-muted)] hidden sm:block">{template?.name || templateId}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 lg:gap-3">
           <button 
             onClick={handleSave}
             disabled={saving}
-            className="btn-ghost !py-2 !px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50"
+            className="btn-ghost !py-2 !px-3 lg:!px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50"
           >
             {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} 
-            {saving ? 'Sauvegarde...' : 'Sauvegarder'}
+            <span className="hidden sm:inline">{saving ? 'Sauvegarde...' : 'Sauvegarder'}</span>
           </button>
           <button 
             onClick={handleExport}
             disabled={isCheckingPayment}
-            className="btn-primary !py-2 !px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50"
+            className="btn-primary !py-2 !px-3 lg:!px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50"
           >
             {isCheckingPayment ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} 
-            Exporter PDF
+            <span className="hidden sm:inline">Exporter PDF</span>
           </button>
         </div>
       </div>
 
       {/* Editor area */}
-      <div className="flex flex-1 overflow-hidden print:overflow-visible print:block print:h-auto">
+      <div className="flex flex-col lg:flex-row flex-1 overflow-hidden print:overflow-visible print:block print:h-auto">
         {/* LEFT — Form */}
-        <div className="w-[45%] overflow-y-auto p-6 space-y-8 border-r border-[rgba(255,255,255,0.06)] print:hidden">
+        <div className="w-full lg:w-[45%] overflow-y-auto p-4 lg:p-6 space-y-6 lg:space-y-8 border-b lg:border-b-0 lg:border-r border-[rgba(255,255,255,0.06)] print:hidden">
           {/* AI Import Box */}
           <section className="relative overflow-hidden rounded-2xl border border-[rgba(201,169,110,0.3)] bg-gradient-to-br from-[rgba(201,169,110,0.05)] to-transparent p-6 group cursor-pointer transition-colors hover:border-[var(--color-champagne)]">
             <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-champagne)] opacity-5 blur-[60px] rounded-full group-hover:opacity-10 transition-opacity" />
@@ -822,8 +822,8 @@ export default function CVEditor() {
         </div>
 
         {/* RIGHT — Live Preview */}
-        <div className="flex-1 overflow-y-auto bg-[var(--color-graphite)] p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:fixed print:inset-0 print:z-[99999]">
-          <div className="w-full max-w-[600px] shadow-[var(--shadow-cinematic)] rounded-lg overflow-hidden print:max-w-none print:shadow-none print:rounded-none print:w-[210mm] print:min-h-[297mm] print:mx-auto print:overflow-visible">
+        <div className="flex-1 overflow-y-auto bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:fixed print:inset-0 print:z-[99999]">
+          <div className="w-full max-w-[100%] lg:max-w-[600px] shadow-[var(--shadow-cinematic)] rounded-lg overflow-hidden print:max-w-none print:shadow-none print:rounded-none print:w-[210mm] print:min-h-[297mm] print:mx-auto print:overflow-visible">
             <CVPreview 
               template={template} 
               cvData={cvData} 

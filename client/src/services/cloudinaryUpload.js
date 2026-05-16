@@ -25,15 +25,12 @@ export async function uploadFile(file, options = {}) {
   }
 
   // Determine resource type for Cloudinary
-  let resourceType = 'image';
+  // Use 'auto' for PDFs and unknown types (raw type causes 401 access denied)
+  let resourceType = 'auto';
   if (file.type.startsWith('video/')) {
     resourceType = 'video';
-  } else if (file.type === 'application/pdf') {
-    resourceType = 'raw';
   } else if (file.type.startsWith('image/')) {
     resourceType = 'image';
-  } else {
-    resourceType = 'auto';
   }
 
   const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`;

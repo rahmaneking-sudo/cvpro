@@ -13,16 +13,16 @@ function LayoutStandard({ template, data }) {
   return (
     <div className="min-h-screen relative" style={{ background: bg, color: text }}>
       {/* Hero Section */}
-      <header className="px-10 py-20 flex flex-col items-center justify-center text-center border-b" style={{ borderColor: `${text}15` }}>
+      <header className="px-4 sm:px-10 py-10 sm:py-20 flex flex-col items-center justify-center text-center border-b" style={{ borderColor: `${text}15` }}>
         {data.photo && (
           <div className="w-24 h-24 rounded-full overflow-hidden mb-6 border-4 shadow-lg" style={{ borderColor: accent }}>
             <img src={data.photo} alt={fullName} className="w-full h-full object-cover" />
           </div>
         )}
-        <h1 className="text-5xl font-black tracking-tight mb-4 uppercase" style={{ fontFamily: 'var(--font-serif)' }}>
+        <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight mb-3 sm:mb-4 uppercase break-words" style={{ fontFamily: 'var(--font-serif)' }}>
           {fullName || 'Votre Nom'}
         </h1>
-        <h2 className="text-xl tracking-[0.3em] uppercase mb-8" style={{ color: accent }}>
+        <h2 className="text-base sm:text-xl tracking-[0.15em] sm:tracking-[0.3em] uppercase mb-4 sm:mb-8" style={{ color: accent }}>
           {jobTitle || 'Votre Spécialité'}
         </h2>
         {bio && (
@@ -30,7 +30,7 @@ function LayoutStandard({ template, data }) {
             {bio}
           </p>
         )}
-        <div className="flex gap-6 text-xs tracking-widest uppercase opacity-60 mb-6">
+        <div className="flex flex-wrap justify-center gap-3 sm:gap-6 text-[10px] sm:text-xs tracking-widest uppercase opacity-60 mb-4 sm:mb-6">
           {email && <span>{email}</span>}
           {phone && <span>{phone}</span>}
           {location && <span>{location}</span>}
@@ -49,7 +49,7 @@ function LayoutStandard({ template, data }) {
       </header>
 
       {/* Projects Section */}
-      <section className="px-10 py-16 max-w-5xl mx-auto">
+      <section className="px-4 sm:px-10 py-8 sm:py-16 max-w-5xl mx-auto">
         <h3 className="text-sm font-bold tracking-[0.2em] uppercase mb-12 text-center" style={{ color: accent }}>
           Projets Sélectionnés
         </h3>
@@ -72,7 +72,7 @@ function LayoutStandard({ template, data }) {
                       preload="metadata"
                       onClick={(e) => e.stopPropagation()}
                     />
-                  ) : proj.imageUrl.match(/\.pdf$/i) || proj.imageUrl.includes('/raw/upload/') ? (
+                  ) : proj.imageUrl.match(/\.pdf($|\?)/i) || proj.imageUrl.includes('/raw/upload/') ? (
                     // PDF: show embedded viewer
                     <div className="w-full h-full flex flex-col items-center justify-center relative z-10" style={{ background: secondary }}>
                       <div className="text-4xl mb-3">📄</div>
