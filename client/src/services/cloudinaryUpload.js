@@ -1,72 +1,52 @@
 /**
- * Upload files to Cloudinary - supports both direct browser upload
- * and fallback through the server API.
+ * Direct upload to Cloudinary from the browser.
+ * Uses UNSIGNED upload preset — no server interaction needed.
+ * This bypasses Vercel serverless function body size limits entirely.
  */
-import api from './api';
+
+const CLOUD_NAME = 'ds9zdiebv';
+const UPLOAD_PRESET = 'cvpro_unsigned';
 
 /**
- * Upload a file to Cloudinary via signed upload (secure, goes through server for signature only)
+ * Upload a file directly to Cloudinary from the browser
  * @param {File} file - The file to upload
  * @param {Object} options - Upload options
  * @param {Function} options.onProgress - Progress callback (0-100)
- * @returns {Promise<{url: string, publicId: string, type: string}>}
+ * @returns {Promise<{url: string, publicId: string, type: string, size: number}>}
  */
 export async function uploadFile(file, options = {}) {
-  // Method 1: Try signed direct upload (gets signature from server, uploads direct to Cloudinary)
-  try {
-    const result = await signedDirectUpload(file, options);
-    return result;
-  } catch (err) {
-    console.warn('Direct upload failed, trying server upload:', err.message);
+  if (!file) {
+    throw new Error('Aucun fichier sélectionné.');
   }
 
-  // Method 2: Fallback to server-side upload
-  try {
-    const result = await serverUpload(file, options);
-    return result;
-  } catch (err) {
-    console.error('All upload methods failed:', err);
-    throw new Error('L\'upload a échoué. Vérifiez que Cloudinary est bien configuré.');
-  }
-}
-
-/**
- * Signed direct upload: get signature from server, upload directly to Cloudinary
- */
-async function signedDirectUpload(file, options = {}) {
-  // Step 1: Get signature from our server
-  const sigRes = await api.post('/cloudinary/signature');
-  const { timestamp, signature, folder, apiKey, cloudName } = sigRes.data;
-
-  if (!cloudName || !apiKey) {
-    throw new Error('Cloudinary non configuré');
+  // Validate file size (max 20MB)
+  if (file.size > 20 * 1024 * 1024) {
+    throw new Error('Le fichier est trop volumineux (max 20 Mo).');
   }
 
-  // Step 2: Determine resource type
-  let resourceType = 'auto';
+  // Determine resource type for Cloudinary
+  let resourceType = 'image';
   if (file.type.startsWith('video/')) {
     resourceType = 'video';
   } else if (file.type === 'application/pdf') {
     resourceType = 'raw';
-  } else {
+  } else if (file.type.startsWith('image/')) {
     resourceType = 'image';
+  } else {
+    resourceType = 'auto';
   }
 
-  const url = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`;
+  const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`;
 
-  // Step 3: Build form data with signature
   const formData = new FormData();
   formData.append('file', file);
-  formData.append('api_key', apiKey);
-  formData.append('timestamp', timestamp);
-  formData.append('signature', signature);
-  formData.append('folder', folder);
+  formData.append('upload_preset', UPLOAD_PRESET);
 
-  // Step 4: Upload directly to Cloudinary with progress
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', url);
 
+    // Track upload progress
     if (options.onProgress) {
       xhr.upload.addEventListener('progress', (e) => {
         if (e.lengthComputable) {
@@ -85,40 +65,16 @@ async function signedDirectUpload(file, options = {}) {
           size: file.size,
         });
       } else {
-        let msg = 'Upload Cloudinary échoué';
-        try { msg = JSON.parse(xhr.responseText).error?.message || msg; } catch {}
-        reject(new Error(msg));
+        let errorMsg = 'Erreur lors de l\'upload';
+        try {
+          const errData = JSON.parse(xhr.responseText);
+          errorMsg = errData.error?.message || errorMsg;
+        } catch {}
+        reject(new Error(errorMsg));
       }
     };
 
-    xhr.onerror = () => reject(new Error('Erreur réseau'));
+    xhr.onerror = () => reject(new Error('Erreur réseau lors de l\'upload. Vérifiez votre connexion.'));
     xhr.send(formData);
   });
-}
-
-/**
- * Server-side upload fallback
- */
-async function serverUpload(file, options = {}) {
-  const formData = new FormData();
-  formData.append('file', file);
-
-  const res = await api.post('/upload', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-    onUploadProgress: (e) => {
-      if (options.onProgress && e.total) {
-        options.onProgress(Math.round((e.loaded / e.total) * 100));
-      }
-    },
-  });
-
-  if (res.data.url) {
-    return {
-      url: res.data.url,
-      publicId: res.data.filename,
-      type: file.type,
-      size: file.size,
-    };
-  }
-  throw new Error(res.data.error || 'Upload échoué');
 }
