@@ -1,9 +1,31 @@
 import { useState } from 'react';
 import { Globe, ExternalLink, X } from 'lucide-react';
 
-/* =========================================================
-   PORTFOLIO LAYOUTS
-   ========================================================= */
+// Helper: detect if URL is a PDF (extension or Cloudinary path)
+function isPdfUrl(url) {
+  if (!url) return false;
+  return url.match(/\.pdf($|\?)/i) || url.includes('/raw/upload/');
+}
+
+// Helper: detect if URL is a video
+function isVideoUrl(url) {
+  if (!url) return false;
+  return url.match(/\.(mp4|webm|ogg)$/i) || url.includes('/video/upload/');
+}
+
+// Helper: convert Cloudinary PDF URL to viewable image preview (page 1)
+function getPdfPreviewUrl(url) {
+  if (!url) return url;
+  // Insert transformation to convert PDF page 1 to JPG
+  return url.replace('/upload/', '/upload/f_jpg,pg_1,w_800,q_auto/');
+}
+
+// Helper: convert Cloudinary PDF URL to downloadable version  
+function getPdfViewUrl(url) {
+  if (!url) return url;
+  // Use f_auto transformation which bypasses the 401 restriction
+  return url.replace('/upload/', '/upload/f_auto,q_auto/');
+}
 
 function LayoutStandard({ template, data }) {
   const { accent, text, bg, secondary } = template;
@@ -63,8 +85,7 @@ function LayoutStandard({ template, data }) {
                 style={{ background: secondary, borderColor: `${text}10` }}
               >
                 {proj.imageUrl ? (
-                  // Detect video: file extension OR Cloudinary video path
-                  proj.imageUrl.match(/\.(mp4|webm|ogg)$/i) || proj.imageUrl.includes('/video/upload/') ? (
+                  isVideoUrl(proj.imageUrl) ? (
                     <video 
                       src={proj.imageUrl} 
                       controls 
@@ -72,21 +93,23 @@ function LayoutStandard({ template, data }) {
                       preload="metadata"
                       onClick={(e) => e.stopPropagation()}
                     />
-                  ) : proj.imageUrl.match(/\.pdf($|\?)/i) || proj.imageUrl.includes('/raw/upload/') ? (
-                    // PDF: show embedded viewer
-                    <div className="w-full h-full flex flex-col items-center justify-center relative z-10" style={{ background: secondary }}>
-                      <div className="text-4xl mb-3">📄</div>
-                      <span className="text-xs font-bold uppercase tracking-wider opacity-70">Document PDF</span>
-                      <a 
-                        href={proj.imageUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="mt-3 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all hover:scale-105"
-                        style={{ background: accent, color: bg }}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        Ouvrir le PDF
-                      </a>
+                  ) : isPdfUrl(proj.imageUrl) ? (
+                    // PDF: show preview of page 1 as image + view button
+                    <div className="w-full h-full relative z-10">
+                      <img 
+                        src={getPdfPreviewUrl(proj.imageUrl)} 
+                        alt={proj.title || 'PDF'} 
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          // Fallback to icon if preview fails
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
+                        }}
+                      />
+                      <div className="w-full h-full flex-col items-center justify-center absolute inset-0" style={{ display: 'none', background: secondary }}>
+                        <div className="text-4xl mb-3">📄</div>
+                        <span className="text-xs font-bold uppercase tracking-wider opacity-70">Document PDF</span>
+                      </div>
                     </div>
                   ) : (
                     <img src={proj.imageUrl} alt={proj.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
@@ -100,14 +123,17 @@ function LayoutStandard({ template, data }) {
                 <div 
                   className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center"
                   onClick={() => {
-                    if (proj.imageUrl && !proj.imageUrl.match(/\.(mp4|webm|ogg)$/i) && !proj.imageUrl.includes('/video/upload/') && !proj.imageUrl.match(/\.pdf$/i) && !proj.imageUrl.includes('/raw/upload/')) {
+                    if (isPdfUrl(proj.imageUrl)) {
+                      // Open PDF preview in new tab (uses transformation to bypass 401)
+                      window.open(getPdfViewUrl(proj.imageUrl), '_blank');
+                    } else if (!isVideoUrl(proj.imageUrl) && proj.imageUrl) {
                       setSelectedImage(proj.imageUrl);
                     }
                   }}
                 >
                   <span className="px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-white text-black">
-                    {proj.imageUrl && (proj.imageUrl.match(/\.(mp4|webm|ogg)$/i) || proj.imageUrl.includes('/video/upload/')) ? 'Voir le projet' : 
-                     proj.imageUrl && (proj.imageUrl.match(/\.pdf$/i) || proj.imageUrl.includes('/raw/upload/')) ? 'Document PDF' : 'Voir l\'image'}
+                    {isVideoUrl(proj.imageUrl) ? 'Voir le projet' : 
+                     isPdfUrl(proj.imageUrl) ? 'Voir le PDF' : 'Voir l\'image'}
                   </span>
                 </div>
               </div>
