@@ -424,7 +424,8 @@
   .cursor-dot,
   .cursor-ring,
   nav,
-  header.print\\:hidden {
+  header,
+  aside {
     display: none !important;
   }
 }
