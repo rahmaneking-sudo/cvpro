@@ -100,6 +100,33 @@ app.use('/api/portfolios', apiLimiter, portfolioRoutes);
 // Upload routes (Files, Images)
 app.use('/api/upload', apiLimiter, uploadRoutes);
 
+// Cloudinary signature endpoint for direct browser uploads
+app.get('/api/cloudinary/config', (req, res) => {
+  res.json({
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
+    apiKey: process.env.CLOUDINARY_API_KEY || '',
+  });
+});
+
+app.post('/api/cloudinary/signature', apiLimiter, async (req, res) => {
+  try {
+    const cloudinaryMod = await import('./utils/cloudinary.js');
+    const cloudinary = cloudinaryMod.default;
+    const timestamp = Math.round(new Date().getTime() / 1000);
+    const folder = 'cvpro_uploads';
+    
+    const signature = cloudinary.utils.api_sign_request(
+      { timestamp, folder },
+      process.env.CLOUDINARY_API_SECRET
+    );
+
+    res.json({ timestamp, signature, folder, apiKey: process.env.CLOUDINARY_API_KEY, cloudName: process.env.CLOUDINARY_CLOUD_NAME });
+  } catch (error) {
+    console.error('Signature error:', error);
+    res.status(500).json({ error: 'Erreur de signature' });
+  }
+});
+
 // Admin routes
 app.use('/api/admin', adminRoutes);
 

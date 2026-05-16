@@ -6,6 +6,7 @@ import { portfolioTemplates } from '../../data/portfolioTemplates';
 import PortfolioPreview from './PortfolioPreview';
 import PaymentModal from '../shared/PaymentModal';
 import api from '../../services/api';
+import { uploadFile } from '../../services/cloudinaryUpload';
 
 const emptyPortfolioData = {
   fullName: '',
@@ -138,44 +139,38 @@ export default function PortfolioEditor() {
     if (!file) return;
 
     setIsUploadingPhoto(true);
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
       showToast('Upload de la photo en cours...', 'success');
-      const res = await api.post('/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      if (res.data.url) {
-        updateField('photo', res.data.url);
-        showToast('Photo uploadée avec succès !');
-      }
+      const result = await uploadFile(file);
+      updateField('photo', result.url);
+      showToast('Photo uploadée avec succès !');
     } catch (err) {
       console.error('Photo upload error:', err);
-      showToast('Erreur lors de l\'upload.', 'error');
+      showToast(err.message || 'Erreur lors de l\'upload.', 'error');
     } finally {
       setIsUploadingPhoto(false);
     }
   };
 
+  const [uploadProgress, setUploadProgress] = useState({});
   const handleFileUpload = async (index, file) => {
     if (!file) return;
     
-    const formData = new FormData();
-    formData.append('file', file);
-    
     try {
       showToast('Upload en cours...', 'success');
-      const res = await api.post('/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+      setUploadProgress(prev => ({ ...prev, [index]: 0 }));
+      
+      const result = await uploadFile(file, {
+        onProgress: (percent) => setUploadProgress(prev => ({ ...prev, [index]: percent }))
       });
-      if (res.data.url) {
-        updateProject(index, 'imageUrl', res.data.url);
-        showToast('Fichier uploadé avec succès !');
-      }
+      
+      updateProject(index, 'imageUrl', result.url);
+      showToast('Fichier uploadé avec succès !');
     } catch (err) {
       console.error('Upload error:', err);
-      showToast('Erreur lors de l\'upload du fichier.', 'error');
+      showToast(err.message || 'Erreur lors de l\'upload du fichier.', 'error');
+    } finally {
+      setUploadProgress(prev => ({ ...prev, [index]: undefined }));
     }
   };
 
@@ -481,9 +476,21 @@ export default function PortfolioEditor() {
                           htmlFor={`file-upload-${i}`}
                           className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 hover:border-[rgba(201,169,110,0.4)] hover:bg-white/10 transition-all flex flex-col items-center justify-center gap-1 cursor-pointer group"
                         >
-                          <Upload size={18} className="text-[var(--color-champagne)] group-hover:-translate-y-1 transition-transform" />
-                          <span className="text-xs font-bold text-[var(--color-ivory)]">Cliquez pour ajouter un fichier</span>
-                          <span className="text-[10px] text-[var(--color-white-muted)]">(Images, PDF, Vidéos MP4 - Max 20 Mo)</span>
+                          {uploadProgress[i] !== undefined ? (
+                            <>
+                              <Loader2 size={18} className="text-[var(--color-champagne)] animate-spin" />
+                              <span className="text-xs font-bold text-[var(--color-champagne)]">Upload en cours... {uploadProgress[i]}%</span>
+                              <div className="w-full h-1.5 bg-white/10 rounded-full mt-1 overflow-hidden">
+                                <div className="h-full bg-[var(--color-champagne)] rounded-full transition-all duration-300" style={{ width: `${uploadProgress[i]}%` }} />
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <Upload size={18} className="text-[var(--color-champagne)] group-hover:-translate-y-1 transition-transform" />
+                              <span className="text-xs font-bold text-[var(--color-ivory)]">Cliquez pour ajouter un fichier</span>
+                              <span className="text-[10px] text-[var(--color-white-muted)]">(Images, PDF, Vidéos MP4 - Max 20 Mo)</span>
+                            </>
+                          )}
                         </label>
                       </div>
                       

@@ -6,6 +6,7 @@ import { getTemplate } from '../../data/templates';
 import CVPreview from './CVPreview';
 import PaymentModal from '../shared/PaymentModal';
 import api from '../../services/api';
+import { uploadFile } from '../../services/cloudinaryUpload';
 import { Country, State, City } from 'country-state-city';
 
 const DemographicItem = React.memo(({ demo, idx, updateDemographic, removeDemographic, inputClass }) => {
@@ -340,21 +341,14 @@ export default function CVEditor() {
     if (!file) return;
 
     setIsUploadingPhoto(true);
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
       showToast('Upload de la photo en cours...', 'success');
-      const res = await api.post('/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      if (res.data.url) {
-        updateField('photo', res.data.url);
-        showToast('Photo uploadée avec succès !');
-      }
+      const result = await uploadFile(file);
+      updateField('photo', result.url);
+      showToast('Photo uploadée avec succès !');
     } catch (err) {
       console.error('Photo upload error:', err);
-      showToast('Erreur lors de l\'upload.', 'error');
+      showToast(err.message || 'Erreur lors de l\'upload.', 'error');
     } finally {
       setIsUploadingPhoto(false);
     }
