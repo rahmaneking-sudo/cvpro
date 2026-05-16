@@ -400,6 +400,21 @@
   
   body {
     background-color: white !important;
+    overflow: visible !important;
+    max-width: none !important;
+  }
+
+  #root {
+    overflow: visible !important;
+  }
+
+  /* Hide all overlays, cursors, and navigation elements */
+  .grain-overlay,
+  .cursor-dot,
+  .cursor-ring,
+  nav,
+  header.print\\:hidden {
+    display: none !important;
   }
 }
 

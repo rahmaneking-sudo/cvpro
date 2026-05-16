@@ -286,7 +286,7 @@ export default function PortfolioEditor() {
   const labelClass = "block text-sm font-medium text-[var(--color-white-muted)] mb-1.5";
 
   return (
-    <div className="min-h-screen bg-[var(--color-obsidian)] flex flex-col print:bg-white print:min-h-0">
+    <div className="min-h-screen bg-[var(--color-obsidian)] flex flex-col print:bg-white print:min-h-0 print:block">
       {/* Top bar */}
       <div className="h-16 border-b border-[rgba(255,255,255,0.06)] bg-[var(--color-charcoal)] flex items-center justify-between px-6 shrink-0 print:hidden">
         <div className="flex items-center gap-4">
@@ -332,7 +332,7 @@ export default function PortfolioEditor() {
       </div>
 
       {/* Editor area */}
-      <div className="flex flex-1 overflow-hidden print:overflow-visible">
+      <div className="flex flex-1 overflow-hidden print:overflow-visible print:block print:h-auto">
         {/* LEFT — Form */}
         <div className="w-[45%] overflow-y-auto p-6 space-y-8 border-r border-[rgba(255,255,255,0.06)] print:hidden">
           
@@ -522,8 +522,8 @@ export default function PortfolioEditor() {
         </div>
 
         {/* RIGHT — Live Preview */}
-        <div className="flex-1 overflow-y-auto bg-[var(--color-graphite)] p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:absolute print:inset-0 print:block print:w-full print:h-full">
-          <div className="w-full max-w-[800px] shadow-[var(--shadow-cinematic)] rounded-lg overflow-hidden print:max-w-none print:shadow-none print:rounded-none print:w-[210mm] print:h-[297mm] print:mx-auto">
+        <div className="flex-1 overflow-y-auto bg-[var(--color-graphite)] p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:fixed print:inset-0 print:z-[99999]">
+          <div className="w-full max-w-[800px] shadow-[var(--shadow-cinematic)] rounded-lg overflow-hidden print:max-w-none print:shadow-none print:rounded-none print:w-[210mm] print:min-h-[297mm] print:mx-auto print:overflow-visible">
             <PortfolioPreview template={template} data={{ ...data, projects }} />
           </div>
         </div>
