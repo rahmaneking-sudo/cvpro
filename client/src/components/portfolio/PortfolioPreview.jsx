@@ -124,8 +124,8 @@ function LayoutStandard({ template, data }) {
                   className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center"
                   onClick={() => {
                     if (isPdfUrl(proj.imageUrl)) {
-                      // Open PDF preview in new tab (uses transformation to bypass 401)
-                      window.open(getPdfViewUrl(proj.imageUrl), '_blank');
+                      // Show PDF page 1 as image in lightbox (same as images)
+                      setSelectedImage(getPdfPreviewUrl(proj.imageUrl));
                     } else if (!isVideoUrl(proj.imageUrl) && proj.imageUrl) {
                       setSelectedImage(proj.imageUrl);
                     }
