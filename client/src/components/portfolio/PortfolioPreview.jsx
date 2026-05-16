@@ -63,7 +63,8 @@ function LayoutStandard({ template, data }) {
                 style={{ background: secondary, borderColor: `${text}10` }}
               >
                 {proj.imageUrl ? (
-                  proj.imageUrl.match(/\.(mp4|webm|ogg)$/i) ? (
+                  // Detect video: file extension OR Cloudinary video path
+                  proj.imageUrl.match(/\.(mp4|webm|ogg)$/i) || proj.imageUrl.includes('/video/upload/') ? (
                     <video 
                       src={proj.imageUrl} 
                       controls 
@@ -71,6 +72,22 @@ function LayoutStandard({ template, data }) {
                       preload="metadata"
                       onClick={(e) => e.stopPropagation()}
                     />
+                  ) : proj.imageUrl.match(/\.pdf$/i) || proj.imageUrl.includes('/raw/upload/') ? (
+                    // PDF: show embedded viewer
+                    <div className="w-full h-full flex flex-col items-center justify-center relative z-10" style={{ background: secondary }}>
+                      <div className="text-4xl mb-3">📄</div>
+                      <span className="text-xs font-bold uppercase tracking-wider opacity-70">Document PDF</span>
+                      <a 
+                        href={proj.imageUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="mt-3 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all hover:scale-105"
+                        style={{ background: accent, color: bg }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Ouvrir le PDF
+                      </a>
+                    </div>
                   ) : (
                     <img src={proj.imageUrl} alt={proj.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
                   )
@@ -83,14 +100,14 @@ function LayoutStandard({ template, data }) {
                 <div 
                   className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center"
                   onClick={() => {
-                    // Si c'est une image (et pas une vidéo), on l'ouvre
-                    if (proj.imageUrl && !proj.imageUrl.match(/\.(mp4|webm|ogg)$/i)) {
+                    if (proj.imageUrl && !proj.imageUrl.match(/\.(mp4|webm|ogg)$/i) && !proj.imageUrl.includes('/video/upload/') && !proj.imageUrl.match(/\.pdf$/i) && !proj.imageUrl.includes('/raw/upload/')) {
                       setSelectedImage(proj.imageUrl);
                     }
                   }}
                 >
                   <span className="px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-white text-black">
-                    {proj.imageUrl && !proj.imageUrl.match(/\.(mp4|webm|ogg)$/i) ? 'Voir l\'image' : 'Voir le projet'}
+                    {proj.imageUrl && (proj.imageUrl.match(/\.(mp4|webm|ogg)$/i) || proj.imageUrl.includes('/video/upload/')) ? 'Voir le projet' : 
+                     proj.imageUrl && (proj.imageUrl.match(/\.pdf$/i) || proj.imageUrl.includes('/raw/upload/')) ? 'Document PDF' : 'Voir l\'image'}
                   </span>
                 </div>
               </div>
