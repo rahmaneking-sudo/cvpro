@@ -2,7 +2,21 @@ import OpenAI from 'openai';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
-const pdfParse = require('pdf-parse');
+
+// Dynamic import to avoid @napi-rs/canvas crash on Vercel serverless
+let pdfParse;
+async function getPdfParse() {
+  if (!pdfParse) {
+    try {
+      pdfParse = require('pdf-parse');
+    } catch (e) {
+      // Fallback: pdf-parse v2 may fail on serverless due to @napi-rs/canvas
+      console.warn('pdf-parse native load failed, using basic text extraction');
+      pdfParse = null;
+    }
+  }
+  return pdfParse;
+}
 
 export async function scanCV(req, res) {
   try {
@@ -22,7 +36,11 @@ export async function scanCV(req, res) {
     let base64Image = '';
 
     if (mimeType === 'application/pdf') {
-      const pdfData = await pdfParse(fileBuffer);
+      const parser = await getPdfParse();
+      if (!parser) {
+        return res.status(500).json({ error: 'Le parsing PDF n\'est pas disponible dans cet environnement.' });
+      }
+      const pdfData = await parser(fileBuffer);
       textContent = pdfData.text;
     } else if (mimeType.startsWith('image/')) {
       isImage = true;
