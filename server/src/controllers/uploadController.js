@@ -47,10 +47,11 @@ export const handleFileUpload = async (req, res) => {
 
     const uploadToCloudinary = (fileBuffer, mimetype) => {
       return new Promise((resolve, reject) => {
+        // IMPORTANT: Never use 'raw' for PDFs — Cloudinary free plan blocks raw file access (401).
+        // Use 'image' for PDFs (Cloudinary can handle PDFs as image assets).
+        // Use 'video' for videos, 'auto' for everything else.
         let resourceType = 'auto';
-        if (mimetype === 'application/pdf') {
-          resourceType = 'raw';
-        } else if (mimetype.startsWith('video/')) {
+        if (mimetype.startsWith('video/')) {
           resourceType = 'video';
         }
 
