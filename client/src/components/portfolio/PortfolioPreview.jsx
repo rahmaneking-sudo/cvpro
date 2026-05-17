@@ -84,12 +84,26 @@ function PdfViewer({ url, onClose, accent }) {
       const ctx = canvas.getContext('2d');
       const viewport = page.getViewport({ scale });
 
-      // Support HiDPI displays
-      const outputScale = window.devicePixelRatio || 1;
+      // Support HiDPI displays with safety limits for mobile & memory constraints
+      let outputScale = window.devicePixelRatio || 1;
+      const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (isMobile) {
+        outputScale = Math.min(outputScale, 1.5);
+      }
+      
+      // Enforce Safari/iOS limits: max dimension should never scale past 4096px physically
+      const maxDimension = Math.max(viewport.width, viewport.height);
+      if (maxDimension * outputScale > 4096) {
+        outputScale = 4096 / maxDimension;
+      }
+
       canvas.width = Math.floor(viewport.width * outputScale);
       canvas.height = Math.floor(viewport.height * outputScale);
-      canvas.style.width = Math.floor(viewport.width) + 'px';
-      canvas.style.height = Math.floor(viewport.height) + 'px';
+      
+      // Proportional and aspect-ratio preserving style configuration
+      canvas.style.width = '100%';
+      canvas.style.maxWidth = `${Math.floor(viewport.width)}px`;
+      canvas.style.height = 'auto';
 
       const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
 
@@ -201,7 +215,7 @@ function PdfViewer({ url, onClose, accent }) {
             </a>
           </div>
         ) : (
-          <div className="relative">
+          <div className="relative w-full flex justify-center">
             {loading && (
               <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/30 rounded-lg">
                 <div className="w-8 h-8 border-2 border-white/20 border-t-white/80 rounded-full animate-spin" />
@@ -209,8 +223,12 @@ function PdfViewer({ url, onClose, accent }) {
             )}
             <canvas
               ref={canvasRef}
-              className="max-w-full rounded-lg shadow-2xl"
-              style={{ maxHeight: '72vh' }}
+              className="rounded-lg shadow-2xl mx-auto"
+              style={{ 
+                maxWidth: '100%', 
+                height: 'auto',
+                display: 'block'
+              }}
             />
           </div>
         )}
@@ -367,50 +385,61 @@ function LayoutStandard({ template, data }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           {(projects?.length > 0 ? projects : [{}, {}]).map((proj, i) => (
             <article key={i} className="group cursor-pointer">
-              {/* Project Image — click opens viewer */}
-              <div 
-                className="aspect-[4/3] rounded-xl mb-6 overflow-hidden relative border cursor-pointer"
-                style={{ background: secondary, borderColor: `${text}10` }}
-                onClick={() => {
-                  if (proj.imageUrl && isPdfUrl(proj.imageUrl)) {
-                    setSelectedMedia({ type: 'pdf', url: proj.imageUrl });
-                  } else if (proj.imageUrl && !isVideoUrl(proj.imageUrl)) {
-                    setSelectedMedia({ type: 'image', url: proj.imageUrl });
-                  }
-                }}
-              >
-                {proj.imageUrl ? (
-                  isVideoUrl(proj.imageUrl) ? (
-                    <video 
-                      src={proj.imageUrl} 
-                      controls 
-                      className="w-full h-full object-cover"
-                      preload="metadata"
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  ) : isPdfUrl(proj.imageUrl) ? (
-                    // PDF: render page 1 thumbnail using PDF.js
-                    <PdfThumbnail
-                      url={proj.imageUrl}
-                      alt={proj.title || 'PDF'}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <img src={proj.imageUrl} alt={proj.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
-                  )
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center opacity-20">
-                    <Globe size={48} />
+              {proj.imageUrl && isPdfUrl(proj.imageUrl) ? (
+                <a 
+                  href={proj.imageUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="aspect-[4/3] rounded-xl mb-6 overflow-hidden relative border block cursor-pointer"
+                  style={{ background: secondary, borderColor: `${text}10` }}
+                >
+                  <PdfThumbnail
+                    url={proj.imageUrl}
+                    alt={proj.title || 'PDF'}
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Hover overlay — purely visual */}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <span className="px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-white text-black">
+                      Ouvrir le PDF
+                    </span>
                   </div>
-                )}
-                {/* Hover overlay — purely visual */}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
-                  <span className="px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-white text-black">
-                    {isVideoUrl(proj.imageUrl) ? 'Voir le projet' : 
-                     isPdfUrl(proj.imageUrl) ? 'Voir le PDF' : 'Voir l\'image'}
-                  </span>
+                </a>
+              ) : (
+                <div 
+                  className="aspect-[4/3] rounded-xl mb-6 overflow-hidden relative border cursor-pointer"
+                  style={{ background: secondary, borderColor: `${text}10` }}
+                  onClick={() => {
+                    if (proj.imageUrl && !isVideoUrl(proj.imageUrl)) {
+                      setSelectedMedia({ type: 'image', url: proj.imageUrl });
+                    }
+                  }}
+                >
+                  {proj.imageUrl ? (
+                    isVideoUrl(proj.imageUrl) ? (
+                      <video 
+                         src={proj.imageUrl} 
+                         controls 
+                         className="w-full h-full object-cover"
+                         preload="metadata"
+                         onClick={(e) => e.stopPropagation()}
+                      />
+                    ) : (
+                      <img src={proj.imageUrl} alt={proj.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
+                    )
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center opacity-20">
+                      <Globe size={48} />
+                    </div>
+                  )}
+                  {/* Hover overlay — purely visual */}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
+                    <span className="px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-white text-black">
+                      {isVideoUrl(proj.imageUrl) ? 'Voir le projet' : 'Voir l\'image'}
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Project Info */}
               <div className="flex justify-between items-start mb-2">

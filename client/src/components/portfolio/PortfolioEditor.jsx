@@ -530,7 +530,7 @@ export default function PortfolioEditor() {
         </div>
 
         {/* RIGHT — Live Preview */}
-        <div className="flex-1 overflow-y-auto bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:fixed print:inset-0 print:z-[99999]">
+        <div className="flex-1 overflow-y-auto bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:relative print:z-10">
           <div className="w-full max-w-[100%] lg:max-w-[800px] shadow-[var(--shadow-cinematic)] rounded-lg overflow-hidden print:max-w-none print:shadow-none print:rounded-none print:w-[210mm] print:min-h-[297mm] print:mx-auto print:overflow-visible">
             <PortfolioPreview template={template} data={{ ...data, projects }} />
           </div>
