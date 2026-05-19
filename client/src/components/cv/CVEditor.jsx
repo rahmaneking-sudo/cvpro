@@ -223,9 +223,20 @@ export default function CVEditor() {
         try {
           const res = await api.get(`/cv/${cvId}`);
           if (res.data.cv) {
-            setCVData(prev => ({ ...prev, ...res.data.cv.data }));
-            if (res.data.cv.experiences?.length > 0) {
-              setExperiences(res.data.cv.experiences);
+            setCVData(prev => {
+              const loadedData = res.data.cv.data || {};
+              return {
+                ...prev,
+                ...loadedData,
+                skills: loadedData.skills || [],
+                languages: loadedData.languages || [],
+                socialStats: { ...prev.socialStats, ...(loadedData.socialStats || {}) },
+                mediaKitDetails: { ...prev.mediaKitDetails, ...(loadedData.mediaKitDetails || {}) },
+                collaborations: loadedData.collaborations || []
+              };
+            });
+            if (res.data.cv.experiences) {
+              setExperiences(res.data.cv.experiences || []);
             }
           }
         } catch (err) {
@@ -805,7 +816,7 @@ export default function CVEditor() {
               <span className="w-7 h-7 rounded-lg bg-[rgba(201,169,110,0.15)] flex items-center justify-center text-xs text-[var(--color-champagne)] font-bold">3</span>
               Expérience professionnelle
             </h3>
-            {experiences.map((exp, idx) => (
+            {(experiences || []).map((exp, idx) => (
               <motion.div
                 key={idx}
                 initial={{ opacity: 0, y: 10 }}
@@ -882,7 +893,7 @@ export default function CVEditor() {
               Compétences
             </h3>
             <div className="flex flex-wrap gap-2 mb-3">
-              {cvData.skills.map((skill, i) => (
+              {(cvData.skills || []).map((skill, i) => (
                 <span key={i} className="px-3 py-1.5 rounded-full bg-[rgba(201,169,110,0.1)] border border-[rgba(201,169,110,0.2)] text-xs text-[var(--color-champagne)] flex items-center gap-1.5">
                   {skill}
                   <button onClick={() => removeSkill(i)} className="hover:text-red-400">×</button>
@@ -909,7 +920,7 @@ export default function CVEditor() {
               Langues
             </h3>
             <div className="flex flex-wrap gap-2 mb-3">
-              {cvData.languages.map((lang, i) => (
+              {(cvData.languages || []).map((lang, i) => (
                 <span key={i} className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-[var(--color-ivory)] flex items-center gap-1.5">
                   {lang}
                   <button onClick={() => removeLanguage(i)} className="hover:text-red-400">×</button>

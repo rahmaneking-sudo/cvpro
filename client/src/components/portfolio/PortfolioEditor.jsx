@@ -107,9 +107,16 @@ export default function PortfolioEditor() {
         try {
           const res = await api.get(`/portfolios/${portfolioId}`);
           if (res.data.portfolio) {
-            setData(prev => ({ ...prev, ...res.data.portfolio.data }));
-            if (res.data.portfolio.data.projects?.length > 0) {
-              setProjects(res.data.portfolio.data.projects);
+            setData(prev => {
+              const loadedData = res.data.portfolio.data || {};
+              return {
+                ...prev,
+                ...loadedData,
+                socialLinks: loadedData.socialLinks || []
+              };
+            });
+            if (res.data.portfolio.data?.projects) {
+              setProjects(res.data.portfolio.data.projects || []);
             }
           }
         } catch (err) {
@@ -556,7 +563,7 @@ export default function PortfolioEditor() {
               <span className="w-7 h-7 rounded-lg bg-[rgba(201,169,110,0.15)] flex items-center justify-center text-xs text-[var(--color-champagne)] font-bold">2</span>
               Projets
             </h3>
-            {projects.map((proj, i) => (
+            {(projects || []).map((proj, i) => (
               <div key={i} className="p-5 rounded-2xl bg-white/5 border border-white/10 mb-4 relative group">
                 <button onClick={() => removeProject(i)} className="absolute top-4 right-4 text-[var(--color-white-muted)] hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Trash2 size={16} />
