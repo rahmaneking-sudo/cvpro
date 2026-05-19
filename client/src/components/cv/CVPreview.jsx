@@ -83,7 +83,7 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
             Expériences
           </h3>
           <div className="space-y-5">
-            {experiences.filter(e => e.company || e.position).map((exp, i) => (
+            {(experiences || []).filter(e => e.company || e.position).map((exp, i) => (
               <article key={i}>
                 <div className="flex items-baseline justify-between mb-1">
                   <h4 className="font-bold text-[12px]" style={{ color: text }}>{exp.position}</h4>
@@ -107,7 +107,7 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
             Formation
           </h3>
           <div className="space-y-4">
-            {educations.filter(e => e.institution || e.degree).map((edu, i) => (
+            {(educations || []).filter(e => e.institution || e.degree).map((edu, i) => (
               <article key={i}>
                 <div className="flex items-baseline justify-between mb-1">
                   <h4 className="font-bold text-[12px]" style={{ color: text }}>{edu.degree}</h4>
@@ -132,7 +132,7 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
               Compétences
             </h3>
             <div className="flex flex-wrap gap-2">
-              {cvData.skills.map((skill, i) => <SkillBadge key={i} skill={skill} accent={accent} />)}
+              {cvData.skills?.map((skill, i) => <SkillBadge key={i} skill={skill} accent={accent} />)}
             </div>
           </section>
         )}
@@ -142,7 +142,7 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
               Langues
             </h3>
             <ul className="space-y-1">
-              {cvData.languages.map((lang, i) => (
+              {cvData.languages?.map((lang, i) => (
                 <li key={i} className="text-[11px] flex items-center gap-2" style={{ color: mutedColor }}>
                   <span className="w-1 h-1 rounded-full bg-current opacity-50" /> {lang}
                 </li>
@@ -187,7 +187,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors }) 
           <section className="mb-8">
             <h3 className="text-[10px] font-bold uppercase tracking-widest mb-4" style={{ color: accent }}>Expertise</h3>
             <div className="space-y-3">
-              {cvData.skills.map((skill, i) => (
+              {cvData.skills?.map((skill, i) => (
                 <div key={i}>
                   <div className="flex justify-between text-[10px] mb-1" style={{ color: text }}>
                     <span>{skill}</span>
@@ -205,7 +205,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors }) 
           <section>
             <h3 className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: accent }}>Langues</h3>
             <div className="space-y-2">
-              {cvData.languages.map((lang, i) => (
+              {cvData.languages?.map((lang, i) => (
                 <div key={i} className="text-[11px] flex justify-between" style={{ color: mutedColor }}>
                   {lang} <span style={{ color: accent }}>•••</span>
                 </div>
@@ -239,7 +239,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors }) 
               <div className="flex-1 h-[1px]" style={{ background: dividerColor }} />
             </h3>
             <div className="space-y-6">
-              {experiences.filter(e => e.company || e.position).map((exp, i) => (
+              {(experiences || []).filter(e => e.company || e.position).map((exp, i) => (
                 <article key={i} className="flex gap-4">
                   {exp.logoUrl ? (
                     <img src={exp.logoUrl} crossOrigin="anonymous" alt="" className="w-10 h-10 rounded shadow-sm shrink-0 object-cover" />
@@ -270,7 +270,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors }) 
               <div className="flex-1 h-[1px]" style={{ background: dividerColor }} />
             </h3>
             <div className="space-y-5">
-              {educations.filter(e => e.institution || e.degree).map((edu, i) => (
+              {(educations || []).filter(e => e.institution || e.degree).map((edu, i) => (
                 <article key={i} className="flex gap-4">
                   <Initials name={edu.institution} accent={accent} />
                   <div>
@@ -343,7 +343,7 @@ function LayoutGrid({ template, cvData, experiences, educations, colors }) {
           <section className="mt-8">
             <h3 className="text-xs font-bold uppercase mb-4" style={{ color: text }}>&gt; Formation</h3>
             <div className="relative border-l ml-2" style={{ borderColor: dividerColor }}>
-              {educations.filter(e => e.institution || e.degree).map((edu, i) => (
+              {(educations || []).filter(e => e.institution || e.degree).map((edu, i) => (
                 <article key={i} className="mb-5 pl-4 relative">
                   <div className="absolute w-2 h-2 rounded-full -left-[5px] top-1" style={{ background: accent }} />
                   <div className="text-[9px] font-bold uppercase mb-1" style={{ color: accent }}>
@@ -435,7 +435,7 @@ function LayoutAsymmetric({ template, cvData, experiences, educations, colors })
             <section className="mt-10">
               <h3 className="text-[9px] font-bold uppercase tracking-[0.3em] mb-6" style={{ color: accent }}>Formation</h3>
               <div className="space-y-5">
-                {educations.filter(e => e.institution || e.degree).map((edu, i) => (
+                {(educations || []).filter(e => e.institution || e.degree).map((edu, i) => (
                   <article key={i} className="flex gap-6 border-b pb-5" style={{ borderColor: dividerColor }}>
                     <div className="w-24 shrink-0 text-[9px] font-bold uppercase tracking-wider pt-1" style={{ color: mutedColor }}>
                       {edu.startDate}<br/>|<br/>{edu.endDate}
@@ -526,7 +526,7 @@ function LayoutCreative({ template, cvData, experiences, educations, colors }) {
             <section className="mt-8">
               <h3 className="text-sm font-black uppercase mb-4 pl-2 border-l-4" style={{ color: text, borderColor: accent }}>Formation</h3>
               <div className="space-y-4">
-                {educations.filter(e => e.institution || e.degree).map((edu, i) => (
+                {(educations || []).filter(e => e.institution || e.degree).map((edu, i) => (
                   <article key={i} className="p-4 rounded-xl transition-transform" style={{ background: secondary }}>
                     <div className="flex justify-between items-start mb-1">
                       <div>
@@ -662,7 +662,7 @@ function LayoutMediaKit({ template, cvData, experiences, educations, colors, onP
               Ligne Éditoriale & Thèmes
             </h3>
             <div className="flex flex-wrap gap-2">
-              {(cvData.mediaKitDetails?.editorial || cvData.skills)?.map((theme, i) => (
+              {((cvData.mediaKitDetails?.editorial || []) || cvData.skills)?.map((theme, i) => (
                 <span key={i} className="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase" style={{ background: secondary, color: text }}>
                   {theme}
                 </span>
@@ -681,7 +681,7 @@ function LayoutMediaKit({ template, cvData, experiences, educations, colors, onP
               Localisation de l'Audience
             </h3>
             <div className="space-y-3">
-              {cvData.mediaKitDetails?.demographics.map((demo, i) => (
+              {(cvData.mediaKitDetails?.demographics || []).map((demo, i) => (
                 <div key={i}>
                   <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: text }}>
                     <span>{demo.location}</span>
@@ -700,7 +700,7 @@ function LayoutMediaKit({ template, cvData, experiences, educations, colors, onP
           <section className="mt-auto pt-6 border-t" style={{ borderColor: dividerColor }}>
             <h3 className="text-[10px] font-bold uppercase mb-4 tracking-widest text-center" style={{ color: mutedColor }}>Ils m'ont fait confiance</h3>
             <div className="flex justify-center flex-wrap gap-6">
-              {cvData.collaborations.map((brand, i) => (
+              {cvData.collaborations?.map((brand, i) => (
                 <div key={i} className="text-lg font-black uppercase opacity-60 tracking-tighter" style={{ color: text, fontFamily: "'Inter', sans-serif" }}>
                   {brand}
                 </div>

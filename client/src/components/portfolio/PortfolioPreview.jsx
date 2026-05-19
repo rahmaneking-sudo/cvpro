@@ -367,7 +367,7 @@ function LayoutStandard({ template, data }) {
         {/* Social Links */}
         {socialLinks && socialLinks.length > 0 && (
           <div className="flex gap-4 flex-wrap justify-center">
-            {socialLinks.map((link, idx) => (
+            {socialLinks?.map((link, idx) => (
               <a key={idx} href={link.url} target="_blank" rel="noopener noreferrer" className="px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors border" style={{ borderColor: `${text}20`, color: text, hover: { background: `${text}10` } }}>
                 {link.platform}
               </a>
@@ -383,7 +383,7 @@ function LayoutStandard({ template, data }) {
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          {(projects?.length > 0 ? projects : [{}, {}]).map((proj, i) => (
+          {(projects?.length > 0 ? projects : [{}, {}])?.map((proj, i) => (
             <article key={i} className="group cursor-pointer">
               {proj.imageUrl && isPdfUrl(proj.imageUrl) ? (
                 <a 
@@ -454,7 +454,7 @@ function LayoutStandard({ template, data }) {
               
               {/* Tags */}
               <div className="flex gap-2 flex-wrap">
-                {(proj.tags?.length > 0 ? proj.tags : ['Design', 'Développement']).map((tag, j) => (
+                {(proj.tags?.length > 0 ? proj.tags : ['Design', 'Développement'])?.map((tag, j) => (
                   <span key={j} className="text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-sm" style={{ border: `1px solid ${accent}30`, color: accent }}>
                     {tag}
                   </span>
