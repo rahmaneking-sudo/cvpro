@@ -20,7 +20,7 @@ export const templates = [
   { id: 'code-noir', name: 'Code Noir', series: 'tech', tier: 'standard', accent: '#00D4AA', bg: '#0A0A0A', text: '#E0E0E0', secondary: '#141414', layout: 'two-column' },
   { id: 'dakar-modern', name: 'Dakar Modern', series: 'african', tier: 'standard', accent: '#2E8B57', bg: '#FAFAFA', text: '#1A1A1A', secondary: '#E8F5EE', layout: 'two-column' },
   { id: 'ocean-breeze', name: 'Ocean Breeze', series: 'creative', tier: 'standard', accent: '#0EA5E9', bg: '#F0F9FF', text: '#0C4A6E', secondary: '#E0F2FE', layout: 'single-column' },
-  { id: 'cover-letter-classic', name: 'Lettre de Motivation', series: 'executive', tier: 'standard', accent: '#1A1A1A', bg: '#FFFFFF', text: '#1A1A1A', secondary: '#F5F5F5', layout: 'cover-letter' },
+  { id: 'cover-letter-classic', name: 'Lettre de Motivation', series: 'executive', tier: 'cover-letter', accent: '#1A1A1A', bg: '#FFFFFF', text: '#1A1A1A', secondary: '#F5F5F5', layout: 'cover-letter' },
 
   // ============================
   // PREMIUM — 15 modèles exclusifs (Pack Pro)
@@ -47,13 +47,14 @@ export const templates = [
 
 export const seriesLabels = {
   executive: { fr: 'Série Executive', en: 'Executive Series' },
-  creative: { fr: 'Série Créative', en: 'Creative Series' },
+  creative: { fr: 'Série Creative', en: 'Creative Series' },
   tech: { fr: 'Série Tech', en: 'Tech Series' },
   african: { fr: 'Série Africaine Premium', en: 'African Premium Series' },
 };
 
 export const tierLabels = {
-  standard: { fr: 'Standard (1 500 F - CV / Lettre de motivation)', shortFr: 'Standard', en: 'Standard', color: '#43A047', tooltip: 'Forfait 1 500 FCFA : Téléchargement unique d\'un design standard de CV ou d\'une Lettre de motivation.' },
+  standard: { fr: 'CV Standard (1 500 F)', shortFr: 'Standard', en: 'Standard', color: '#43A047', tooltip: 'Forfait 1 500 FCFA : Téléchargement unique d\'un design standard.' },
+  'cover-letter': { fr: 'Lettre de Motivation (1 500 F)', shortFr: 'Lettre de Motivation', en: 'Cover Letter', color: '#3B82F6', tooltip: 'Forfait 1 500 FCFA : Téléchargement unique d\'une Lettre de motivation.' },
   premium: { fr: 'Pack Premium (5 000 F - CV illimités)', shortFr: 'Premium', en: 'Premium', color: '#C9A96E', tooltip: 'Forfait 5 000 FCFA : Accès illimité à tous les modèles premiums.' },
   'media-kit': { fr: 'Media Kit Pro (2 000 F)', shortFr: 'Media Kit', en: 'Media Kit', color: '#8B5CF6', tooltip: 'Forfait 2 000 FCFA : Téléchargement d\'un Media Kit professionnel pour influenceurs.' },
 };
