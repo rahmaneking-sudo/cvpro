@@ -413,6 +413,8 @@
     background-color: white !important;
     overflow: visible !important;
     max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   #root {

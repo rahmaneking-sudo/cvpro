@@ -9,6 +9,57 @@ import api from '../../services/api';
 import { uploadFile } from '../../services/cloudinaryUpload';
 import { Country, State, City } from 'country-state-city';
 
+const PreviewScaler = ({ children }) => {
+  const containerRef = React.useRef(null);
+  const contentRef = React.useRef(null);
+  const [scale, setScale] = React.useState(1);
+  const [contentHeight, setContentHeight] = React.useState(1123);
+
+  React.useEffect(() => {
+    const observer = new ResizeObserver(() => {
+      if (containerRef.current) {
+        const availableWidth = containerRef.current.clientWidth;
+        // 794px = 210mm at 96dpi. Max scale is 1.
+        setScale(Math.min(1, availableWidth / 794));
+      }
+      if (contentRef.current) {
+        setContentHeight(contentRef.current.offsetHeight);
+      }
+    });
+    if (containerRef.current) observer.observe(containerRef.current);
+    if (contentRef.current) observer.observe(contentRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={containerRef} className="w-full flex justify-center print:!block print:!w-auto print:!m-0 print:!p-0">
+      <div 
+        className="print:!h-auto print:!w-full print:!static"
+        style={{ 
+          width: '794px', 
+          height: `${contentHeight * scale}px`,
+          position: 'relative'
+        }}
+      >
+        <div 
+          ref={contentRef}
+          className="shadow-[var(--shadow-cinematic)] rounded-lg overflow-hidden print:!transform-none print:!w-[210mm] print:!static print:!shadow-none print:!rounded-none"
+          style={{ 
+            width: '794px', 
+            transform: `scale(${scale})`, 
+            transformOrigin: 'top left',
+            position: 'absolute',
+            top: 0,
+            left: 0
+          }}
+        >
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const DemographicItem = React.memo(({ demo, idx, updateDemographic, removeDemographic, inputClass }) => {
   let countryCode = demo.countryCode || '';
   if (!countryCode && demo.location) {
@@ -823,15 +874,17 @@ export default function CVEditor() {
 
         {/* RIGHT — Live Preview */}
         <div className="flex-1 overflow-y-auto bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:relative print:z-10">
-          <div className="w-full max-w-[100%] lg:max-w-[600px] shadow-[var(--shadow-cinematic)] rounded-lg overflow-hidden print:max-w-none print:shadow-none print:rounded-none print:w-[210mm] print:min-h-[297mm] print:mx-auto print:overflow-visible">
-            <CVPreview 
-              template={template} 
-              cvData={cvData} 
-              experiences={experiences} 
-              onPhotoUpload={handlePhotoUpload}
-              onPhotoRemove={() => updateField('photo', '')}
-              isUploadingPhoto={isUploadingPhoto}
-            />
+          <div className="w-full max-w-[100%] lg:max-w-[794px] print:max-w-none print:w-full print:mx-auto print:overflow-visible">
+            <PreviewScaler>
+              <CVPreview 
+                template={template} 
+                cvData={cvData} 
+                experiences={experiences} 
+                onPhotoUpload={handlePhotoUpload}
+                onPhotoRemove={() => updateField('photo', '')}
+                isUploadingPhoto={isUploadingPhoto}
+              />
+            </PreviewScaler>
           </div>
         </div>
       </div>
