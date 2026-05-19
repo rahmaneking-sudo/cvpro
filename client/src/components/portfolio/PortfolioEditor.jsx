@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Plus, Trash2, Loader2, Save, Download, Lock, Upload, Globe, Camera, CheckCircle2, AlertCircle } from 'lucide-react';
@@ -656,45 +657,49 @@ export default function PortfolioEditor() {
       </div>
 
       {/* Success/Error Modal Notification */}
-      <AnimatePresence>
-        {toast.show && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-          >
+      {createPortal(
+        <AnimatePresence>
+          {toast.show && (
             <motion.div 
-              initial={{ scale: 0.9, y: 10, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.9, y: 10, opacity: 0 }}
-              className="bg-[var(--color-obsidian)] border border-[rgba(201,169,110,0.3)] shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-2xl p-6 md:p-8 max-w-sm w-full flex flex-col items-center text-center relative overflow-hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+              style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
             >
-              <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 blur-[60px] opacity-20 rounded-full ${toast.type === 'error' ? 'bg-red-500' : 'bg-green-500'}`} />
-              
-              <div className="relative z-10">
-                <div className="mb-5">
-                  {toast.type === 'error' ? (
-                    <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 border border-red-500/20 mx-auto">
-                      <AlertCircle size={32} />
-                    </div>
-                  ) : (
-                    <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 border border-green-500/20 mx-auto">
-                      <CheckCircle2 size={32} />
-                    </div>
-                  )}
+              <motion.div 
+                initial={{ scale: 0.9, y: 10, opacity: 0 }}
+                animate={{ scale: 1, y: 0, opacity: 1 }}
+                exit={{ scale: 0.9, y: 10, opacity: 0 }}
+                className="bg-[var(--color-obsidian)] border border-[rgba(201,169,110,0.3)] shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-2xl p-6 md:p-8 max-w-sm w-full flex flex-col items-center text-center relative overflow-hidden"
+              >
+                <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 blur-[60px] opacity-20 rounded-full ${toast.type === 'error' ? 'bg-red-500' : 'bg-green-500'}`} />
+                
+                <div className="relative z-10">
+                  <div className="mb-5">
+                    {toast.type === 'error' ? (
+                      <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 border border-red-500/20 mx-auto">
+                        <AlertCircle size={32} />
+                      </div>
+                    ) : (
+                      <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 border border-green-500/20 mx-auto">
+                        <CheckCircle2 size={32} />
+                      </div>
+                    )}
+                  </div>
+                  <h3 className="text-xl font-bold text-[var(--color-ivory)] mb-2" style={{ fontFamily: 'var(--font-serif)' }}>
+                    {toast.type === 'error' ? 'Oops !' : 'Succès !'}
+                  </h3>
+                  <p className="text-[var(--color-white-muted)] text-sm leading-relaxed">
+                    {toast.message}
+                  </p>
                 </div>
-                <h3 className="text-xl font-bold text-[var(--color-ivory)] mb-2" style={{ fontFamily: 'var(--font-serif)' }}>
-                  {toast.type === 'error' ? 'Oops !' : 'Succès !'}
-                </h3>
-                <p className="text-[var(--color-white-muted)] text-sm leading-relaxed">
-                  {toast.message}
-                </p>
-              </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
 
       {/* Payment Modal */}
       <PaymentModal 
