@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Plus, Trash2, Wand2, Upload, Loader2, Save, Download, GripVertical, Camera, CheckCircle2, AlertCircle } from 'lucide-react';
 import { getTemplate } from '../../data/templates';
 import CVPreview from './CVPreview';
