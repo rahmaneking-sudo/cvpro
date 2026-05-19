@@ -20,8 +20,7 @@ export default function CoverLetterPreview({ cvData, template }) {
         <div className="font-bold text-[15px] mb-1">
           {cvData.fullName || 'NOM et Prénom'}
         </div>
-        {cvData.address && <div>{cvData.address}</div>}
-        {cvData.city && <div>{cvData.city}</div>}
+        {cvData.location && <div>{cvData.location}</div>}
         {cvData.phone && <div>{cvData.phone}</div>}
         {cvData.email && <div>{cvData.email}</div>}
       </div>
