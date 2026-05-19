@@ -36,7 +36,7 @@ const PreviewScaler = ({ children }) => {
       <div 
         className="print:!h-auto print:!w-full print:!static"
         style={{ 
-          width: '794px', 
+          width: `${794 * scale}px`, 
           height: `${contentHeight * scale}px`,
           position: 'relative'
         }}
