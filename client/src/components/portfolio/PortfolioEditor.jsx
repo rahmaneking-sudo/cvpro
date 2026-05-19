@@ -714,6 +714,7 @@ export default function PortfolioEditor() {
         onClose={() => setShowPaymentModal(false)}
         onSuccess={() => {
           setHasPurchased(true);
+          setShowPaymentModal(false);
           showToast('Paiement réussi ! Vous pouvez maintenant exporter et partager.');
         }}
         templateId={templateId}

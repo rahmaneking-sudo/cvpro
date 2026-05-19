@@ -1147,8 +1147,9 @@ export default function CVEditor() {
         isOpen={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
         onSuccess={() => {
+          setHasPurchased(true);
+          setShowPaymentModal(false);
           showToast('Paiement réussi ! Vous pouvez maintenant exporter.');
-          // setTimeout(() => window.print(), 500);
         }}
         templateId={templateId}
         templateName={`Modèle: ${template?.name || templateId}`}
