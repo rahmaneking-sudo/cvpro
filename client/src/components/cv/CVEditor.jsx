@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Plus, Trash2, Wand2, Upload, Loader2, Save, Download, GripVertical, Camera } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Wand2, Upload, Loader2, Save, Download, GripVertical, Camera, CheckCircle2, AlertCircle } from 'lucide-react';
 import { getTemplate } from '../../data/templates';
 import CVPreview from './CVPreview';
 import PaymentModal from '../shared/PaymentModal';
@@ -255,7 +255,7 @@ export default function CVEditor() {
 
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
-    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 5000);
+    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000);
   };
 
   const handleSave = async () => {
@@ -1041,20 +1041,46 @@ export default function CVEditor() {
         </div>
       </div>
 
-      {/* Toast Notification */}
-      {toast.show && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <div className={`px-6 py-3 rounded-full shadow-lg border flex items-center gap-3 text-sm font-medium
-            ${toast.type === 'error' 
-              ? 'bg-red-500/10 border-red-500/20 text-red-400' 
-              : 'bg-green-500/10 border-green-500/20 text-green-400'
-            }`}
+      {/* Success/Error Modal Notification */}
+      <AnimatePresence>
+        {toast.show && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
           >
-            {toast.type === 'error' ? '⚠️' : '✅'}
-            {toast.message}
-          </div>
-        </div>
-      )}
+            <motion.div 
+              initial={{ scale: 0.9, y: 10, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.9, y: 10, opacity: 0 }}
+              className="bg-[var(--color-obsidian)] border border-[rgba(201,169,110,0.3)] shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-2xl p-6 md:p-8 max-w-sm w-full flex flex-col items-center text-center relative overflow-hidden"
+            >
+              <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 blur-[60px] opacity-20 rounded-full ${toast.type === 'error' ? 'bg-red-500' : 'bg-green-500'}`} />
+              
+              <div className="relative z-10">
+                <div className="mb-5">
+                  {toast.type === 'error' ? (
+                    <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 border border-red-500/20 mx-auto">
+                      <AlertCircle size={32} />
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 border border-green-500/20 mx-auto">
+                      <CheckCircle2 size={32} />
+                    </div>
+                  )}
+                </div>
+                <h3 className="text-xl font-bold text-[var(--color-ivory)] mb-2" style={{ fontFamily: 'var(--font-serif)' }}>
+                  {toast.type === 'error' ? 'Oops !' : 'Succès !'}
+                </h3>
+                <p className="text-[var(--color-white-muted)] text-sm leading-relaxed">
+                  {toast.message}
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Payment Modal Simulation */}
       <PaymentModal 
