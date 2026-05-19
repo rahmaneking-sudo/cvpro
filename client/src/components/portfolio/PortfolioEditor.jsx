@@ -290,39 +290,57 @@ export default function PortfolioEditor() {
     }
   };
 
-  const handleExport = async () => {
+  const handleExport = () => {
     if (hasPurchased) {
       const element = document.getElementById('portfolio-preview-container');
       if (!element) return;
       
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      let newWindow;
+      
+      if (isIOS) {
+        newWindow = window.open('', '_blank');
+        if (newWindow) {
+          newWindow.document.write('<div style="font-family:sans-serif;padding:20px;text-align:center;">Génération du PDF en cours... Veuillez patienter.</div>');
+        }
+      }
+      
       showToast('Préparation du PDF en cours...', 'success');
       
-      try {
-        const opt = {
-          margin:       0,
-          filename:     `${data.fullName || 'Portfolio'}.pdf`,
-          image:        { type: 'jpeg', quality: 0.98 },
-          html2canvas:  { 
-            scale: 2, 
-            useCORS: true, 
-            logging: false,
-            onclone: (clonedDoc) => {
-              const el = clonedDoc.getElementById('portfolio-preview-container');
-              if (el) {
-                el.style.transform = 'none';
-              }
+      const opt = {
+        margin:       0,
+        filename:     `${data.fullName || 'Portfolio'}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { 
+          scale: 2, 
+          useCORS: true, 
+          logging: false,
+          onclone: (clonedDoc) => {
+            const el = clonedDoc.getElementById('portfolio-preview-container');
+            if (el) {
+              el.style.transform = 'none';
             }
-          },
-          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        
-        await html2pdf().set(opt).from(element).save();
-        showToast('PDF téléchargé avec succès !');
+          }
+        },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      
+      html2pdf().set(opt).from(element).output('bloburl').then((pdfUrl) => {
+        showToast('PDF généré avec succès !');
+        if (isIOS && newWindow) {
+          newWindow.location.href = pdfUrl;
+        } else {
+          const link = document.createElement('a');
+          link.href = pdfUrl;
+          link.download = opt.filename;
+          link.click();
+        }
         ensureSaved().catch(console.error);
-      } catch (err) {
+      }).catch(err => {
         console.error('PDF generation error:', err);
         showToast('Erreur lors de la génération du PDF.', 'error');
-      }
+        if (isIOS && newWindow) newWindow.close();
+      });
     } else {
       setShowPaymentModal(true);
     }
