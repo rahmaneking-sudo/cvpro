@@ -8,7 +8,7 @@ function Initials({ name, accent, photo }) {
   if (photo) {
     return (
       <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border-2" style={{ borderColor: accent }}>
-        <img src={photo} alt={name} className="w-full h-full object-cover" />
+        <img src={photo} crossOrigin="anonymous" alt={name} className="w-full h-full object-cover" />
       </div>
     );
   }
@@ -169,7 +169,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors }) 
         <div className="w-24 h-24 rounded-full mb-6 mx-auto flex items-center justify-center text-2xl font-bold shadow-lg overflow-hidden relative"
           style={{ background: `linear-gradient(135deg, ${accent}, ${accent}80)`, color: secondary }}>
           {cvData.photo ? (
-            <img src={cvData.photo} alt={cvData.fullName} className="w-full h-full object-cover absolute inset-0" />
+            <img src={cvData.photo} crossOrigin="anonymous" alt={cvData.fullName} className="w-full h-full object-cover absolute inset-0" />
           ) : (
             cvData.fullName ? cvData.fullName.split(' ').map(n => n[0]).join('').toUpperCase() : '??'
           )}
@@ -242,7 +242,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors }) 
               {experiences.filter(e => e.company || e.position).map((exp, i) => (
                 <article key={i} className="flex gap-4">
                   {exp.logoUrl ? (
-                    <img src={exp.logoUrl} alt="" className="w-10 h-10 rounded shadow-sm shrink-0 object-cover" />
+                    <img src={exp.logoUrl} crossOrigin="anonymous" alt="" className="w-10 h-10 rounded shadow-sm shrink-0 object-cover" />
                   ) : (
                     <Initials name={exp.company} accent={accent} />
                   )}
@@ -605,7 +605,7 @@ function LayoutMediaKit({ template, cvData, experiences, educations, colors, onP
             {isUploadingPhoto ? (
               <Loader2 size={32} className="animate-spin text-current z-10" />
             ) : cvData.photo ? (
-              <img src={cvData.photo} alt={cvData.fullName} className="w-full h-full object-cover absolute inset-0 z-0" />
+              <img src={cvData.photo} crossOrigin="anonymous" alt={cvData.fullName} className="w-full h-full object-cover absolute inset-0 z-0" />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center z-0 opacity-50">
                 {cvData.fullName ? cvData.fullName.split(' ').map(n => n[0]).join('').toUpperCase() : '??'}

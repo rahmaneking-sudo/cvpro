@@ -8,6 +8,7 @@ import PaymentModal from '../shared/PaymentModal';
 import api from '../../services/api';
 import { uploadFile } from '../../services/cloudinaryUpload';
 import { Country, State, City } from 'country-state-city';
+import html2pdf from 'html2pdf.js';
 
 const PreviewScaler = ({ children }) => {
   const containerRef = React.useRef(null);
@@ -271,9 +272,38 @@ export default function CVEditor() {
     }
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
     if (hasPurchased) {
-      window.print();
+      const element = document.getElementById('cv-preview-container');
+      if (!element) return;
+      
+      showToast('Préparation du PDF en cours...', 'success');
+      
+      try {
+        const opt = {
+          margin:       0,
+          filename:     `${cvData.fullName || 'CV'}.pdf`,
+          image:        { type: 'jpeg', quality: 0.98 },
+          html2canvas:  { 
+            scale: 2, 
+            useCORS: true, 
+            logging: false,
+            onclone: (clonedDoc) => {
+              const el = clonedDoc.getElementById('cv-preview-container');
+              if (el) {
+                el.style.transform = 'none';
+              }
+            }
+          },
+          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        
+        await html2pdf().set(opt).from(element).save();
+        showToast('PDF téléchargé avec succès !');
+      } catch (err) {
+        console.error('PDF generation error:', err);
+        showToast('Erreur lors de la génération du PDF.', 'error');
+      }
     } else {
       setShowPaymentModal(true);
     }

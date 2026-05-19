@@ -344,7 +344,7 @@ function LayoutStandard({ template, data }) {
       <header className="px-4 sm:px-10 py-10 sm:py-20 flex flex-col items-center justify-center text-center border-b" style={{ borderColor: `${text}15` }}>
         {data.photo && (
           <div className="w-24 h-24 rounded-full overflow-hidden mb-6 border-4 shadow-lg" style={{ borderColor: accent }}>
-            <img src={data.photo} alt={fullName} className="w-full h-full object-cover" />
+            <img src={data.photo} crossOrigin="anonymous" alt={fullName} className="w-full h-full object-cover" />
           </div>
         )}
         <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight mb-3 sm:mb-4 uppercase break-words" style={{ fontFamily: 'var(--font-serif)' }}>
@@ -425,7 +425,7 @@ function LayoutStandard({ template, data }) {
                          onClick={(e) => e.stopPropagation()}
                       />
                     ) : (
-                      <img src={proj.imageUrl} alt={proj.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
+                      <img src={proj.imageUrl} crossOrigin="anonymous" alt={proj.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
                     )
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center opacity-20">
@@ -499,6 +499,7 @@ function LayoutStandard({ template, data }) {
               </button>
               <img 
                 src={selectedMedia.url} 
+                crossOrigin="anonymous"
                 alt="Projet en grand" 
                 className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl"
                 onClick={(e) => e.stopPropagation()} 
