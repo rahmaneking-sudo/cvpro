@@ -495,6 +495,25 @@ export default function CVEditor() {
     }
   };
 
+  const [uploadingLogos, setUploadingLogos] = useState({});
+  const handleExperienceLogoUpload = async (idx, e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingLogos(prev => ({ ...prev, [idx]: true }));
+    try {
+      showToast('Upload du logo en cours...', 'success');
+      const result = await uploadFile(file);
+      updateExperience(idx, 'logoUrl', result.url);
+      showToast('Logo uploadé avec succès !');
+    } catch (err) {
+      console.error('Experience logo upload error:', err);
+      showToast(err.message || 'Erreur lors de l\'upload du logo.', 'error');
+    } finally {
+      setUploadingLogos(prev => ({ ...prev, [idx]: false }));
+    }
+  };
+
   const enhanceSection = async (section, content, setter) => {
     if (!content?.trim()) return;
     setEnhancingSection(section);
@@ -826,11 +845,36 @@ export default function CVEditor() {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className="flex flex-col items-center gap-2 group cursor-pointer">
-                      <div className="w-12 h-12 rounded-full border-2 border-dashed border-[rgba(201,169,110,0.3)] flex items-center justify-center hover:border-[var(--color-champagne)] hover:bg-[rgba(201,169,110,0.05)] transition-all">
-                        {exp.logoUrl ? (
-                          <img src={exp.logoUrl} alt="" className="w-full h-full rounded-full object-cover" />
-                        ) : (
-                          <Upload size={16} className="text-[var(--color-champagne)] opacity-50 group-hover:opacity-100" />
+                      <div className="w-12 h-12 rounded-full border-2 border-dashed border-[rgba(201,169,110,0.3)] flex items-center justify-center hover:border-[var(--color-champagne)] hover:bg-[rgba(201,169,110,0.05)] transition-all relative">
+                        <label className="cursor-pointer w-full h-full flex items-center justify-center">
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            onChange={e => handleExperienceLogoUpload(idx, e)} 
+                            className="hidden" 
+                            disabled={uploadingLogos[idx]} 
+                          />
+                          {uploadingLogos[idx] ? (
+                            <Loader2 size={16} className="animate-spin text-[var(--color-champagne)]" />
+                          ) : exp.logoUrl ? (
+                            <img src={exp.logoUrl} alt="" className="w-full h-full rounded-full object-cover" />
+                          ) : (
+                            <Upload size={16} className="text-[var(--color-champagne)] opacity-50 group-hover:opacity-100" />
+                          )}
+                        </label>
+                        {exp.logoUrl && !uploadingLogos[idx] && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              updateExperience(idx, 'logoUrl', '');
+                            }}
+                            className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center text-white text-[10px] hover:bg-red-600 transition-colors"
+                            title="Supprimer le logo"
+                          >
+                            ×
+                          </button>
                         )}
                       </div>
                       <span className="text-[9px] font-bold uppercase tracking-wider text-[var(--color-champagne)] opacity-60 group-hover:opacity-100 transition-opacity">Logo</span>
