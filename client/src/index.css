@@ -426,8 +426,8 @@
   .cursor-dot,
   .cursor-ring,
   nav,
-  header,
-  aside {
+  .app-sidebar,
+  .app-header {
     display: none !important;
   }
 }

@@ -198,6 +198,8 @@ export default function CVEditor() {
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
   const [isLoadingCV, setIsLoadingCV] = useState(!!cvId);
+  const [hasPurchased, setHasPurchased] = useState(false);
+  const [isCheckingPurchase, setIsCheckingPurchase] = useState(true);
 
   useEffect(() => {
     if (cvId) {
@@ -220,6 +222,21 @@ export default function CVEditor() {
       loadCV();
     }
   }, [cvId]);
+
+  useEffect(() => {
+    const checkPurchase = async () => {
+      setIsCheckingPurchase(true);
+      try {
+        const res = await api.get(`/cv/purchase/${templateId}`);
+        setHasPurchased(res.data.purchased);
+      } catch (err) {
+        console.error('Check purchase error:', err);
+      } finally {
+        setIsCheckingPurchase(false);
+      }
+    };
+    checkPurchase();
+  }, [templateId]);
 
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
@@ -253,22 +270,11 @@ export default function CVEditor() {
     }
   };
 
-  const handleExport = async () => {
-    setIsCheckingPayment(true);
-    try {
-      const res = await api.get(`/cv/purchase/${templateId}`);
-      if (res.data.purchased) {
-        // Already purchased, trigger print
-        window.print();
-      } else {
-        // Not purchased, show payment modal
-        setShowPaymentModal(true);
-      }
-    } catch (err) {
-      console.error('Check purchase error:', err);
-      showToast('Erreur de vérification des droits.', 'error');
-    } finally {
-      setIsCheckingPayment(false);
+  const handleExport = () => {
+    if (hasPurchased) {
+      window.print();
+    } else {
+      setShowPaymentModal(true);
     }
   };
 
@@ -504,10 +510,10 @@ export default function CVEditor() {
           </button>
           <button 
             onClick={handleExport}
-            disabled={isCheckingPayment}
+            disabled={saving || isLoadingCV || isCheckingPurchase}
             className="btn-primary !py-2 !px-3 lg:!px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50"
           >
-            {isCheckingPayment ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} 
+            {isCheckingPurchase ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} 
             <span className="hidden sm:inline">Exporter PDF</span>
           </button>
         </div>
