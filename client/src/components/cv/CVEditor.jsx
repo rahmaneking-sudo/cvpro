@@ -8,7 +8,6 @@ import PaymentModal from '../shared/PaymentModal';
 import api from '../../services/api';
 import { uploadFile } from '../../services/cloudinaryUpload';
 import { Country, State, City } from 'country-state-city';
-import html2pdf from 'html2pdf.js';
 
 const PreviewScaler = ({ children }) => {
   const containerRef = React.useRef(null);
@@ -272,34 +271,9 @@ export default function CVEditor() {
     }
   };
 
-  const handleExport = async () => {
+  const handleExport = () => {
     if (hasPurchased) {
-      const element = document.getElementById('cv-preview-container');
-      if (!element) return;
-      
-      // Temporary hide UI elements that shouldn't be in PDF
-      const oldTransform = element.style.transform;
-      element.style.transform = 'none';
-      
-      showToast('Préparation du PDF en cours...', 'success');
-      
-      try {
-        const opt = {
-          margin:       0,
-          filename:     `${cvData.fullName || 'CV'}.pdf`,
-          image:        { type: 'jpeg', quality: 0.98 },
-          html2canvas:  { scale: 2, useCORS: true, logging: false },
-          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        
-        await html2pdf().set(opt).from(element).save();
-        showToast('PDF téléchargé avec succès !');
-      } catch (err) {
-        console.error('PDF generation error:', err);
-        showToast('Erreur lors de la génération du PDF.', 'error');
-      } finally {
-        element.style.transform = oldTransform;
-      }
+      window.print();
     } else {
       setShowPaymentModal(true);
     }

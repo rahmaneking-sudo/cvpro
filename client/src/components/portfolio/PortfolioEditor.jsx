@@ -7,7 +7,6 @@ import PortfolioPreview from './PortfolioPreview';
 import PaymentModal from '../shared/PaymentModal';
 import api from '../../services/api';
 import { uploadFile } from '../../services/cloudinaryUpload';
-import html2pdf from 'html2pdf.js';
 
 const PreviewScaler = ({ children }) => {
   const containerRef = React.useRef(null);
@@ -290,34 +289,10 @@ export default function PortfolioEditor() {
     }
   };
 
-  const handleExport = async () => {
+  const handleExport = () => {
     if (hasPurchased) {
-      const element = document.getElementById('portfolio-preview-container');
-      if (!element) return;
-      
-      const oldTransform = element.style.transform;
-      element.style.transform = 'none';
-      
-      showToast('Préparation du PDF en cours...', 'success');
-      
-      try {
-        const opt = {
-          margin:       0,
-          filename:     `${data.fullName || 'Portfolio'}.pdf`,
-          image:        { type: 'jpeg', quality: 0.98 },
-          html2canvas:  { scale: 2, useCORS: true, logging: false },
-          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        
-        await html2pdf().set(opt).from(element).save();
-        showToast('PDF téléchargé avec succès !');
-        ensureSaved().catch(console.error);
-      } catch (err) {
-        console.error('PDF generation error:', err);
-        showToast('Erreur lors de la génération du PDF.', 'error');
-      } finally {
-        element.style.transform = oldTransform;
-      }
+      window.print();
+      ensureSaved().catch(console.error);
     } else {
       setShowPaymentModal(true);
     }
