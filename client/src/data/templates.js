@@ -20,6 +20,7 @@ export const templates = [
   { id: 'code-noir', name: 'Code Noir', series: 'tech', tier: 'standard', accent: '#00D4AA', bg: '#0A0A0A', text: '#E0E0E0', secondary: '#141414', layout: 'two-column' },
   { id: 'dakar-modern', name: 'Dakar Modern', series: 'african', tier: 'standard', accent: '#2E8B57', bg: '#FAFAFA', text: '#1A1A1A', secondary: '#E8F5EE', layout: 'two-column' },
   { id: 'ocean-breeze', name: 'Ocean Breeze', series: 'creative', tier: 'standard', accent: '#0EA5E9', bg: '#F0F9FF', text: '#0C4A6E', secondary: '#E0F2FE', layout: 'single-column' },
+  { id: 'cover-letter-classic', name: 'Lettre de Motivation', series: 'executive', tier: 'standard', accent: '#1A1A1A', bg: '#FFFFFF', text: '#1A1A1A', secondary: '#F5F5F5', layout: 'cover-letter' },
 
   // ============================
   // PREMIUM — 15 modèles exclusifs (Pack Pro)

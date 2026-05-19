@@ -10,6 +10,7 @@ import { uploadFile } from '../../services/cloudinaryUpload';
 import { Country, State, City } from 'country-state-city';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
+import CoverLetterPreview from './CoverLetterPreview';
 
 const PreviewScaler = ({ children }) => {
   const containerRef = React.useRef(null);
@@ -168,7 +169,17 @@ const emptyCVData = {
     primaryNetwork: '',
     demographics: []
   },
-  collaborations: []
+  collaborations: [],
+  // Cover Letter fields
+  recipientCompany: '',
+  recipientName: '',
+  recipientAddress: '',
+  recipientCity: '',
+  dateAndLocation: '',
+  subject: '',
+  salutation: '',
+  body: '',
+  closing: ''
 };
 
 const emptyExperience = {
@@ -187,6 +198,7 @@ export default function CVEditor() {
   const cvId = searchParams.get('cvId');
   const template = getTemplate(templateId);
   const isMediaKit = template?.layout === 'media-kit';
+  const isCoverLetter = template?.layout === 'cover-letter';
 
   const [cvData, setCVData] = useState(emptyCVData);
   const [experiences, setExperiences] = useState([{ ...emptyExperience }]);
@@ -690,31 +702,101 @@ export default function CVEditor() {
           </section>
 
           {/* Summary */}
-          <section>
-            <h3 className="text-lg font-bold text-[var(--color-ivory)] mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-serif)' }}>
-              <span className="w-7 h-7 rounded-lg bg-[rgba(201,169,110,0.15)] flex items-center justify-center text-xs text-[var(--color-champagne)] font-bold">2</span>
-              Accroche professionnelle
-            </h3>
-            <div className="relative">
-              <textarea
-                value={cvData.summary}
-                onChange={e => updateField('summary', e.target.value)}
-                placeholder="Décrivez votre profil professionnel en quelques lignes percutantes..."
-                rows={4}
-                className={`${inputClass} resize-none`}
-              />
-              <button
-                onClick={() => enhanceSection('accroche', cvData.summary, (v) => updateField('summary', v))}
-                disabled={enhancingSection === 'accroche'}
-                className="absolute top-2 right-2 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[rgba(201,169,110,0.15)] hover:bg-[rgba(201,169,110,0.25)] text-[var(--color-champagne)] text-[11px] font-medium transition-colors"
-              >
-                {enhancingSection === 'accroche' ? <Loader2 size={12} className="animate-spin" /> : <Wand2 size={12} />}
-                IA
-              </button>
-            </div>
-          </section>
+          {!isCoverLetter && !isMediaKit && (
+            <section>
+              <h3 className="text-lg font-bold text-[var(--color-ivory)] mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-serif)' }}>
+                <span className="w-7 h-7 rounded-lg bg-[rgba(201,169,110,0.15)] flex items-center justify-center text-xs text-[var(--color-champagne)] font-bold">2</span>
+                Accroche professionnelle
+              </h3>
+              <div className="relative">
+                <textarea
+                  value={cvData.summary}
+                  onChange={e => updateField('summary', e.target.value)}
+                  placeholder="Décrivez votre profil professionnel en quelques lignes percutantes..."
+                  rows={4}
+                  className={`${inputClass} resize-none`}
+                />
+                <button
+                  onClick={() => enhanceSection('accroche', cvData.summary, (v) => updateField('summary', v))}
+                  disabled={enhancingSection === 'accroche'}
+                  className="absolute top-2 right-2 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[rgba(201,169,110,0.15)] hover:bg-[rgba(201,169,110,0.25)] text-[var(--color-champagne)] text-[11px] font-medium transition-colors"
+                >
+                  {enhancingSection === 'accroche' ? <Loader2 size={12} className="animate-spin" /> : <Wand2 size={12} />}
+                  IA
+                </button>
+              </div>
+            </section>
+          )}
 
-          {!isMediaKit ? (
+          {isCoverLetter ? (
+            <>
+              <section>
+                <h3 className="text-lg font-bold text-[var(--color-ivory)] mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-serif)' }}>
+                  <span className="w-7 h-7 rounded-lg bg-[rgba(201,169,110,0.15)] flex items-center justify-center text-xs text-[var(--color-champagne)] font-bold">2</span>
+                  Destinataire
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="col-span-2">
+                    <label className={labelClass}>Nom de l'entreprise *</label>
+                    <input type="text" value={cvData.recipientCompany} onChange={e => updateField('recipientCompany', e.target.value)} placeholder="Entreprise XYZ" className={inputClass} />
+                  </div>
+                  <div className="col-span-2">
+                    <label className={labelClass}>Personne à contacter / Service</label>
+                    <input type="text" value={cvData.recipientName} onChange={e => updateField('recipientName', e.target.value)} placeholder="M. le Directeur des Ressources Humaines" className={inputClass} />
+                  </div>
+                  <div className="col-span-2">
+                    <label className={labelClass}>Adresse de l'entreprise</label>
+                    <input type="text" value={cvData.recipientAddress} onChange={e => updateField('recipientAddress', e.target.value)} placeholder="123 Rue de l'Innovation" className={inputClass} />
+                  </div>
+                  <div className="col-span-2">
+                    <label className={labelClass}>Ville du destinataire</label>
+                    <input type="text" value={cvData.recipientCity} onChange={e => updateField('recipientCity', e.target.value)} placeholder="Dakar, Sénégal" className={inputClass} />
+                  </div>
+                </div>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-bold text-[var(--color-ivory)] mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-serif)' }}>
+                  <span className="w-7 h-7 rounded-lg bg-[rgba(201,169,110,0.15)] flex items-center justify-center text-xs text-[var(--color-champagne)] font-bold">3</span>
+                  En-tête et Corps du texte
+                </h3>
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <label className={labelClass}>Lieu et date de rédaction</label>
+                    <input type="text" value={cvData.dateAndLocation} onChange={e => updateField('dateAndLocation', e.target.value)} placeholder="Dakar, le 19 Mai 2026" className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Objet de la lettre *</label>
+                    <input type="text" value={cvData.subject} onChange={e => updateField('subject', e.target.value)} placeholder="Candidature pour le poste de..." className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Salutation</label>
+                    <input type="text" value={cvData.salutation} onChange={e => updateField('salutation', e.target.value)} placeholder="Madame, Monsieur," className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Corps du texte *</label>
+                    <textarea 
+                      value={cvData.body} 
+                      onChange={e => updateField('body', e.target.value)} 
+                      placeholder="Texte de votre lettre de motivation..." 
+                      rows={12} 
+                      className={`${inputClass} resize-y`} 
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Formule de politesse</label>
+                    <textarea 
+                      value={cvData.closing} 
+                      onChange={e => updateField('closing', e.target.value)} 
+                      placeholder="Dans l'attente d'une réponse de votre part..." 
+                      rows={2} 
+                      className={`${inputClass} resize-none`} 
+                    />
+                  </div>
+                </div>
+              </section>
+            </>
+          ) : !isMediaKit ? (
             <>
           {/* Experiences */}
           <section>
@@ -942,14 +1024,18 @@ export default function CVEditor() {
         <div className="flex-1 overflow-y-auto bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:relative print:z-10">
           <div className="w-full max-w-[100%] lg:max-w-[794px] print:max-w-none print:w-full print:mx-auto print:overflow-visible">
             <PreviewScaler>
-              <CVPreview 
-                template={template} 
-                cvData={cvData} 
-                experiences={experiences} 
-                onPhotoUpload={handlePhotoUpload}
-                onPhotoRemove={() => updateField('photo', '')}
-                isUploadingPhoto={isUploadingPhoto}
-              />
+              {isCoverLetter ? (
+                <CoverLetterPreview template={template} cvData={cvData} />
+              ) : (
+                <CVPreview 
+                  template={template} 
+                  cvData={cvData} 
+                  experiences={experiences} 
+                  onPhotoUpload={handlePhotoUpload}
+                  onPhotoRemove={() => updateField('photo', '')}
+                  isUploadingPhoto={isUploadingPhoto}
+                />
+              )}
             </PreviewScaler>
           </div>
         </div>
