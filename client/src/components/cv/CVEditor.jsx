@@ -345,15 +345,27 @@ export default function CVEditor() {
               // to prevent height limits (e.g. min-h-screen/h-screen) from clipping the projects
               const allElements = el.getElementsByTagName('*');
               for (let node of allElements) {
-                const style = window.getComputedStyle(node);
+                const className = node.className || '';
+                const isStringClass = typeof className === 'string';
+                
                 if (node.classList.contains('min-h-screen') || 
                     node.classList.contains('h-screen') || 
-                    style.minHeight.includes('vh') || 
-                    style.height.includes('vh')) {
+                    (isStringClass && (
+                      className.includes('h-[') || 
+                      className.includes('min-h-[') || 
+                      className.includes('h-screen') || 
+                      className.includes('min-h-screen')
+                    )) ||
+                    (node.style.height && node.style.height.includes('vh')) ||
+                    (node.style.minHeight && node.style.minHeight.includes('vh'))) {
                   node.style.minHeight = 'auto';
                   node.style.height = 'auto';
                 }
-                if (style.overflow === 'hidden' || style.overflowY === 'hidden') {
+                
+                if (node.classList.contains('overflow-hidden') || 
+                    node.classList.contains('overflow-y-hidden') || 
+                    node.style.overflow === 'hidden' || 
+                    node.style.overflowY === 'hidden') {
                   node.style.overflow = 'visible';
                 }
               }
