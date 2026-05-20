@@ -323,10 +323,23 @@ export default function PortfolioEditor() {
           logging: false,
           width: 794,
           windowWidth: 794,
+          backgroundColor: null,
           onclone: (clonedDoc) => {
             try {
               const el = clonedDoc.getElementById('portfolio-preview-container');
               if (el) {
+                // Apply template background to body/documentElement to prevent white background cuts
+                const firstChild = el.firstElementChild;
+                if (firstChild && firstChild.style) {
+                  const bgVal = firstChild.style.background || firstChild.style.backgroundColor;
+                  if (bgVal) {
+                    clonedDoc.body.style.background = bgVal;
+                    clonedDoc.body.style.backgroundColor = bgVal;
+                    clonedDoc.documentElement.style.background = bgVal;
+                    clonedDoc.documentElement.style.backgroundColor = bgVal;
+                  }
+                }
+
                 // Reset transform, scaling, and force auto height to allow full vertical render
                 el.style.transform = 'none';
                 el.style.position = 'static';
