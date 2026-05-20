@@ -23,12 +23,6 @@ export default function AdminDashboardPage() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState('');
 
-  useEffect(() => {
-    if (adminToken) {
-      fetchStats();
-    }
-  }, [adminToken]);
-
   const fetchStats = async () => {
     try {
       setLoading(true);
@@ -50,6 +44,12 @@ export default function AdminDashboardPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (adminToken) {
+      fetchStats();
+    }
+  }, [adminToken]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
