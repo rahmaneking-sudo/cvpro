@@ -7,8 +7,8 @@ const testimonials = [
   {
     name: 'Fatou Diallo',
     role: 'Product Manager — Dakar',
-    text_fr: "CV Pro a complètement transformé ma candidature. Le modèle Teranga Gold m'a permis de décrocher un entretien chez Google en moins de deux semaines.",
-    text_en: "CV Pro completely transformed my application. The Teranga Gold template helped me land a Google interview in under two weeks.",
+    text_fr: "Samacvpro a complètement transformé ma candidature. Le modèle Teranga Gold m'a permis de décrocher un entretien chez Google en moins de deux semaines.",
+    text_en: "Samacvpro completely transformed my application. The Teranga Gold template helped me land a Google interview in under two weeks.",
     rating: 5,
   },
   {

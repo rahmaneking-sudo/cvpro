@@ -30,7 +30,7 @@ export default function ComingSoonPage({ title }) {
           {title || "Bientôt disponible"}
         </h1>
         <p className="text-[var(--color-white-muted)] text-lg leading-relaxed">
-          Cette fonctionnalité est en cours de développement. L'équipe de CV Pro y met la touche finale pour vous offrir une expérience cinématographique exceptionnelle.
+          Cette fonctionnalité est en cours de développement. L'équipe de Samacvpro y met la touche finale pour vous offrir une expérience cinématographique exceptionnelle.
         </p>
 
         <button 

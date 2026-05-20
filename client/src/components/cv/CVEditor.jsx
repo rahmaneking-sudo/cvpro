@@ -716,7 +716,7 @@ export default function CVEditor() {
               <div>
                 <h3 className="text-sm font-bold text-[var(--color-champagne)] mb-1">Magie IA : Scannez votre CV</h3>
                 <p className="text-xs text-[var(--color-white-muted)] mb-3 leading-relaxed">
-                  Importez une photo ou un PDF de votre ancien CV. L'IA de CV Pro va lire le document et remplir toutes les cases ci-dessous instantanément.
+                  Importez une photo ou un PDF de votre ancien CV. L'IA de Samacvpro va lire le document et remplir toutes les cases ci-dessous instantanément.
                 </p>
                 <label className={`relative inline-block ${isScanning ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
                   <input

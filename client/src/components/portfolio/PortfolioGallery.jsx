@@ -154,7 +154,7 @@ function PortfolioPreviewModal({ template, onClose, onSelect, isLoggedIn }) {
             </div>
             <div className="flex-1 mx-4 h-7 rounded-lg flex items-center px-3 text-xs" style={{ background: `${text}08`, color: `${text}50` }}>
               <Globe size={12} className="mr-2" style={{ color: accent }} />
-              abdou-diallo.cvpro.dev
+              abdou-diallo.samacvpro.dev
             </div>
           </div>
 

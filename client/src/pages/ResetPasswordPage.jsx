@@ -53,9 +53,9 @@ export default function ResetPasswordPage() {
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="relative z-10 w-full max-w-md">
         <Link to="/" className="flex items-center justify-center gap-3 mb-10">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#C9A96E] to-[#D4B878] flex items-center justify-center shadow-lg">
-            <span className="text-[#0A0A0A] font-bold text-xl" style={{ fontFamily: 'var(--font-serif)' }}>C</span>
+            <span className="text-[#0A0A0A] font-bold text-xl" style={{ fontFamily: 'var(--font-serif)' }}>S</span>
           </div>
-          <span className="text-2xl font-bold"><span className="text-[var(--color-ivory)]">CV</span><span className="text-gradient-gold ml-1">Pro</span></span>
+          <span className="text-2xl font-bold"><span className="text-[var(--color-ivory)]">Sama</span><span className="text-gradient-gold">cvpro</span></span>
         </Link>
 
         <div className="glass-card p-8 md:p-10">

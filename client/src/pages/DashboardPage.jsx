@@ -48,11 +48,11 @@ export default function DashboardPage() {
         <div className="px-6 py-6 border-b border-[rgba(255,255,255,0.05)] flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C9A96E] to-[#D4B878] flex items-center justify-center">
-              <span className="text-[#0A0A0A] font-bold text-lg" style={{ fontFamily: 'var(--font-serif)' }}>C</span>
+              <span className="text-[#0A0A0A] font-bold text-lg" style={{ fontFamily: 'var(--font-serif)' }}>S</span>
             </div>
             <span className="text-xl font-bold">
-              <span className="text-[var(--color-ivory)]">CV</span>
-              <span className="text-gradient-gold ml-1">Pro</span>
+              <span className="text-[var(--color-ivory)]">Sama</span>
+              <span className="text-gradient-gold">cvpro</span>
             </span>
           </Link>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-[var(--color-white-muted)] hover:text-[var(--color-ivory)]">
@@ -123,11 +123,11 @@ export default function DashboardPage() {
           </button>
           <Link to="/" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#C9A96E] to-[#D4B878] flex items-center justify-center">
-              <span className="text-[#0A0A0A] font-bold text-sm" style={{ fontFamily: 'var(--font-serif)' }}>C</span>
+              <span className="text-[#0A0A0A] font-bold text-sm" style={{ fontFamily: 'var(--font-serif)' }}>S</span>
             </div>
             <span className="text-lg font-bold">
-              <span className="text-[var(--color-ivory)]">CV</span>
-              <span className="text-gradient-gold ml-1">Pro</span>
+              <span className="text-[var(--color-ivory)]">Sama</span>
+              <span className="text-gradient-gold">cvpro</span>
             </span>
           </Link>
         </div>

@@ -13,11 +13,11 @@ export default function Footer() {
           <div className="md:col-span-1">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C9A96E] to-[#D4B878] flex items-center justify-center">
-                <span className="text-[#0A0A0A] font-bold text-lg font-[var(--font-serif)]">C</span>
+                <span className="text-[#0A0A0A] font-bold text-lg font-[var(--font-serif)]">S</span>
               </div>
               <span className="text-xl font-bold">
-                <span className="text-[var(--color-ivory)]">CV</span>
-                <span className="text-gradient-gold ml-1">Pro</span>
+                <span className="text-[var(--color-ivory)]">Sama</span>
+                <span className="text-gradient-gold">cvpro</span>
               </span>
             </div>
             <p className="text-sm text-[var(--color-white-muted)] leading-relaxed">
@@ -77,7 +77,7 @@ export default function Footer() {
         {/* Bottom */}
         <div className="mt-16 pt-8 border-t border-[rgba(255,255,255,0.05)] flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-[var(--color-white-muted)]">
-            © {year} CV Pro. {t('footer.rights')}.
+            © {year} Samacvpro. {t('footer.rights')}.
           </p>
           <p className="text-xs text-[var(--color-white-muted)] flex items-center gap-1">
             Made with <Heart size={12} className="text-[var(--color-champagne)]" fill="currentColor" /> in Dakar & Paris

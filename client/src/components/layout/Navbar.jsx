@@ -53,11 +53,11 @@ export default function Navbar() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C9A96E] to-[#D4B878] flex items-center justify-center shadow-lg group-hover:shadow-[0_0_20px_rgba(201,169,110,0.3)] transition-shadow duration-500">
-              <span className="text-[#0A0A0A] font-bold text-lg font-[var(--font-serif)]">C</span>
+              <span className="text-[#0A0A0A] font-bold text-lg font-[var(--font-serif)]">S</span>
             </div>
             <span className="text-xl font-bold tracking-tight">
-              <span className="text-[var(--color-ivory)]">CV</span>
-              <span className="text-gradient-gold ml-1">Pro</span>
+              <span className="text-[var(--color-ivory)]">Sama</span>
+              <span className="text-gradient-gold">cvpro</span>
             </span>
           </Link>
 
