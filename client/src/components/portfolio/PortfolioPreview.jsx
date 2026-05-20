@@ -408,68 +408,137 @@ function LayoutStandard({ template, data }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           {(projects?.length > 0 ? projects : [{}, {}])?.map((proj, i) => (
             <article key={i} className="group cursor-pointer">
-              {proj.imageUrl && isPdfUrl(proj.imageUrl) ? (
-                <a 
-                  href={proj.imageUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-xl mb-6 overflow-hidden relative border block cursor-pointer"
-                  style={{ background: secondary, borderColor: `${text}10`, height: '240px', minHeight: '240px' }}
-                >
-                  <PdfThumbnail
-                    url={proj.imageUrl}
-                    alt={proj.title || 'PDF'}
-                    className="w-full h-full object-cover"
-                  />
-                  {/* Hover overlay — purely visual */}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                    <span className="px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-white text-black">
-                      Ouvrir le PDF
-                    </span>
-                  </div>
-                </a>
-              ) : (
-                <div 
-                  className="rounded-xl mb-6 overflow-hidden relative border cursor-pointer"
-                  style={{ background: secondary, borderColor: `${text}10`, height: '240px', minHeight: '240px' }}
-                  onClick={() => {
-                    if (proj.imageUrl && !isVideoUrl(proj.imageUrl)) {
-                      setSelectedMedia({ type: 'image', url: proj.imageUrl });
-                    }
-                  }}
-                >
-                  {proj.imageUrl ? (
-                    isVideoUrl(proj.imageUrl) ? (
-                      <video 
-                         src={proj.imageUrl} 
-                         controls 
-                         className="w-full h-full object-cover"
-                         preload="metadata"
-                         onClick={(e) => e.stopPropagation()}
-                      />
-                    ) : (
-                      <img src={proj.imageUrl} crossOrigin="anonymous" alt={proj.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
-                    )
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center opacity-20">
-                      <Globe size={48} />
+              {proj.link ? (
+                // If link exists, make the whole media block point to it (unless it's a PDF or video)
+                proj.imageUrl && isPdfUrl(proj.imageUrl) ? (
+                  <a 
+                    href={proj.imageUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-xl mb-6 overflow-hidden relative border block cursor-pointer"
+                    style={{ background: secondary, borderColor: `${text}10`, height: '240px', minHeight: '240px' }}
+                  >
+                    <PdfThumbnail
+                      url={proj.imageUrl}
+                      alt={proj.title || 'PDF'}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                      <span className="px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-white text-black">
+                        Ouvrir le PDF
+                      </span>
                     </div>
-                  )}
-                  {/* Hover overlay — purely visual */}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
-                    <span className="px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-white text-black">
-                      {isVideoUrl(proj.imageUrl) ? 'Voir le projet' : 'Voir l\'image'}
-                    </span>
+                  </a>
+                ) : (
+                  <a 
+                    href={proj.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-xl mb-6 overflow-hidden relative border block cursor-pointer"
+                    style={{ background: secondary, borderColor: `${text}10`, height: '240px', minHeight: '240px' }}
+                  >
+                    {proj.imageUrl ? (
+                      isVideoUrl(proj.imageUrl) ? (
+                        <video 
+                           src={proj.imageUrl} 
+                           controls 
+                           className="w-full h-full object-cover"
+                           preload="metadata"
+                           onClick={(e) => e.stopPropagation()}
+                        />
+                      ) : (
+                        <img src={proj.imageUrl} crossOrigin="anonymous" alt={proj.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
+                      )
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center opacity-20">
+                        <Globe size={48} />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
+                      <span className="px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-white text-black">
+                        Visiter le projet
+                      </span>
+                    </div>
+                  </a>
+                )
+              ) : (
+                // If no link, open image in preview modal
+                proj.imageUrl && isPdfUrl(proj.imageUrl) ? (
+                  <a 
+                    href={proj.imageUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-xl mb-6 overflow-hidden relative border block cursor-pointer"
+                    style={{ background: secondary, borderColor: `${text}10`, height: '240px', minHeight: '240px' }}
+                  >
+                    <PdfThumbnail
+                      url={proj.imageUrl}
+                      alt={proj.title || 'PDF'}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                      <span className="px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-white text-black">
+                        Ouvrir le PDF
+                      </span>
+                    </div>
+                  </a>
+                ) : (
+                  <div 
+                    className="rounded-xl mb-6 overflow-hidden relative border cursor-pointer"
+                    style={{ background: secondary, borderColor: `${text}10`, height: '240px', minHeight: '240px' }}
+                    onClick={() => {
+                      if (proj.imageUrl && !isVideoUrl(proj.imageUrl)) {
+                        setSelectedMedia({ type: 'image', url: proj.imageUrl });
+                      }
+                    }}
+                  >
+                    {proj.imageUrl ? (
+                      isVideoUrl(proj.imageUrl) ? (
+                        <video 
+                           src={proj.imageUrl} 
+                           controls 
+                           className="w-full h-full object-cover"
+                           preload="metadata"
+                           onClick={(e) => e.stopPropagation()}
+                        />
+                      ) : (
+                        <img src={proj.imageUrl} crossOrigin="anonymous" alt={proj.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
+                      )
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center opacity-20">
+                        <Globe size={48} />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
+                      <span className="px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-white text-black">
+                        {isVideoUrl(proj.imageUrl) ? 'Voir le projet' : 'Voir l\'image'}
+                      </span>
+                    </div>
                   </div>
-                </div>
+                )
               )}
 
               {/* Project Info */}
               <div className="flex justify-between items-start mb-2">
-                <h4 className="text-xl font-bold" style={{ fontFamily: 'var(--font-serif)' }}>
-                  {proj.title || `Projet ${i + 1}`}
-                </h4>
-                {proj.link && <ExternalLink size={16} style={{ color: accent }} />}
+                {proj.link ? (
+                  <a 
+                    href={proj.link} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="hover:underline flex justify-between items-center w-full group/title"
+                  >
+                    <h4 className="text-xl font-bold animate-pulse-once" style={{ fontFamily: 'var(--font-serif)' }}>
+                      {proj.title || `Projet ${i + 1}`}
+                    </h4>
+                    <ExternalLink size={16} style={{ color: accent }} className="shrink-0 ml-2 group-hover/title:scale-115 transition-transform" />
+                  </a>
+                ) : (
+                  <>
+                    <h4 className="text-xl font-bold" style={{ fontFamily: 'var(--font-serif)' }}>
+                      {proj.title || `Projet ${i + 1}`}
+                    </h4>
+                  </>
+                )}
               </div>
               <p className="text-xs leading-relaxed opacity-70 mb-4 line-clamp-3">
                 {proj.description || 'Une description détaillée de ce projet, les défis rencontrés et les solutions apportées.'}
