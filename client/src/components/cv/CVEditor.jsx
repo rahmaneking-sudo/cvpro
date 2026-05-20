@@ -429,7 +429,7 @@ export default function CVEditor() {
         pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInPdf);
         heightLeft -= pdfHeight;
         
-        while (heightLeft > 0) {
+        while (heightLeft > 15) {
           position = heightLeft - imgHeightInPdf;
           pdf.addPage();
 
