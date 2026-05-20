@@ -478,6 +478,12 @@
   .app-header {
     display: none !important;
   }
+
+  /* Ensure images, videos, and canvases are not desaturated/grayscale during printing */
+  img, video, canvas {
+    filter: none !important;
+    -webkit-filter: none !important;
+  }
 }
 
 @page {

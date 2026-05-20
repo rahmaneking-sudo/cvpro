@@ -329,6 +329,37 @@ export default function CVEditor() {
                 el.parentElement.style.width = '794px';
                 el.parentElement.style.transform = 'none';
               }
+
+              // Copy contents of all canvas elements
+              const originalCanvases = element.querySelectorAll('canvas');
+              const clonedCanvases = el.querySelectorAll('canvas');
+              originalCanvases.forEach((origCanvas, index) => {
+                const clonedCanvas = clonedCanvases[index];
+                if (clonedCanvas) {
+                  const ctx = clonedCanvas.getContext('2d');
+                  clonedCanvas.width = origCanvas.width;
+                  clonedCanvas.height = origCanvas.height;
+                  ctx.drawImage(origCanvas, 0, 0);
+                }
+              });
+
+              // Force image colors and append cache-buster to prevent CORS issues
+              const images = el.getElementsByTagName('img');
+              for (let img of images) {
+                img.classList.remove('grayscale');
+                img.style.filter = 'none';
+                img.style.webkitFilter = 'none';
+                img.setAttribute('crossOrigin', 'anonymous');
+                if (img.src && !img.src.startsWith('data:')) {
+                  try {
+                    const url = new URL(img.src);
+                    url.searchParams.set('cv_pdf_cb', Date.now().toString());
+                    img.src = url.toString();
+                  } catch (e) {
+                    // fallback if not a valid full URL
+                  }
+                }
+              }
             }
           }
         });
@@ -336,9 +367,24 @@ export default function CVEditor() {
         const imgData = canvas.toDataURL('image/jpeg', 0.98);
         const pdf = new jsPDF('p', 'mm', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+        const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
         
-        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        const imgHeightInPdf = (canvasHeight * pdfWidth) / canvasWidth;
+        
+        let heightLeft = imgHeightInPdf;
+        let position = 0;
+        
+        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInPdf);
+        heightLeft -= pdfHeight;
+        
+        while (heightLeft > 0) {
+          position = heightLeft - imgHeightInPdf;
+          pdf.addPage();
+          pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInPdf);
+          heightLeft -= pdfHeight;
+        }
         
         const pdfBlob = pdf.output('blob');
         const pdfUrl = URL.createObjectURL(pdfBlob);
