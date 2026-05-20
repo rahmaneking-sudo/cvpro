@@ -21,12 +21,13 @@ export default function CoverLetterPreview({ cvData, template }) {
           {cvData.fullName || 'Prénom NOM'}
         </div>
         {cvData.location && <div>{cvData.location}</div>}
+        {cvData.address && <div>{cvData.address}</div>}
         {cvData.phone && <div>{cvData.phone}</div>}
         {cvData.email && <div>{cvData.email}</div>}
       </div>
 
       {/* RECIPIENT INFO (Right-aligned) */}
-      <div style={{ marginLeft: 'auto', width: '40%', fontSize: '13px', marginBottom: '30px', lineHeight: 1.6 }}>
+      <div style={{ marginLeft: 'auto', width: '35%', fontSize: '13px', marginBottom: '30px', lineHeight: 1.6 }}>
         <div style={{ fontWeight: 700, marginBottom: '2px' }}>
           {cvData.recipientCompany || "Nom de l'entreprise"}
         </div>
@@ -36,7 +37,7 @@ export default function CoverLetterPreview({ cvData, template }) {
       </div>
 
       {/* DATE & LOCATION (Right below recipient) */}
-      <div style={{ marginLeft: 'auto', width: '40%', fontSize: '13px', marginBottom: '45px', fontStyle: 'italic' }}>
+      <div style={{ marginLeft: 'auto', width: '35%', fontSize: '13px', marginBottom: '45px', fontStyle: 'italic' }}>
         {cvData.dateAndLocation || 'Lieu, le Date'}
       </div>
 
@@ -62,7 +63,7 @@ export default function CoverLetterPreview({ cvData, template }) {
       </div>
 
       {/* NAME AT BOTTOM (no signature block, just the name) */}
-      <div style={{ marginLeft: 'auto', width: '45%', fontSize: '14px', fontWeight: 700, paddingTop: '30px' }}>
+      <div style={{ marginLeft: 'auto', width: '35%', fontSize: '14px', fontWeight: 700, paddingTop: '30px' }}>
         {cvData.fullName || 'Prénom NOM'}
       </div>
     </div>

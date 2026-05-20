@@ -721,6 +721,12 @@ export default function CVEditor() {
                 <label className={labelClass}>Localisation</label>
                 <input type="text" value={cvData.location} onChange={e => updateField('location', e.target.value)} placeholder="Dakar, Sénégal" className={inputClass} />
               </div>
+              {isCoverLetter && (
+                <div>
+                  <label className={labelClass}>Adresse</label>
+                  <input type="text" value={cvData.address || ''} onChange={e => updateField('address', e.target.value)} placeholder="123 Rue Exemple" className={inputClass} />
+                </div>
+              )}
               <div>
                 <label className={labelClass}>Site web</label>
                 <input type="url" value={cvData.website} onChange={e => updateField('website', e.target.value)} placeholder="https://..." className={inputClass} />
