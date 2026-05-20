@@ -343,8 +343,31 @@ function LayoutStandard({ template, data }) {
       {/* Hero Section */}
       <header className="px-4 sm:px-10 py-10 sm:py-20 flex flex-col items-center justify-center text-center border-b" style={{ borderColor: `${text}15` }}>
         {data.photo && (
-          <div className="w-24 h-24 rounded-full overflow-hidden mb-6 border-4 shadow-lg" style={{ borderColor: accent }}>
-            <img src={data.photo} crossOrigin="anonymous" alt={fullName} className="w-full h-full object-cover" />
+          <div 
+            className="w-24 h-24 rounded-full overflow-hidden mb-6 border-4 shadow-lg flex items-center justify-center shrink-0" 
+            style={{ 
+              borderColor: accent, 
+              width: '96px', 
+              height: '96px', 
+              minWidth: '96px', 
+              minHeight: '96px', 
+              borderRadius: '50%',
+              overflow: 'hidden'
+            }}
+          >
+            <img 
+              src={data.photo} 
+              crossOrigin="anonymous" 
+              alt={fullName} 
+              className="w-full h-full object-cover" 
+              style={{ 
+                width: '96px', 
+                height: '96px', 
+                borderRadius: '50%', 
+                objectFit: 'cover',
+                display: 'block'
+              }} 
+            />
           </div>
         )}
         <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight mb-3 sm:mb-4 uppercase break-words" style={{ fontFamily: 'var(--font-serif)' }}>
@@ -375,7 +398,7 @@ function LayoutStandard({ template, data }) {
           </div>
         )}
       </header>
-
+ 
       {/* Projects Section */}
       <section className="px-4 sm:px-10 py-8 sm:py-16 max-w-5xl mx-auto">
         <h3 className="text-sm font-bold tracking-[0.2em] uppercase mb-12 text-center" style={{ color: accent }}>
@@ -390,8 +413,8 @@ function LayoutStandard({ template, data }) {
                   href={proj.imageUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="aspect-[4/3] rounded-xl mb-6 overflow-hidden relative border block cursor-pointer"
-                  style={{ background: secondary, borderColor: `${text}10` }}
+                  className="rounded-xl mb-6 overflow-hidden relative border block cursor-pointer"
+                  style={{ background: secondary, borderColor: `${text}10`, height: '240px', minHeight: '240px' }}
                 >
                   <PdfThumbnail
                     url={proj.imageUrl}
@@ -407,8 +430,8 @@ function LayoutStandard({ template, data }) {
                 </a>
               ) : (
                 <div 
-                  className="aspect-[4/3] rounded-xl mb-6 overflow-hidden relative border cursor-pointer"
-                  style={{ background: secondary, borderColor: `${text}10` }}
+                  className="rounded-xl mb-6 overflow-hidden relative border cursor-pointer"
+                  style={{ background: secondary, borderColor: `${text}10`, height: '240px', minHeight: '240px' }}
                   onClick={() => {
                     if (proj.imageUrl && !isVideoUrl(proj.imageUrl)) {
                       setSelectedMedia({ type: 'image', url: proj.imageUrl });
