@@ -62,7 +62,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
       return phone.length >= 9;
     }
     if (method === 'card') {
-      return cardNumber.length >= 15 && cardExpiry.length >= 4 && cardCvc.length >= 3;
+      return cardNumber.replace(/\s/g, '').length >= 15 && cardExpiry.length >= 5 && cardCvc.length >= 3;
     }
     return false;
   };
@@ -181,7 +181,11 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                         <input 
                           type="text" 
                           value={cardNumber}
-                          onChange={(e) => setCardNumber(e.target.value.replace(/[^0-9\s]/g, ''))}
+                          onChange={(e) => {
+                            let val = e.target.value.replace(/\D/g, '');
+                            let formatted = val.match(/.{1,4}/g)?.join(' ') || val;
+                            setCardNumber(formatted.slice(0, 19));
+                          }}
                           placeholder="0000 0000 0000 0000" 
                           className="w-full p-4 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-[#082f1f] bg-white text-lg text-gray-900 placeholder-gray-400" 
                         />
@@ -192,7 +196,15 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                           <input 
                             type="text" 
                             value={cardExpiry}
-                            onChange={(e) => setCardExpiry(e.target.value)}
+                            onChange={(e) => {
+                              let val = e.target.value.replace(/\D/g, '');
+                              if (val.length >= 3) {
+                                val = val.substring(0, 2) + '/' + val.substring(2, 4);
+                              } else if (val.length === 2 && cardExpiry.length < e.target.value.length) {
+                                val = val + '/';
+                              }
+                              setCardExpiry(val.slice(0, 5));
+                            }}
                             placeholder="MM/AA" 
                             className="w-full p-4 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-[#082f1f] bg-white text-lg text-gray-900 placeholder-gray-400" 
                           />
