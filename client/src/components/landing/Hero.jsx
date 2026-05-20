@@ -108,17 +108,19 @@ export default function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.8 }}
-          className="mt-4 flex items-center justify-center -space-x-3"
+          className="mt-4 flex items-center justify-center gap-4"
         >
-          {[1, 2, 3, 4, 5].map((num) => (
-            <img
-              key={num}
-              src={`/images/profiles/profile${num}.png`}
-              alt={`Utilisateur professionnel ${num}`}
-              className="w-10 h-10 rounded-full border border-[rgba(201,169,110,0.3)] object-cover shadow-lg"
-            />
-          ))}
-          <span className="text-xs text-[var(--color-white-muted)] ml-2">+12 000</span>
+          <div className="flex -space-x-3">
+            {[1, 2, 3, 4, 5].map((num) => (
+              <img
+                key={num}
+                src={`/images/profiles/profile${num}.png`}
+                alt={`Utilisateur professionnel ${num}`}
+                className="w-10 h-10 rounded-full border border-[rgba(201,169,110,0.3)] object-cover shadow-lg relative z-10"
+              />
+            ))}
+          </div>
+          <span className="text-sm font-medium text-[var(--color-white-muted)]">+12 000</span>
         </motion.div>
       </div>
 
