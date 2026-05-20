@@ -396,6 +396,54 @@
   .cursor-dot, .cursor-ring {
     display: none;
   }
+
+  /* Prevent any horizontal overflow on mobile */
+  .glass-card,
+  section,
+  form,
+  [class*="grid"] {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Force text to wrap and not overflow */
+  input,
+  select,
+  textarea {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    font-size: 16px !important; /* Prevents iOS zoom on focus */
+  }
+
+  /* Reduce padding on mobile editors */
+  .glass-card {
+    padding: 12px !important;
+  }
+
+  /* Fix buttons stacking on mobile */
+  .btn-primary,
+  .btn-ghost {
+    padding: 10px 20px;
+    font-size: 0.85rem;
+  }
+
+  /* Ensure word-break on long text */
+  p, span, div, label, td, th {
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 { font-size: 1.6rem !important; }
+  h2 { font-size: 1.3rem !important; }
+  h3 { font-size: 1.05rem !important; }
+
+  .btn-primary,
+  .btn-ghost {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+  }
 }
 
 /* ========================================

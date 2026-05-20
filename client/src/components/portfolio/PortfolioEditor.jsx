@@ -501,7 +501,7 @@ export default function PortfolioEditor() {
                 <label className={labelClass}>À propos (Bio)</label>
                 <textarea value={data.bio} onChange={e => updateField('bio', e.target.value)} placeholder="Une courte description de votre univers..." className={`${inputClass} min-h-[100px] resize-y`} />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className={labelClass}>Email</label>
                   <input type="email" value={data.email} onChange={e => updateField('email', e.target.value)} placeholder="contact@studio.com" className={inputClass} />
@@ -577,7 +577,7 @@ export default function PortfolioEditor() {
                     <label className={labelClass}>Description courte</label>
                     <textarea value={proj.description} onChange={e => updateProject(i, 'description', e.target.value)} className={`${inputClass} min-h-[80px]`} placeholder="Description du projet..." />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className={labelClass}>Lien vers le projet (URL)</label>
                       <input type="url" value={proj.link} onChange={e => {

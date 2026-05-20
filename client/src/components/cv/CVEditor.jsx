@@ -81,8 +81,8 @@ const DemographicItem = React.memo(({ demo, idx, updateDemographic, removeDemogr
   }, [countryCode]);
 
   return (
-    <div className="flex gap-3 mb-3 items-end bg-white/5 p-4 rounded-xl border border-white/10">
-      <div className="flex-1">
+    <div className="flex flex-wrap sm:flex-nowrap gap-3 mb-3 items-end bg-white/5 p-4 rounded-xl border border-white/10">
+      <div className="flex-1 min-w-[140px]">
         <label className="text-[10px] uppercase tracking-widest text-[var(--color-white-muted)] mb-1.5 block">Pays</label>
         <select 
           value={countryCode}
@@ -104,7 +104,7 @@ const DemographicItem = React.memo(({ demo, idx, updateDemographic, removeDemogr
         </select>
       </div>
       
-      <div className="flex-1">
+      <div className="flex-1 min-w-[140px]">
         <label className="text-[10px] uppercase tracking-widest text-[var(--color-white-muted)] mb-1.5 block">Région / Ville</label>
         <select
           value={demo.city || ''}
@@ -672,8 +672,8 @@ export default function CVEditor() {
               <span className="w-7 h-7 rounded-lg bg-[rgba(201,169,110,0.15)] flex items-center justify-center text-xs text-[var(--color-champagne)] font-bold">1</span>
               Informations personnelles
             </h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2 flex gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="col-span-1 sm:col-span-2 flex gap-4">
                 <div className="flex-1">
                   <label className={labelClass}>Nom complet *</label>
                   <input type="text" value={cvData.fullName} onChange={e => updateField('fullName', e.target.value)} placeholder="Abdou Diallo" className={inputClass} />
@@ -705,7 +705,7 @@ export default function CVEditor() {
                   </label>
                 </div>
               </div>
-              <div className="col-span-2">
+              <div className="col-span-1 sm:col-span-2">
                 <label className={labelClass}>Titre du poste *</label>
                 <input type="text" value={cvData.jobTitle} onChange={e => updateField('jobTitle', e.target.value)} placeholder="Product Manager Senior" className={inputClass} />
               </div>
@@ -725,7 +725,7 @@ export default function CVEditor() {
                 <label className={labelClass}>Site web</label>
                 <input type="url" value={cvData.website} onChange={e => updateField('website', e.target.value)} placeholder="https://..." className={inputClass} />
               </div>
-              <div className="col-span-2">
+              <div className="col-span-1 sm:col-span-2">
                 <label className={labelClass}>LinkedIn</label>
                 <input type="url" value={cvData.linkedin} onChange={e => updateField('linkedin', e.target.value)} placeholder="https://linkedin.com/in/..." className={inputClass} />
               </div>
@@ -766,20 +766,20 @@ export default function CVEditor() {
                   <span className="w-7 h-7 rounded-lg bg-[rgba(201,169,110,0.15)] flex items-center justify-center text-xs text-[var(--color-champagne)] font-bold">2</span>
                   Destinataire
                 </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="col-span-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="col-span-1 sm:col-span-2">
                     <label className={labelClass}>Nom de l'entreprise *</label>
                     <input type="text" value={cvData.recipientCompany} onChange={e => updateField('recipientCompany', e.target.value)} placeholder="Entreprise XYZ" className={inputClass} />
                   </div>
-                  <div className="col-span-2">
+                  <div className="col-span-1 sm:col-span-2">
                     <label className={labelClass}>Personne à contacter / Service</label>
                     <input type="text" value={cvData.recipientName} onChange={e => updateField('recipientName', e.target.value)} placeholder="M. le Directeur des Ressources Humaines" className={inputClass} />
                   </div>
-                  <div className="col-span-2">
+                  <div className="col-span-1 sm:col-span-2">
                     <label className={labelClass}>Adresse de l'entreprise</label>
                     <input type="text" value={cvData.recipientAddress} onChange={e => updateField('recipientAddress', e.target.value)} placeholder="123 Rue de l'Innovation" className={inputClass} />
                   </div>
-                  <div className="col-span-2">
+                  <div className="col-span-1 sm:col-span-2">
                     <label className={labelClass}>Ville du destinataire</label>
                     <input type="text" value={cvData.recipientCity} onChange={e => updateField('recipientCity', e.target.value)} placeholder="Dakar, Sénégal" className={inputClass} />
                   </div>
@@ -887,7 +887,7 @@ export default function CVEditor() {
                     </button>
                   )}
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className={labelClass}>Entreprise *</label>
                     <input type="text" value={exp.company} onChange={e => updateExperience(idx, 'company', e.target.value)} placeholder="Google" className={inputClass} />
@@ -904,7 +904,7 @@ export default function CVEditor() {
                     <label className={labelClass}>Fin</label>
                     <input type="text" value={exp.endDate} onChange={e => updateExperience(idx, 'endDate', e.target.value)} placeholder="Présent" className={inputClass} />
                   </div>
-                  <div className="col-span-2 relative">
+                  <div className="col-span-1 sm:col-span-2 relative">
                     <label className={labelClass}>Description</label>
                     <textarea
                       value={exp.description}
@@ -992,7 +992,7 @@ export default function CVEditor() {
                   <span className="w-7 h-7 rounded-lg bg-[rgba(201,169,110,0.15)] flex items-center justify-center text-xs text-[var(--color-champagne)] font-bold">3</span>
                   Statistiques Réseaux Sociaux
                 </h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className={labelClass}>Abonnés Instagram</label>
                     <input type="text" value={cvData.socialStats?.instagram || ''} onChange={e => updateSocialStat('instagram', e.target.value)} placeholder="Ex: 10.5K" className={inputClass} />
