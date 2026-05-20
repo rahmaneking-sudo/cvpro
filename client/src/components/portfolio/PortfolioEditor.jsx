@@ -326,10 +326,38 @@ export default function PortfolioEditor() {
           onclone: (clonedDoc) => {
             const el = clonedDoc.getElementById('portfolio-preview-container');
             if (el) {
+              // Reset transform, scaling, and force auto height to allow full vertical render
               el.style.transform = 'none';
+              el.style.position = 'static';
+              el.style.width = '794px';
+              el.style.height = 'auto';
+              el.style.minHeight = 'auto';
+              el.style.overflow = 'visible';
+
               if (el.parentElement) {
                 el.parentElement.style.width = '794px';
                 el.parentElement.style.transform = 'none';
+                el.parentElement.style.height = 'auto';
+                el.parentElement.style.minHeight = 'auto';
+                el.parentElement.style.position = 'static';
+                el.parentElement.style.overflow = 'visible';
+              }
+
+              // Force auto height and visible overflow on all descendants in the clone
+              // to prevent height limits (e.g. min-h-screen/h-screen) from clipping the projects
+              const allElements = el.getElementsByTagName('*');
+              for (let node of allElements) {
+                const style = window.getComputedStyle(node);
+                if (node.classList.contains('min-h-screen') || 
+                    node.classList.contains('h-screen') || 
+                    style.minHeight.includes('vh') || 
+                    style.height.includes('vh')) {
+                  node.style.minHeight = 'auto';
+                  node.style.height = 'auto';
+                }
+                if (style.overflow === 'hidden' || style.overflowY === 'hidden') {
+                  node.style.overflow = 'visible';
+                }
               }
 
               // Copy contents of all canvas elements (like PDF thumbnails)
@@ -345,22 +373,13 @@ export default function PortfolioEditor() {
                 }
               });
 
-              // Force image colors (remove grayscale) and append cache-buster to prevent CORS issues
+              // Force image colors (remove grayscale)
               const images = el.getElementsByTagName('img');
               for (let img of images) {
                 img.classList.remove('grayscale');
                 img.style.filter = 'none';
                 img.style.webkitFilter = 'none';
                 img.setAttribute('crossOrigin', 'anonymous');
-                if (img.src && !img.src.startsWith('data:')) {
-                  try {
-                    const url = new URL(img.src);
-                    url.searchParams.set('cv_pdf_cb', Date.now().toString());
-                    img.src = url.toString();
-                  } catch (e) {
-                    // fallback if not a valid full URL
-                  }
-                }
               }
             }
           }
