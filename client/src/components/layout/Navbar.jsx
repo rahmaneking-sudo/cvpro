@@ -51,7 +51,17 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
+          <Link 
+            to="/" 
+            className="flex items-center gap-3 group"
+            onClick={(e) => {
+              if (window.location.pathname === '/') {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                window.history.pushState(null, '', '/');
+              }
+            }}
+          >
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C9A96E] to-[#D4B878] flex items-center justify-center shadow-lg group-hover:shadow-[0_0_20px_rgba(201,169,110,0.3)] transition-shadow duration-500">
               <span className="text-[#0A0A0A] font-bold text-lg font-[var(--font-serif)]">S</span>
             </div>
@@ -67,6 +77,17 @@ export default function Navbar() {
               <a
                 key={idx}
                 href={link.href}
+                onClick={(e) => {
+                  if (link.href.startsWith('/#') && window.location.pathname === '/') {
+                    const id = link.href.split('#')[1];
+                    const el = document.getElementById(id);
+                    if (el) {
+                      e.preventDefault();
+                      el.scrollIntoView({ behavior: 'smooth' });
+                      window.history.pushState(null, '', link.href);
+                    }
+                  }
+                }}
                 className="text-sm text-[var(--color-white-muted)] hover:text-[var(--color-ivory)] transition-colors duration-300 relative group"
               >
                 {link.label}
@@ -141,7 +162,18 @@ export default function Navbar() {
                 <a
                   key={idx}
                   href={link.href}
-                  onClick={() => setMobileOpen(false)}
+                  onClick={(e) => {
+                    setMobileOpen(false);
+                    if (link.href.startsWith('/#') && window.location.pathname === '/') {
+                      const id = link.href.split('#')[1];
+                      const el = document.getElementById(id);
+                      if (el) {
+                        e.preventDefault();
+                        el.scrollIntoView({ behavior: 'smooth' });
+                        window.history.pushState(null, '', link.href);
+                      }
+                    }
+                  }}
                   className="text-lg text-[var(--color-ivory)] py-2 border-b border-[rgba(255,255,255,0.05)]"
                 >
                   {link.label}
