@@ -170,7 +170,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                           value={phone}
                           onChange={(e) => setPhone(e.target.value.replace(/[^0-9\s+]/g, ''))}
                           placeholder={method === 'wave' ? "Ex: 77 123 45 67" : "Ex: 78 123 45 67"}
-                          className="w-full pl-11 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#082f1f] focus:border-[#082f1f] outline-none text-lg bg-white"
+                          className="w-full pl-11 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#082f1f] focus:border-[#082f1f] outline-none text-lg bg-white text-gray-900 placeholder-gray-400"
                         />
                       </div>
                     </div>
@@ -183,7 +183,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                           value={cardNumber}
                           onChange={(e) => setCardNumber(e.target.value.replace(/[^0-9\s]/g, ''))}
                           placeholder="0000 0000 0000 0000" 
-                          className="w-full p-4 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-[#082f1f] bg-white text-lg" 
+                          className="w-full p-4 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-[#082f1f] bg-white text-lg text-gray-900 placeholder-gray-400" 
                         />
                       </div>
                       <div className="flex gap-4">
@@ -194,7 +194,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                             value={cardExpiry}
                             onChange={(e) => setCardExpiry(e.target.value)}
                             placeholder="MM/AA" 
-                            className="w-full p-4 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-[#082f1f] bg-white text-lg" 
+                            className="w-full p-4 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-[#082f1f] bg-white text-lg text-gray-900 placeholder-gray-400" 
                           />
                         </div>
                         <div className="flex-1">
@@ -204,7 +204,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                             value={cardCvc}
                             onChange={(e) => setCardCvc(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
                             placeholder="123" 
-                            className="w-full p-4 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-[#082f1f] bg-white text-lg" 
+                            className="w-full p-4 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-[#082f1f] bg-white text-lg text-gray-900 placeholder-gray-400" 
                           />
                         </div>
                       </div>
