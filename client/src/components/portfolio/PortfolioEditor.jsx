@@ -8,7 +8,7 @@ import PortfolioPreview from './PortfolioPreview';
 import PaymentModal from '../shared/PaymentModal';
 import api from '../../services/api';
 import { uploadFile } from '../../services/cloudinaryUpload';
-import html2canvas from 'html2canvas';
+import html2canvas from 'html2canvas-pro';
 import { jsPDF } from 'jspdf';
 
 const PreviewScaler = ({ children }) => {

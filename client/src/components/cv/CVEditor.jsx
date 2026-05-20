@@ -9,7 +9,7 @@ import PaymentModal from '../shared/PaymentModal';
 import api from '../../services/api';
 import { uploadFile } from '../../services/cloudinaryUpload';
 import { Country, State, City } from 'country-state-city';
-import html2canvas from 'html2canvas';
+import html2canvas from 'html2canvas-pro';
 import { jsPDF } from 'jspdf';
 import CoverLetterPreview from './CoverLetterPreview';
 
