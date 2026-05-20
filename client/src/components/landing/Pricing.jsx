@@ -1,10 +1,34 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
-import { Check, Crown, Zap } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Check, Crown, Zap, Mail, Phone } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../store/AuthContext';
 import RevealSection from '../ui/RevealSection';
+import PaymentModal from '../shared/PaymentModal';
 
 export default function Pricing() {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [showContactModal, setShowContactModal] = useState(false);
+
+  const handlePlanClick = (plan) => {
+    if (plan.quote) {
+      setShowContactModal(true);
+    } else {
+      if (user) {
+        setSelectedPlan(plan);
+        setShowPaymentModal(true);
+      } else {
+        navigate('/login', { state: { from: location.pathname + location.hash } });
+      }
+    }
+  };
 
   const plans = [
     {
@@ -108,6 +132,7 @@ export default function Pricing() {
 
                   {/* CTA */}
                   <button
+                    onClick={() => handlePlanClick(plan)}
                     className={`w-full py-3.5 rounded-full font-semibold text-sm transition-all duration-400 ${
                       isPopular
                         ? 'btn-primary'
@@ -124,6 +149,70 @@ export default function Pricing() {
           })}
         </div>
       </div>
+
+      {/* Contact Modal for Quote */}
+      <AnimatePresence>
+        {showContactModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }} 
+              animate={{ opacity: 1, scale: 1, y: 0 }} 
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="w-full max-w-md bg-[var(--color-obsidian)] border border-[rgba(201,169,110,0.3)] rounded-2xl shadow-2xl p-8 relative"
+            >
+              <button onClick={() => setShowContactModal(false)} className="absolute top-4 right-4 text-[var(--color-white-muted)] hover:text-white p-2">✕</button>
+              <h3 className="text-2xl font-bold text-[var(--color-ivory)] mb-3" style={{ fontFamily: 'var(--font-serif)' }}>Demander un devis</h3>
+              <p className="text-sm text-[var(--color-white-muted)] mb-8">Choisissez comment vous souhaitez nous contacter pour discuter de vos besoins sur mesure.</p>
+              
+              <div className="space-y-4">
+                <a 
+                  href="mailto:rahmaneking@gmail.com" 
+                  className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all text-[var(--color-ivory)] group"
+                >
+                  <div className="w-12 h-12 rounded-full bg-[var(--color-champagne)]/10 flex items-center justify-center text-[var(--color-champagne)] group-hover:bg-[var(--color-champagne)]/20 transition-colors">
+                    <Mail size={20} />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-lg">Par Email</div>
+                    <div className="text-sm text-[var(--color-white-muted)]">rahmaneking@gmail.com</div>
+                  </div>
+                </a>
+                
+                <a 
+                  href="https://wa.me/221777185723" 
+                  target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all text-[var(--color-ivory)] group"
+                >
+                  <div className="w-12 h-12 rounded-full bg-[#25D366]/10 flex items-center justify-center text-[#25D366] group-hover:bg-[#25D366]/20 transition-colors">
+                    <Phone size={20} />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-lg">Par WhatsApp / Tél</div>
+                    <div className="text-sm text-[var(--color-white-muted)]">+221 77 718 57 23</div>
+                  </div>
+                </a>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Payment Modal */}
+      {selectedPlan && (
+        <PaymentModal 
+          isOpen={showPaymentModal} 
+          onClose={() => {
+            setShowPaymentModal(false);
+            setTimeout(() => setSelectedPlan(null), 300); // clear after animation
+          }} 
+          onSuccess={() => {
+            console.log('Paiement réussi pour', selectedPlan.key);
+          }} 
+          templateId={selectedPlan.key} 
+          templateName={t(`pricing.${selectedPlan.key}.name`)} 
+          price={t(`pricing.${selectedPlan.key}.price_xof`)?.replace(/[^\d\s]/g, '').trim()} 
+        />
+      )}
     </section>
   );
 }

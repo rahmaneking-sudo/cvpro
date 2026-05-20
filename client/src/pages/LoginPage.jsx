@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
@@ -10,6 +10,7 @@ export default function LoginPage() {
   const { t } = useTranslation();
   const { login, googleLogin: contextGoogleLogin } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,7 +27,8 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
-      navigate('/dashboard');
+      const from = location.state?.from || '/dashboard';
+      navigate(from);
     } catch (err) {
       const data = err.response?.data;
       if (data?.needsVerification) {
@@ -55,7 +57,8 @@ export default function LoginPage() {
           googleId: userInfo.sub
         });
 
-        navigate('/dashboard');
+        const from = location.state?.from || '/dashboard';
+        navigate(from);
       } catch (err) {
         setError(err.response?.data?.error || err.message || 'La connexion avec Google a échoué');
         setLoading(false);
