@@ -5,13 +5,14 @@ import { Eye, ArrowLeft, Check, Search, X, ArrowRight, Lock, Crown, Sparkles } f
 import { templates, seriesLabels, tierLabels } from '../../data/templates';
 import { sampleCVData, sampleExperiences, sampleEducation } from '../../data/sampleCV';
 import CVPreview from './CVPreview';
+import CoverLetterPreview from './CoverLetterPreview';
 import { useAuth } from '../../store/AuthContext';
 
 /* =====================================================
    TIER BADGE
    ====================================================== */
 function TierBadge({ tier }) {
-  if (tier === 'standard') return null;
+  if (tier === 'standard' || tier === 'cover-letter') return null;
   const info = tierLabels[tier];
   return (
     <div className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider"
@@ -28,7 +29,7 @@ function TierBadge({ tier }) {
 function TemplateMiniCard({ template, isSelected, onClick, onPreview }) {
   const { bg, text, accent, secondary, layout, tier } = template;
   const isTwoCol = layout === 'two-column' || layout === 'grid';
-  const isPremium = tier !== 'standard';
+  const isPremium = tier !== 'standard' && tier !== 'cover-letter';
 
   return (
     <motion.div whileHover={{ y: -6 }} transition={{ duration: 0.3 }} className="cursor-pointer group">
@@ -47,6 +48,11 @@ function TemplateMiniCard({ template, isSelected, onClick, onPreview }) {
             Media Kit
           </div>
         )}
+        {layout === 'cover-letter' && (
+          <div className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded-sm text-[8px] font-black uppercase tracking-widest" style={{ background: '#3B82F620', color: '#3B82F6', border: '1px solid #3B82F640' }}>
+            Lettre
+          </div>
+        )}
 
         <div className="p-4 h-full flex flex-col" style={{ color: text }}>
           <div className="flex items-center gap-2 mb-2">
@@ -62,7 +68,34 @@ function TemplateMiniCard({ template, isSelected, onClick, onPreview }) {
             ))}
           </div>
           <div className="h-[1px] mb-2" style={{ background: `${accent}25` }} />
-          {isTwoCol ? (
+          {layout === 'cover-letter' ? (
+            /* Cover Letter mini-preview: text lines mimicking a formal letter */
+            <div className="space-y-2 flex-1 pt-1">
+              {/* Sender block (left) */}
+              <div className="space-y-0.5">
+                <div className="h-1.5 rounded-full" style={{ background: `${text}30`, width: '50%' }} />
+                <div className="h-1 rounded-full" style={{ background: `${text}15`, width: '35%' }} />
+                <div className="h-1 rounded-full" style={{ background: `${text}15`, width: '40%' }} />
+              </div>
+              {/* Recipient block (right) */}
+              <div className="flex justify-end">
+                <div className="space-y-0.5 w-[55%]">
+                  <div className="h-1.5 rounded-full" style={{ background: `${text}30`, width: '65%' }} />
+                  <div className="h-1 rounded-full" style={{ background: `${text}15`, width: '50%' }} />
+                  <div className="h-1 rounded-full" style={{ background: `${text}15`, width: '55%' }} />
+                </div>
+              </div>
+              {/* Subject line */}
+              <div className="h-[1px] mt-1" style={{ background: `${accent}20` }} />
+              <div className="h-1.5 rounded-full" style={{ background: `${accent}40`, width: '70%' }} />
+              {/* Body lines */}
+              <div className="space-y-0.5 pt-1">
+                {[95, 90, 88, 92, 85, 90, 82, 88].map((w, i) => (
+                  <div key={i} className="h-1 rounded-full" style={{ background: `${text}${Math.max(6, 15 - i)}`, width: `${w}%` }} />
+                ))}
+              </div>
+            </div>
+          ) : isTwoCol ? (
             <div className="flex gap-2 flex-1">
               <div className="w-[35%] space-y-1.5" style={{ background: secondary, borderRadius: 4, padding: 4 }}>
                 {[80, 70, 90, 60, 80].map((w, i) => (
@@ -135,7 +168,7 @@ function TemplateMiniCard({ template, isSelected, onClick, onPreview }) {
    ====================================================== */
 function PreviewModal({ template, onClose, onSelect, isLoggedIn }) {
   if (!template) return null;
-  const isPremium = template.tier !== 'standard';
+  const isPremium = template.tier !== 'standard' && template.tier !== 'cover-letter';
   const tierInfo = tierLabels[template.tier];
 
   return (
@@ -178,7 +211,11 @@ function PreviewModal({ template, onClose, onSelect, isLoggedIn }) {
         <div className="overflow-y-auto max-h-[calc(92vh-72px)] bg-[#1a1a1a]">
           <div className="p-6 flex justify-center">
             <div className="w-full max-w-[595px] shadow-[0_25px_80px_rgba(0,0,0,0.6)] rounded-lg overflow-hidden">
-              <CVPreview template={template} cvData={sampleCVData} experiences={sampleExperiences} educations={sampleEducation} />
+              {template.layout === 'cover-letter' ? (
+                <CoverLetterPreview template={template} cvData={sampleCVData} />
+              ) : (
+                <CVPreview template={template} cvData={sampleCVData} experiences={sampleExperiences} educations={sampleEducation} />
+              )}
             </div>
           </div>
         </div>
