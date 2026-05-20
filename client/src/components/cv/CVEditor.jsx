@@ -326,17 +326,11 @@ export default function CVEditor() {
             try {
               const el = clonedDoc.getElementById('cv-preview-container');
               if (el) {
-                // Apply template background to body/documentElement to prevent white background cuts
-                const firstChild = el.firstElementChild;
-                if (firstChild && firstChild.style) {
-                  const bgVal = firstChild.style.background || firstChild.style.backgroundColor;
-                  if (bgVal) {
-                    clonedDoc.body.style.background = bgVal;
-                    clonedDoc.body.style.backgroundColor = bgVal;
-                    clonedDoc.documentElement.style.background = bgVal;
-                    clonedDoc.documentElement.style.backgroundColor = bgVal;
-                  }
-                }
+                const bgVal = template.bg || '#ffffff';
+                clonedDoc.body.style.background = bgVal;
+                clonedDoc.body.style.backgroundColor = bgVal;
+                clonedDoc.documentElement.style.background = bgVal;
+                clonedDoc.documentElement.style.backgroundColor = bgVal;
 
                 // Reset transform, scaling, and force auto height to allow full vertical render
                 el.style.transform = 'none';
