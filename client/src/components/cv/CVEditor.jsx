@@ -355,34 +355,6 @@ export default function CVEditor() {
                   el.parentElement.style.overflow = 'visible';
                 }
 
-                // Force auto height and visible overflow on all descendants in the clone
-                const allElements = el.getElementsByTagName('*');
-                for (let node of allElements) {
-                  const className = (node.getAttribute && node.getAttribute('class')) || '';
-                  const isStringClass = typeof className === 'string';
-                  
-                  const hasMinHeightClass = (node.classList && node.classList.contains && (node.classList.contains('min-h-screen') || node.classList.contains('h-screen'))) || 
-                      (isStringClass && (className.includes('h-[') || className.includes('min-h-[') || className.includes('h-screen') || className.includes('min-h-screen')));
-                      
-                  const hasHeightStyle = node.style && ((typeof node.style.height === 'string' && node.style.height.includes('vh')) || (typeof node.style.minHeight === 'string' && node.style.minHeight.includes('vh')));
-
-                  if (hasMinHeightClass || hasHeightStyle) {
-                    if (node.style) {
-                      node.style.minHeight = 'auto';
-                      node.style.height = 'auto';
-                    }
-                  }
-                  
-                  const hasOverflowHiddenClass = (node.classList && node.classList.contains && (node.classList.contains('overflow-hidden') || node.classList.contains('overflow-y-hidden')));
-                  const hasOverflowStyle = node.style && (node.style.overflow === 'hidden' || node.style.overflowY === 'hidden');
-                  
-                  if (hasOverflowHiddenClass || hasOverflowStyle) {
-                    if (node.style) {
-                      node.style.overflow = 'visible';
-                    }
-                  }
-                }
-
                 // Copy contents of all canvas elements
                 const originalCanvases = element.querySelectorAll('canvas');
                 const clonedCanvases = el.querySelectorAll('canvas');
@@ -426,6 +398,18 @@ export default function CVEditor() {
           if (isIOS && newWindow) newWindow.close();
           return;
         }
+
+        const hexToRgb = (hexStr) => {
+          const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+          const fullHex = hexStr.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
+          const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
+          return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+          } : { r: 255, g: 255, b: 255 };
+        };
+
         const pdf = new jsPDF('p', 'mm', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
@@ -437,12 +421,22 @@ export default function CVEditor() {
         let heightLeft = imgHeightInPdf;
         let position = 0;
         
+        // Fill page background color first to guarantee uniform background
+        const bgRgb = hexToRgb(template.bg || '#ffffff');
+        pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
+        pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
+
         pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInPdf);
         heightLeft -= pdfHeight;
         
         while (heightLeft > 0) {
           position = heightLeft - imgHeightInPdf;
           pdf.addPage();
+
+          // Fill new page background color first
+          pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
+          pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
+
           pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInPdf);
           heightLeft -= pdfHeight;
         }
