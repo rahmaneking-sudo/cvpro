@@ -324,80 +324,97 @@ export default function PortfolioEditor() {
           width: 794,
           windowWidth: 794,
           onclone: (clonedDoc) => {
-            const el = clonedDoc.getElementById('portfolio-preview-container');
-            if (el) {
-              // Reset transform, scaling, and force auto height to allow full vertical render
-              el.style.transform = 'none';
-              el.style.position = 'static';
-              el.style.width = '794px';
-              el.style.height = 'auto';
-              el.style.minHeight = 'auto';
-              el.style.overflow = 'visible';
+            try {
+              const el = clonedDoc.getElementById('portfolio-preview-container');
+              if (el) {
+                // Reset transform, scaling, and force auto height to allow full vertical render
+                el.style.transform = 'none';
+                el.style.position = 'static';
+                el.style.width = '794px';
+                el.style.height = 'auto';
+                el.style.minHeight = 'auto';
+                el.style.overflow = 'visible';
 
-              if (el.parentElement) {
-                el.parentElement.style.width = '794px';
-                el.parentElement.style.transform = 'none';
-                el.parentElement.style.height = 'auto';
-                el.parentElement.style.minHeight = 'auto';
-                el.parentElement.style.position = 'static';
-                el.parentElement.style.overflow = 'visible';
-              }
-
-              // Force auto height and visible overflow on all descendants in the clone
-              // to prevent height limits (e.g. min-h-screen/h-screen) from clipping the projects
-              const allElements = el.getElementsByTagName('*');
-              for (let node of allElements) {
-                const className = node.className || '';
-                const isStringClass = typeof className === 'string';
-                
-                if (node.classList.contains('min-h-screen') || 
-                    node.classList.contains('h-screen') || 
-                    (isStringClass && (
-                      className.includes('h-[') || 
-                      className.includes('min-h-[') || 
-                      className.includes('h-screen') || 
-                      className.includes('min-h-screen')
-                    )) ||
-                    (node.style.height && node.style.height.includes('vh')) ||
-                    (node.style.minHeight && node.style.minHeight.includes('vh'))) {
-                  node.style.minHeight = 'auto';
-                  node.style.height = 'auto';
+                if (el.parentElement) {
+                  el.parentElement.style.width = '794px';
+                  el.parentElement.style.transform = 'none';
+                  el.parentElement.style.height = 'auto';
+                  el.parentElement.style.minHeight = 'auto';
+                  el.parentElement.style.position = 'static';
+                  el.parentElement.style.overflow = 'visible';
                 }
-                
-                if (node.classList.contains('overflow-hidden') || 
-                    node.classList.contains('overflow-y-hidden') || 
-                    node.style.overflow === 'hidden' || 
-                    node.style.overflowY === 'hidden') {
-                  node.style.overflow = 'visible';
+
+                // Force auto height and visible overflow on all descendants in the clone
+                const allElements = el.getElementsByTagName('*');
+                for (let node of allElements) {
+                  const className = (node.getAttribute && node.getAttribute('class')) || '';
+                  const isStringClass = typeof className === 'string';
+                  
+                  const hasMinHeightClass = (node.classList && node.classList.contains && (node.classList.contains('min-h-screen') || node.classList.contains('h-screen'))) || 
+                      (isStringClass && (className.includes('h-[') || className.includes('min-h-[') || className.includes('h-screen') || className.includes('min-h-screen')));
+                      
+                  const hasHeightStyle = node.style && ((typeof node.style.height === 'string' && node.style.height.includes('vh')) || (typeof node.style.minHeight === 'string' && node.style.minHeight.includes('vh')));
+
+                  if (hasMinHeightClass || hasHeightStyle) {
+                    if (node.style) {
+                      node.style.minHeight = 'auto';
+                      node.style.height = 'auto';
+                    }
+                  }
+                  
+                  const hasOverflowHiddenClass = (node.classList && node.classList.contains && (node.classList.contains('overflow-hidden') || node.classList.contains('overflow-y-hidden')));
+                  const hasOverflowStyle = node.style && (node.style.overflow === 'hidden' || node.style.overflowY === 'hidden');
+                  
+                  if (hasOverflowHiddenClass || hasOverflowStyle) {
+                    if (node.style) {
+                      node.style.overflow = 'visible';
+                    }
+                  }
+                }
+
+                // Copy contents of all canvas elements (like PDF thumbnails)
+                const originalCanvases = element.querySelectorAll('canvas');
+                const clonedCanvases = el.querySelectorAll('canvas');
+                originalCanvases.forEach((origCanvas, index) => {
+                  const clonedCanvas = clonedCanvases[index];
+                  if (clonedCanvas) {
+                    const ctx = clonedCanvas.getContext('2d');
+                    clonedCanvas.width = origCanvas.width;
+                    clonedCanvas.height = origCanvas.height;
+                    ctx.drawImage(origCanvas, 0, 0);
+                  }
+                });
+
+                // Force image colors (remove grayscale)
+                const images = el.getElementsByTagName('img');
+                for (let img of images) {
+                  if (img.classList && img.classList.remove) {
+                    img.classList.remove('grayscale');
+                  }
+                  if (img.style) {
+                    img.style.filter = 'none';
+                    img.style.webkitFilter = 'none';
+                  }
+                  if (img.setAttribute && !img.hasAttribute('crossOrigin')) {
+                    img.setAttribute('crossOrigin', 'anonymous');
+                  }
                 }
               }
-
-              // Copy contents of all canvas elements (like PDF thumbnails)
-              const originalCanvases = element.querySelectorAll('canvas');
-              const clonedCanvases = el.querySelectorAll('canvas');
-              originalCanvases.forEach((origCanvas, index) => {
-                const clonedCanvas = clonedCanvases[index];
-                if (clonedCanvas) {
-                  const ctx = clonedCanvas.getContext('2d');
-                  clonedCanvas.width = origCanvas.width;
-                  clonedCanvas.height = origCanvas.height;
-                  ctx.drawImage(origCanvas, 0, 0);
-                }
-              });
-
-              // Force image colors (remove grayscale)
-              const images = el.getElementsByTagName('img');
-              for (let img of images) {
-                img.classList.remove('grayscale');
-                img.style.filter = 'none';
-                img.style.webkitFilter = 'none';
-                img.setAttribute('crossOrigin', 'anonymous');
-              }
+            } catch (e) {
+              console.error('onclone error:', e);
             }
           }
         });
         
-        const imgData = canvas.toDataURL('image/jpeg', 0.98);
+        let imgData;
+        try {
+          imgData = canvas.toDataURL('image/jpeg', 0.98);
+        } catch (e) {
+          console.error('Canvas tainted or export failed:', e);
+          showToast('Impossible d\'exporter : Certaines images bloquent la génération PDF (Erreur CORS).', 'error');
+          if (isIOS && newWindow) newWindow.close();
+          return;
+        }
         const pdf = new jsPDF('p', 'mm', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
