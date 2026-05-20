@@ -312,7 +312,7 @@ function PdfThumbnail({ url, alt, className, onError }) {
 
     renderThumbnail();
     return () => { cancelled = true; };
-  }, [url]);
+  }, [url, onError]);
 
   if (failed) {
     return (

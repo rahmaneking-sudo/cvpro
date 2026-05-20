@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Globe } from 'lucide-react';
+import { Menu, X, Globe, LogOut, LayoutDashboard } from 'lucide-react';
+import { useAuth } from '../../store/AuthContext';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Navbar() {
   const { t, i18n } = useTranslation();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -18,6 +22,12 @@ export default function Navbar() {
     const next = i18n.language === 'fr' ? 'en' : 'fr';
     i18n.changeLanguage(next);
     localStorage.setItem('cvpro-lang', next);
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+    setMobileOpen(false);
   };
 
   const navLinks = [
@@ -41,7 +51,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <a href="/" className="flex items-center gap-3 group">
+          <Link to="/" className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C9A96E] to-[#D4B878] flex items-center justify-center shadow-lg group-hover:shadow-[0_0_20px_rgba(201,169,110,0.3)] transition-shadow duration-500">
               <span className="text-[#0A0A0A] font-bold text-lg font-[var(--font-serif)]">C</span>
             </div>
@@ -49,7 +59,7 @@ export default function Navbar() {
               <span className="text-[var(--color-ivory)]">CV</span>
               <span className="text-gradient-gold ml-1">Pro</span>
             </span>
-          </a>
+          </Link>
 
           {/* Desktop Links */}
           <div className="hidden md:flex items-center gap-8">
@@ -76,13 +86,33 @@ export default function Navbar() {
               <span className="uppercase font-medium">{i18n.language}</span>
             </button>
 
-            <a href="/login" className="text-sm text-[var(--color-ivory)] hover:text-[var(--color-champagne)] transition-colors">
-              {t('nav.login')}
-            </a>
-
-            <a href="/register" className="btn-primary !py-2.5 !px-6 !text-sm">
-              {t('nav.signup')}
-            </a>
+            {user ? (
+              <>
+                <Link
+                  to="/dashboard"
+                  className="btn-primary !py-2.5 !px-6 !text-sm flex items-center gap-2"
+                >
+                  <LayoutDashboard size={16} />
+                  Mon Espace
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-1.5 text-sm text-[var(--color-white-muted)] hover:text-red-400 transition-colors"
+                  title="Se déconnecter"
+                >
+                  <LogOut size={16} />
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="text-sm text-[var(--color-ivory)] hover:text-[var(--color-champagne)] transition-colors">
+                  {t('nav.login')}
+                </Link>
+                <Link to="/register" className="btn-primary !py-2.5 !px-6 !text-sm">
+                  {t('nav.signup')}
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Toggle */}
@@ -126,8 +156,30 @@ export default function Navbar() {
               </div>
 
               <div className="flex flex-col gap-3 pt-4">
-                <a href="/login" className="btn-ghost !py-3 text-center">{t('nav.login')}</a>
-                <a href="/register" className="btn-primary !py-3 text-center">{t('nav.signup')}</a>
+                {user ? (
+                  <>
+                    <Link
+                      to="/dashboard"
+                      onClick={() => setMobileOpen(false)}
+                      className="btn-primary !py-3 text-center flex items-center justify-center gap-2"
+                    >
+                      <LayoutDashboard size={16} />
+                      Mon Espace
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="btn-ghost !py-3 text-center flex items-center justify-center gap-2 text-red-400"
+                    >
+                      <LogOut size={16} />
+                      Se déconnecter
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/login" onClick={() => setMobileOpen(false)} className="btn-ghost !py-3 text-center">{t('nav.login')}</Link>
+                    <Link to="/register" onClick={() => setMobileOpen(false)} className="btn-primary !py-3 text-center">{t('nav.signup')}</Link>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>
@@ -136,3 +188,4 @@ export default function Navbar() {
     </motion.nav>
   );
 }
+

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, ShieldCheck, Smartphone, Lock, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { Loader2, Smartphone, Lock, CheckCircle2 } from 'lucide-react';
 import api from '../../services/api';
 
 export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, templateName, price }) {
@@ -16,6 +16,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
   // Reset state when opened
   useEffect(() => {
     if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStep(1);
       setMethod('wave');
       setPhone('');

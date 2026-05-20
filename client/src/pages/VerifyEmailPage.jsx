@@ -8,13 +8,10 @@ export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
 
-  const [status, setStatus] = useState('loading'); // loading | success | error
+  const [status, setStatus] = useState(token ? 'loading' : 'error'); // loading | success | error
 
   useEffect(() => {
-    if (!token) {
-      setStatus('error');
-      return;
-    }
+    if (!token) return;
 
     api.get(`/auth/verify/${token}`)
       .then(() => setStatus('success'))

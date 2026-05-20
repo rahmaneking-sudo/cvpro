@@ -2,9 +2,12 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import RevealSection from '../ui/RevealSection';
+import { useAuth } from '../../store/AuthContext';
+import { Link } from 'react-router-dom';
 
 export default function FinalCTA() {
   const { t } = useTranslation();
+  const { user } = useAuth();
 
   return (
     <section className="py-[var(--spacing-section)] relative overflow-hidden">
@@ -21,15 +24,19 @@ export default function FinalCTA() {
           <p className="text-lg text-[var(--color-white-muted)] mb-12 max-w-xl mx-auto">
             {t('cta.subtitle')}
           </p>
-          <motion.a
-            href="/register"
+          <motion.div
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
-            className="btn-primary text-lg px-14 py-5 inline-flex"
+            className="inline-block"
           >
-            {t('cta.button')}
-            <ArrowRight size={20} />
-          </motion.a>
+            <Link
+              to={user ? '/dashboard' : '/register'}
+              className="btn-primary text-lg px-14 py-5 inline-flex"
+            >
+              {user ? 'Mon Espace' : t('cta.button')}
+              <ArrowRight size={20} />
+            </Link>
+          </motion.div>
         </RevealSection>
       </div>
     </section>

@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, ArrowLeft, Check, Search, X, ArrowRight, Lock, Crown, Sparkles } from 'lucide-react';
+import { Eye, ArrowLeft, Check, Search, X, ArrowRight, Lock, Crown } from 'lucide-react';
 import { templates, seriesLabels, tierLabels } from '../../data/templates';
 import { sampleCVData, sampleExperiences, sampleEducation } from '../../data/sampleCV';
 import CVPreview from './CVPreview';

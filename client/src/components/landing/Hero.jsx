@@ -2,9 +2,12 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { useParallax } from '../../hooks/useAnimations';
+import { useAuth } from '../../store/AuthContext';
+import { Link } from 'react-router-dom';
 
 export default function Hero() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const parallaxY = useParallax(0.3);
 
   return (
@@ -64,16 +67,16 @@ export default function Hero() {
           transition={{ duration: 0.9, delay: 1, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
-          <a href="/register" className="btn-primary text-base px-10 py-4 flex items-center gap-2">
-            {t('hero.cta')}
+          <Link to={user ? '/dashboard' : '/register'} className="btn-primary text-base px-10 py-4 flex items-center gap-2">
+            {user ? 'Mon Espace' : t('hero.cta')}
             <ArrowRight size={18} />
-          </a>
-          <a href="/templates" className="btn-ghost text-base px-8 py-4">
+          </Link>
+          <Link to="/templates" className="btn-ghost text-base px-8 py-4">
             Voir les Modèles CV
-          </a>
-          <a href="/portfolios" className="btn-ghost text-base px-8 py-4">
+          </Link>
+          <Link to="/portfolios" className="btn-ghost text-base px-8 py-4">
             Voir les Portfolios
-          </a>
+          </Link>
         </motion.div>
 
         {/* Badge - Moved from top to not overlap nav */}

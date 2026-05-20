@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Plus, Trash2, Wand2, Upload, Loader2, Save, Download, GripVertical, Camera, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Wand2, Upload, Loader2, Save, Download, Camera, CheckCircle2, AlertCircle } from 'lucide-react';
 import { getTemplate } from '../../data/templates';
 import CVPreview from './CVPreview';
 import PaymentModal from '../shared/PaymentModal';
@@ -210,12 +210,15 @@ export default function CVEditor() {
   const [isScanning, setIsScanning] = useState(false);
   const [scanSuccess, setScanSuccess] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [isCheckingPayment, setIsCheckingPayment] = useState(false);
-  const [isPurchasing, setIsPurchasing] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
   const [isLoadingCV, setIsLoadingCV] = useState(!!cvId);
   const [hasPurchased, setHasPurchased] = useState(false);
   const [isCheckingPurchase, setIsCheckingPurchase] = useState(true);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000);
+  };
 
   useEffect(() => {
     if (cvId) {
@@ -265,10 +268,6 @@ export default function CVEditor() {
     checkPurchase();
   }, [templateId]);
 
-  const showToast = (message, type = 'success') => {
-    setToast({ show: true, message, type });
-    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000);
-  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -457,20 +456,6 @@ export default function CVEditor() {
     }
   };
 
-  const handleSimulatePayment = async () => {
-    setIsPurchasing(true);
-    try {
-      await api.post('/cv/purchase/simulate', { templateId });
-      setShowPaymentModal(false);
-      showToast('Paiement réussi ! Vous pouvez maintenant exporter.');
-      setTimeout(() => window.print(), 1000); // Auto-trigger print after short delay
-    } catch (err) {
-      console.error('Payment error:', err);
-      showToast('Erreur lors du paiement.', 'error');
-    } finally {
-      setIsPurchasing(false);
-    }
-  };
 
   const updateField = useCallback((field, value) => {
     setCVData(prev => ({ ...prev, [field]: value }));

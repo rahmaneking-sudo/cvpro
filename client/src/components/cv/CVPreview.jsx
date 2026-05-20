@@ -54,7 +54,7 @@ function SkillBadge({ skill, accent }) {
    - Highly structured, single column, clear headers.
    ========================================================= */
 function LayoutSingleColumn({ template, cvData, experiences, educations, colors }) {
-  const { accent, text, secondary } = template;
+  const { accent, text } = template;
   const { mutedColor, dividerColor } = colors;
 
   return (
@@ -403,7 +403,7 @@ function LayoutGrid({ template, cvData, experiences, educations, colors }) {
    - Heavy typography, large names, luxurious feel.
    ========================================================= */
 function LayoutAsymmetric({ template, cvData, experiences, educations, colors }) {
-  const { accent, text, secondary } = template;
+  const { accent, text } = template;
   const { mutedColor, dividerColor } = colors;
 
   return (
@@ -593,7 +593,7 @@ function LayoutCreative({ template, cvData, experiences, educations, colors }) {
    6. MEDIA KIT (Influencer Layout)
    - Heavy focus on stats, collaborations, brand identity.
    ========================================================= */
-function LayoutMediaKit({ template, cvData, experiences, educations, colors, onPhotoUpload, onPhotoRemove, isUploadingPhoto }) {
+function LayoutMediaKit({ template, cvData, colors, onPhotoUpload, onPhotoRemove, isUploadingPhoto }) {
   const { accent, text, secondary, bg } = template;
   const { mutedColor, dividerColor } = colors;
 

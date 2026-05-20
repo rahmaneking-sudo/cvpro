@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Search, Eye, Check, X, ArrowRight, Globe, Layout, Lock, Crown, Sparkles, Play } from 'lucide-react';
+import { ArrowLeft, Search, Eye, Check, X, ArrowRight, Globe, Layout, Lock, Crown, Play } from 'lucide-react';
 import { portfolioTemplates, portfolioSeriesLabels, portfolioTierLabels } from '../../data/portfolioTemplates';
 import { useAuth } from '../../store/AuthContext';
 
@@ -24,7 +24,7 @@ function TierBadge({ tier }) {
    PORTFOLIO CARD
    ====================================================== */
 function PortfolioCard({ template, isSelected, onClick, onPreview }) {
-  const { bg, text, accent, secondary, tier } = template;
+  const { bg, text, accent, tier } = template;
   const isPremium = tier !== 'standard';
 
   return (

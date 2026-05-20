@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Plus, Trash2, Loader2, Save, Download, Lock, Upload, Globe, Camera, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Loader2, Save, Download, Upload, Globe, Camera, CheckCircle2, AlertCircle } from 'lucide-react';
 import { portfolioTemplates } from '../../data/portfolioTemplates';
 import PortfolioPreview from './PortfolioPreview';
 import PaymentModal from '../shared/PaymentModal';
@@ -90,16 +90,19 @@ export default function PortfolioEditor() {
 
   const [data, setData] = useState(emptyPortfolioData);
   const [projects, setProjects] = useState([{ ...emptyProject }]);
-  const [tagInput, setTagInput] = useState('');
   
   const [saving, setSaving] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [isCheckingPayment, setIsCheckingPayment] = useState(false);
-  const [isPurchasing, setIsPurchasing] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
   const [isLoading, setIsLoading] = useState(!!portfolioId);
   const [hasPurchased, setHasPurchased] = useState(false);
   const [isCheckingPurchase, setIsCheckingPurchase] = useState(true);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000);
+  };
 
   useEffect(() => {
     if (portfolioId) {
@@ -145,10 +148,6 @@ export default function PortfolioEditor() {
     checkPurchase();
   }, [templateId]);
 
-  const showToast = (message, type = 'success') => {
-    setToast({ show: true, message, type });
-    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000);
-  };
 
   const updateField = useCallback((field, value) => {
     setData(prev => ({ ...prev, [field]: value }));
@@ -482,19 +481,6 @@ export default function PortfolioEditor() {
     }
   };
 
-  const handleSimulatePayment = async () => {
-    setIsPurchasing(true);
-    try {
-      await api.post('/cv/purchase/simulate', { templateId });
-      setShowPaymentModal(false);
-      showToast('Paiement réussi ! Vous pouvez maintenant exporter et partager.');
-    } catch (err) {
-      console.error('Payment error:', err);
-      showToast('Erreur lors du paiement.', 'error');
-    } finally {
-      setIsPurchasing(false);
-    }
-  };
 
   const inputClass = "w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-[var(--color-ivory)] placeholder:text-[var(--color-white-muted)] focus:outline-none focus:border-[var(--color-champagne)] transition-all text-sm";
   const labelClass = "block text-sm font-medium text-[var(--color-white-muted)] mb-1.5";

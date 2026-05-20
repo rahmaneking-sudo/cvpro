@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -23,7 +23,7 @@ export default function AdminDashboardPage() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState('');
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       setLoading(true);
       // We use standard axios to bypass the main api.js interceptor which might mess up tokens
@@ -43,13 +43,14 @@ export default function AdminDashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [adminToken]);
 
   useEffect(() => {
     if (adminToken) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchStats();
     }
-  }, [adminToken]);
+  }, [adminToken, fetchStats]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -61,7 +62,7 @@ export default function AdminDashboardPage() {
         localStorage.setItem('cvpro-admin-token', res.data.token);
         setAdminToken(res.data.token);
       }
-    } catch (err) {
+    } catch {
       setLoginError('Identifiants administrateur incorrects.');
     } finally {
       setIsLoggingIn(false);

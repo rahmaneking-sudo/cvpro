@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Eye, EyeOff, ArrowRight, Loader2, CheckCircle } from 'lucide-react';
@@ -6,8 +6,15 @@ import { useAuth } from '../store/AuthContext';
 import { useGoogleLogin } from '@react-oauth/google';
 
 export default function RegisterPage() {
-  const { register, googleLogin: contextGoogleLogin } = useAuth();
+  const { register, googleLogin: contextGoogleLogin, user } = useAuth();
   const navigate = useNavigate();
+
+  // If user is already logged in, redirect to dashboard
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, navigate]);
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');

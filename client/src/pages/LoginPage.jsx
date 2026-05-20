@@ -1,16 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+
 import { motion } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
 import { useAuth } from '../store/AuthContext';
 import { useGoogleLogin } from '@react-oauth/google';
 
 export default function LoginPage() {
-  const { t } = useTranslation();
-  const { login, googleLogin: contextGoogleLogin } = useAuth();
+
+  const { login, googleLogin: contextGoogleLogin, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // If user is already logged in, redirect to dashboard
+  useEffect(() => {
+    if (user) {
+      navigate(location.state?.from || '/dashboard', { replace: true });
+    }
+  }, [user, navigate, location.state?.from]);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

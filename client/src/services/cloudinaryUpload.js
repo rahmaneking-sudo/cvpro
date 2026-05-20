@@ -66,7 +66,9 @@ export async function uploadFile(file, options = {}) {
         try {
           const errData = JSON.parse(xhr.responseText);
           errorMsg = errData.error?.message || errorMsg;
-        } catch {}
+        } catch {
+          /* ignore JSON parsing error */
+        }
         reject(new Error(errorMsg));
       }
     };

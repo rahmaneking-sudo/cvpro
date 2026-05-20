@@ -1,4 +1,3 @@
-import React from 'react';
 
 export default function CoverLetterPreview({ cvData, template }) {
   if (!template || template.layout !== 'cover-letter') return null;
