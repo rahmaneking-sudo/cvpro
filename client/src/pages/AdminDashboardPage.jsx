@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  Users, Eye, FileText, Briefcase, DollarSign, 
+  Users, Eye, EyeOff, FileText, Briefcase, DollarSign, 
   ArrowLeft, Activity, ShieldAlert, Loader2, ArrowUpRight 
 } from 'lucide-react';
 import axios from 'axios';
@@ -20,6 +20,7 @@ export default function AdminDashboardPage() {
   // Login form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState('');
 
@@ -118,14 +119,23 @@ export default function AdminDashboardPage() {
               </div>
               <div>
                 <label className="block text-xs font-medium text-[var(--color-white-muted)] uppercase tracking-widest mb-2">Mot de passe</label>
-                <input 
-                  type="password" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value.trim())}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[var(--color-champagne)] transition-colors"
-                  placeholder="••••••••"
-                  required
-                />
+                <div className="relative">
+                  <input 
+                    type={showPassword ? "text" : "password"} 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value.trim())}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-4 pr-12 py-3 text-white focus:outline-none focus:border-[var(--color-champagne)] transition-colors"
+                    placeholder="••••••••"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--color-white-muted)] hover:text-[var(--color-ivory)]"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               </div>
               
               {loginError && <p className="text-red-400 text-xs text-center">{loginError}</p>}
