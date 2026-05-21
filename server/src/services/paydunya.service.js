@@ -1,12 +1,16 @@
 import paydunya from 'paydunya';
 
 // Configure PayDunya
+const getCleanKey = (key) => key ? key.trim() : undefined;
+const privateKey = getCleanKey(process.env.PAYDUNYA_PRIVATE_KEY);
+const autoMode = privateKey && privateKey.includes('live_') ? 'live' : 'test';
+
 const setup = new paydunya.Setup({
-  masterKey: process.env.PAYDUNYA_MASTER_KEY,
-  privateKey: process.env.PAYDUNYA_PRIVATE_KEY,
-  publicKey: process.env.PAYDUNYA_PUBLIC_KEY,
-  token: process.env.PAYDUNYA_TOKEN,
-  mode: process.env.PAYDUNYA_MODE || (process.env.NODE_ENV === 'production' ? 'live' : 'test') // Permet de forcer le mode test ou live
+  masterKey: getCleanKey(process.env.PAYDUNYA_MASTER_KEY),
+  privateKey: privateKey,
+  publicKey: getCleanKey(process.env.PAYDUNYA_PUBLIC_KEY),
+  token: getCleanKey(process.env.PAYDUNYA_TOKEN),
+  mode: process.env.PAYDUNYA_MODE || autoMode // Automatique basé sur la clé
 });
 
 // Configure Store
