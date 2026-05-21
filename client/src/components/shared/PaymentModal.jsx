@@ -36,34 +36,70 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
     setStep(3); // Go to processing screen
     
     try {
-      // Simulate network delay for realism (waiting for user to validate on their phone)
-      await new Promise(resolve => setTimeout(resolve, 4500));
-      
-      // Hit the simulation API endpoint
-      await api.post('/cv/purchase/simulate', { templateId });
-      
-      setStep(4); // Success step
-      
-      // Auto-close and trigger success after a short delay
-      setTimeout(() => {
-        onSuccess();
-        onClose();
-      }, 2000);
-      
+      if (method === 'card') {
+        const response = await api.post('/payments/create-invoice', {
+          amount: price || 5000,
+          description: `Achat CV Premium : ${templateName || 'Modèle'}`
+        });
+        
+        if (response.data.success && response.data.url) {
+          window.location.href = response.data.url;
+        } else {
+          throw new Error('Impossible de générer le lien de paiement sécurisé.');
+        }
+      } else {
+        // Paiement Mobile (Wave, Orange, Free)
+        const response = await api.post('/payments/direct-charge', {
+          amount: price || 5000,
+          phone: phone,
+          provider: method // 'wave', 'orange', 'free'
+        });
+        
+        const token = response.data.token;
+        
+        // Polling pour vérifier si le client a validé sur son téléphone
+        const pollInterval = setInterval(async () => {
+          try {
+            const statusRes = await api.get(`/payments/status/${token}`);
+            if (statusRes.data.status === 'completed') {
+              clearInterval(pollInterval);
+              
+              // Optionnel: Débloquer le CV côté backend si ce n'est pas déjà fait par le Webhook
+              // await api.post('/cv/purchase/simulate', { templateId }); // Gardé pour démo/fallback si le webhook est lent
+              
+              setStep(4); // Success step
+              setTimeout(() => {
+                onSuccess();
+                onClose();
+              }, 2000);
+            } else if (statusRes.data.status === 'failed' || statusRes.data.status === 'cancelled') {
+              clearInterval(pollInterval);
+              setError('Le paiement a été refusé ou annulé.');
+              setIsProcessing(false);
+              setStep(1);
+            }
+          } catch (err) {
+            clearInterval(pollInterval);
+            setError('Erreur lors de la vérification du statut.');
+            setIsProcessing(false);
+            setStep(1);
+          }
+        }, 5000);
+      }
     } catch (err) {
       console.error('Payment error:', err);
-      setError('Une erreur est survenue lors du paiement.');
+      setError(err.response?.data?.message || err.message || 'Une erreur est survenue lors du paiement.');
       setIsProcessing(false);
       setStep(1); // Go back if error
     }
   };
 
   const isFormValid = () => {
-    if (method === 'wave' || method === 'orange') {
+    if (method === 'wave' || method === 'orange' || method === 'free') {
       return phone.length >= 9;
     }
     if (method === 'card') {
-      return cardNumber.replace(/\s/g, '').length >= 15 && cardExpiry.length >= 5 && cardCvc.length >= 3;
+      return true; // La saisie se fera sur la page PayDunya
     }
     return false;
   };
@@ -193,51 +229,16 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                       </div>
                     </div>
                   ) : (
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Numéro de carte</label>
-                        <input 
-                          type="text" 
-                          value={cardNumber}
-                          onChange={(e) => {
-                            let val = e.target.value.replace(/\D/g, '');
-                            let formatted = val.match(/.{1,4}/g)?.join(' ') || val;
-                            setCardNumber(formatted.slice(0, 19));
-                          }}
-                          placeholder="0000 0000 0000 0000" 
-                          className="w-full p-4 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-[#082f1f] bg-white text-lg text-gray-900 placeholder-gray-400" 
-                        />
+                    <div className="space-y-4 text-center py-6">
+                      <div className="mx-auto w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4">
+                        <Lock size={32} className="text-blue-600" />
                       </div>
-                      <div className="flex gap-4">
-                        <div className="flex-1">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Expiration</label>
-                          <input 
-                            type="text" 
-                            value={cardExpiry}
-                            onChange={(e) => {
-                              let val = e.target.value.replace(/\D/g, '');
-                              if (val.length >= 3) {
-                                val = val.substring(0, 2) + '/' + val.substring(2, 4);
-                              } else if (val.length === 2 && cardExpiry.length < e.target.value.length) {
-                                val = val + '/';
-                              }
-                              setCardExpiry(val.slice(0, 5));
-                            }}
-                            placeholder="MM/AA" 
-                            className="w-full p-4 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-[#082f1f] bg-white text-lg text-gray-900 placeholder-gray-400" 
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">CVC</label>
-                          <input 
-                            type="text" 
-                            value={cardCvc}
-                            onChange={(e) => setCardCvc(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
-                            placeholder="123" 
-                            className="w-full p-4 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-[#082f1f] bg-white text-lg text-gray-900 placeholder-gray-400" 
-                          />
-                        </div>
-                      </div>
+                      <h4 className="text-lg font-medium text-gray-900">Paiement 100% Sécurisé</h4>
+                      <p className="text-gray-500 text-sm max-w-sm mx-auto leading-relaxed">
+                        Pour des raisons de sécurité bancaire, nous ne stockons aucun numéro de carte.
+                        <br/><br/>
+                        En cliquant sur "Payer", vous serez redirigé vers la page certifiée PCI-DSS de <strong>PayDunya</strong> pour finaliser votre achat en toute sérénité.
+                      </p>
                     </div>
                   )}
 
