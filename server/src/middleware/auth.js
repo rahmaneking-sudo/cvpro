@@ -8,7 +8,7 @@ export function authMiddleware(req, res, next) {
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret_for_development_do_not_use_in_prod');
     req.userId = decoded.userId;
     req.userEmail = decoded.email;
     next();
@@ -22,7 +22,7 @@ export function optionalAuth(req, res, next) {
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret_for_development_do_not_use_in_prod');
       req.userId = decoded.userId;
       req.userEmail = decoded.email;
     }
@@ -35,7 +35,7 @@ export function optionalAuth(req, res, next) {
 export function generateToken(userId, email) {
   return jwt.sign(
     { userId, email },
-    process.env.JWT_SECRET,
+    process.env.JWT_SECRET || 'fallback_secret_for_development_do_not_use_in_prod',
     { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
   );
 }
