@@ -5,12 +5,15 @@ export const createCardPayment = async (req, res) => {
   try {
     const { amount, description } = req.body;
     
+    // Ensure amount is a valid number, even if passed as a string like "5 000"
+    const parsedAmount = amount ? Number(String(amount).replace(/[^\d]/g, '')) : 5000;
+    
     // Configurer l'URL de retour (où le client atterrit après avoir payé)
     const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
     const returnUrl = `${clientUrl}/dashboard?payment=success`;
     const cancelUrl = `${clientUrl}/dashboard?payment=cancel`;
 
-    const invoice = await createInvoice(amount || 5000, description || "Abonnement CV Premium", cancelUrl, returnUrl);
+    const invoice = await createInvoice(parsedAmount || 5000, description || "Abonnement CV Premium", cancelUrl, returnUrl);
     
     res.json({
       success: true,
@@ -28,11 +31,14 @@ export const processMobilePayment = async (req, res) => {
   try {
     const { amount, phone, provider } = req.body;
     
+    // Ensure amount is a valid number, even if passed as a string like "5 000"
+    const parsedAmount = amount ? Number(String(amount).replace(/[^\d]/g, '')) : 5000;
+    
     if (!phone || !provider) {
       return res.status(400).json({ success: false, message: "Numéro de téléphone et opérateur requis" });
     }
 
-    const result = await createDirectPay(amount || 5000, phone, provider);
+    const result = await createDirectPay(parsedAmount || 5000, phone, provider);
     
     if (result.success) {
       res.json({ success: true, message: "Veuillez valider le paiement sur votre téléphone.", token: result.token });

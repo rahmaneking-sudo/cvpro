@@ -210,7 +210,7 @@ export default function Pricing() {
           }} 
           templateId={selectedPlan.key} 
           templateName={t(`pricing.${selectedPlan.key}.name`)} 
-          price={t(`pricing.${selectedPlan.key}.price_xof`)?.replace(/[^\d\s]/g, '').trim()} 
+          price={t(`pricing.${selectedPlan.key}.price_xof`)?.replace(/[^\d]/g, '')} 
         />
       )}
     </section>
