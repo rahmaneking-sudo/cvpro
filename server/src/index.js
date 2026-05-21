@@ -33,6 +33,7 @@ const isProd = process.env.NODE_ENV === 'production';
 // Helmet — Headers de sécurité HTTP
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' }, // Permet de charger les images cross-origin
+  crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' }, // Évite les warnings et blocages de popup Google Auth
   contentSecurityPolicy: isProd ? undefined : false,
 }));
 

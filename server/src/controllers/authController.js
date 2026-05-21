@@ -230,7 +230,7 @@ export async function googleAuth(req, res) {
     res.json({ token, user: sanitizeUser(user) });
   } catch (err) {
     console.error('Google auth error:', err);
-    res.status(500).json({ error: 'Erreur serveur' });
+    res.status(500).json({ error: err.message || 'Erreur serveur interne lors de l\'authentification Google' });
   }
 }
 

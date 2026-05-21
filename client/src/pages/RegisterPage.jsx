@@ -41,7 +41,10 @@ export default function RegisterPage() {
       await register(email, password, name);
       setSuccess(true);
     } catch (err) {
-      setError(err.response?.data?.error || 'Une erreur est survenue');
+      const errorMsg = typeof err.response?.data?.error === 'string' 
+        ? err.response.data.error 
+        : err.response?.data?.message || err.message || 'Une erreur est survenue';
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -66,7 +69,10 @@ export default function RegisterPage() {
 
         navigate('/dashboard');
       } catch (err) {
-        setError(err.response?.data?.error || err.message || 'Erreur lors de l\'inscription avec Google');
+        const errorMsg = typeof err.response?.data?.error === 'string' 
+          ? err.response.data.error 
+          : err.response?.data?.message || err.message || 'Erreur lors de l\'inscription avec Google';
+        setError(errorMsg);
         setLoading(false);
       }
     },

@@ -41,7 +41,10 @@ export default function LoginPage() {
       if (data?.needsVerification) {
         setNeedsVerification(true);
       }
-      setError(data?.error || 'Une erreur est survenue');
+      const errorMsg = typeof err.response?.data?.error === 'string' 
+        ? err.response.data.error 
+        : err.response?.data?.message || err.message || 'Une erreur est survenue';
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -67,7 +70,10 @@ export default function LoginPage() {
         const from = location.state?.from || '/dashboard';
         navigate(from);
       } catch (err) {
-        setError(err.response?.data?.error || err.message || 'La connexion avec Google a échoué');
+        const errorMsg = typeof err.response?.data?.error === 'string' 
+          ? err.response.data.error 
+          : err.response?.data?.message || err.message || 'La connexion avec Google a échoué';
+        setError(errorMsg);
         setLoading(false);
       }
     },
