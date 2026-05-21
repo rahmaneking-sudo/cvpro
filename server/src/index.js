@@ -11,6 +11,7 @@ import aiRoutes from './routes/ai.js';
 import portfolioRoutes from './routes/portfolio.js';
 import uploadRoutes from './routes/upload.js';
 import adminRoutes from './routes/admin.js';
+import paymentRoutes from './routes/payment.routes.js';
 
 // Load .env from root (only for local dev — Vercel injects env vars directly)
 const __filename = fileURLToPath(import.meta.url);
@@ -99,6 +100,9 @@ app.use('/api/portfolios', apiLimiter, portfolioRoutes);
 
 // Upload routes (Files, Images)
 app.use('/api/upload', apiLimiter, uploadRoutes);
+
+// Payment routes
+app.use('/api/payments', paymentRoutes);
 
 // Cloudinary signature endpoint for direct browser uploads
 app.get('/api/cloudinary/config', (req, res) => {
