@@ -45,6 +45,34 @@ export const processMobilePayment = async (req, res) => {
   }
 };
 
+// Vérifier le statut d'un paiement (Polling depuis le frontend)
+export const checkPaymentStatus = async (req, res) => {
+  try {
+    const { token } = req.params;
+    
+    // Call PayDunya confirm API
+    const response = await fetch(`https://app.paydunya.com/api/v1/checkout-invoice/confirm/${token}`, {
+      headers: {
+        'PAYDUNYA-MASTER-KEY': process.env.PAYDUNYA_MASTER_KEY,
+        'PAYDUNYA-PRIVATE-KEY': process.env.PAYDUNYA_PRIVATE_KEY,
+        'PAYDUNYA-TOKEN': process.env.PAYDUNYA_TOKEN
+      }
+    });
+
+    const data = await response.json();
+    
+    if (data.status === 'completed') {
+      res.json({ success: true, status: 'completed' });
+    } else if (data.status === 'failed' || data.status === 'cancelled') {
+      res.json({ success: false, status: data.status });
+    } else {
+      res.json({ success: true, status: 'pending' }); // still pending
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // Webhook / IPN pour valider le paiement asynchrone
 export const handleWebhook = async (req, res) => {
   try {
