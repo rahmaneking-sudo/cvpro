@@ -6,7 +6,7 @@ const setup = new paydunya.Setup({
   privateKey: process.env.PAYDUNYA_PRIVATE_KEY,
   publicKey: process.env.PAYDUNYA_PUBLIC_KEY,
   token: process.env.PAYDUNYA_TOKEN,
-  mode: process.env.NODE_ENV === 'production' ? 'live' : 'test' // Utilise 'test' en dev, 'live' en prod
+  mode: process.env.PAYDUNYA_MODE || (process.env.NODE_ENV === 'production' ? 'live' : 'test') // Permet de forcer le mode test ou live
 });
 
 // Configure Store
