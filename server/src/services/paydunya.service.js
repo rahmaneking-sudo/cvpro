@@ -94,6 +94,8 @@ export const createDirectPay = async (amount, phone, walletProvider, accountAlia
       data: data
     };
   } catch (error) {
-    throw new Error('Erreur lors du paiement mobile : ' + error.message);
+    console.error('PayDunya API Error Data:', error.data || error);
+    const apiMsg = error.data && error.data.response_text ? ` (${error.data.response_text})` : '';
+    throw new Error('Erreur lors du paiement mobile : ' + error.message + apiMsg);
   }
 };
