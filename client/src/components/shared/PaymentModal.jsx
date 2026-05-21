@@ -132,6 +132,23 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                     </div>
                   </label>
 
+                  {/* Free Money Option */}
+                  <label className={`flex items-center p-4 bg-white border ${method === 'free' ? 'border-[#082f1f] ring-1 ring-[#082f1f]' : 'border-gray-200'} rounded-xl cursor-pointer transition-all hover:border-gray-300 shadow-sm`}>
+                    <input type="radio" name="method" value="free" checked={method === 'free'} onChange={() => setMethod('free')} className="hidden" />
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-4 ${method === 'free' ? 'border-[#082f1f]' : 'border-gray-300'}`}>
+                      {method === 'free' && <div className="w-2.5 h-2.5 bg-[#082f1f] rounded-full" />}
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-semibold text-gray-900 text-sm lg:text-base">Free Money</div>
+                    </div>
+                    <div className="w-[70px] lg:w-20">
+                      <svg viewBox="0 0 100 40" className="w-full h-auto">
+                        <rect width="100" height="40" rx="6" fill="#E3000F" />
+                        <text x="50" y="26" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="16" textAnchor="middle">Free</text>
+                      </svg>
+                    </div>
+                  </label>
+
                   {/* Visa/Mastercard Option */}
                   <label className={`flex items-center p-4 bg-white border ${method === 'card' ? 'border-[#082f1f] ring-1 ring-[#082f1f]' : 'border-gray-200'} rounded-xl cursor-pointer transition-all hover:border-gray-300 shadow-sm`}>
                     <input type="radio" name="method" value="card" checked={method === 'card'} onChange={() => setMethod('card')} className="hidden" />
@@ -159,7 +176,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                 <div className="mt-auto">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Détails du paiement</h3>
                   
-                  {method === 'wave' || method === 'orange' ? (
+                  {method === 'wave' || method === 'orange' || method === 'free' ? (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Numéro de téléphone</label>
                       <div className="relative">
@@ -170,7 +187,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                           type="tel" 
                           value={phone}
                           onChange={(e) => setPhone(e.target.value.replace(/[^0-9\s+]/g, ''))}
-                          placeholder={method === 'wave' ? "Ex: 77 123 45 67" : "Ex: 78 123 45 67"}
+                          placeholder={method === 'wave' ? "Ex: 77 123 45 67" : method === 'orange' ? "Ex: 78 123 45 67" : "Ex: 76 123 45 67"}
                           className="w-full pl-11 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#082f1f] focus:border-[#082f1f] outline-none text-lg bg-white text-gray-900 placeholder-gray-400"
                         />
                       </div>
@@ -250,7 +267,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                 <p className="text-gray-600 max-w-[280px]">
                   {method === 'card' 
                     ? "Veuillez patienter pendant que nous sécurisons votre transaction bancaire." 
-                    : `Une notification a été envoyée sur votre téléphone. Veuillez valider le paiement ${method === 'wave' ? 'Wave' : 'Orange Money'}.`}
+                    : `Une notification a été envoyée sur votre téléphone. Veuillez valider le paiement ${method === 'wave' ? 'Wave' : method === 'orange' ? 'Orange Money' : 'Free Money'}.`}
                 </p>
               </motion.div>
             )}
