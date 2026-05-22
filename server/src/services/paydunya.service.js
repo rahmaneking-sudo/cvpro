@@ -13,14 +13,16 @@ const setup = new paydunya.Setup({
   mode: process.env.PAYDUNYA_MODE || autoMode // Automatique basé sur la clé
 });
 
+const clientDomain = process.env.CLIENT_URL || 'https://samacvpro.com';
+
 // Configure Store
 const store = new paydunya.Store({
   name: "Samacvpro",
   tagline: "L'excellence pour votre CV",
-  phoneNumber: "336530583", // A modifier selon le client
+  phoneNumber: "777185723", // Numéro du client Abdou
   postalAddress: "Dakar, Sénégal",
-  logoUrl: "https://abdou-diallo.samacvpro.dev/images/profiles/profile1.png", // Temporaire
-  websiteUrl: "https://abdou-diallo.samacvpro.dev"
+  logoUrl: `${clientDomain}/logo.png`, // URL dynamique
+  websiteUrl: clientDomain
 });
 
 /**
