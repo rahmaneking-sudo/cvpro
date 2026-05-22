@@ -52,16 +52,15 @@ export const createInvoice = async (amount, description, cancelUrl, returnUrl) =
  * Nous allons faire un appel API REST standard vers l'endpoint SoftPay.
  */
 export const createDirectPay = async (amount, phone, walletProvider, accountAlias) => {
-  // Use sandbox API if mode is test
-  const baseUrl = setup.mode === 'test' ? 'https://app.paydunya.com/sandbox-api/v1' : 'https://app.paydunya.com/api/v1';
-  const url = `${baseUrl}/softpay/create-payment`;
-  
   // Le provider pour le Softpay (orange-money-senegal, wave-senegal, free-money-senegal)
   const walletMap = {
     'orange': 'orange-money-senegal',
     'wave': 'wave-senegal',
     'free': 'free-money-senegal'
   };
+
+  const baseUrl = setup.mode === 'test' ? 'https://app.paydunya.com/sandbox-api/v1' : 'https://app.paydunya.com/api/v1';
+  const url = `${baseUrl}/softpay/${walletMap[walletProvider]}`;
 
   const payload = {
     payment_token: "", // Will be generated first
