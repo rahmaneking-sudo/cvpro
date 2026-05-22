@@ -2,6 +2,8 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
 
+import { googleLogout } from '@react-oauth/google';
+
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
@@ -44,6 +46,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const logout = useCallback(() => {
+    googleLogout(); // Clear Google Identity state
     localStorage.removeItem('cvpro-token');
     setUser(null);
     window.location.href = '/';
