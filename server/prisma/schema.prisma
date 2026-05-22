@@ -56,6 +56,7 @@ model CV {
 
   experiences Experience[]
 
+  @@index([userId])
   @@map("cvs")
 }
 
@@ -71,6 +72,7 @@ model Experience {
   logoUrl     String? // Cloudinary URL
   order       Int     @default(0)
 
+  @@index([cvId])
   @@map("experiences")
 }
 
@@ -90,6 +92,7 @@ model Portfolio {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  @@index([userId])
   @@map("portfolios")
 }
 
@@ -109,6 +112,7 @@ model CVEnhancement {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
+  @@index([userId])
   @@map("cv_enhancements")
 }
 
@@ -130,6 +134,8 @@ model Purchase {
   metadata    Json?    // Additional payment data
   createdAt   DateTime @default(now())
 
+  @@index([userId])
+  @@index([status])
   @@map("purchases")
 }
 

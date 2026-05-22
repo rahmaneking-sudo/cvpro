@@ -1,9 +1,8 @@
 import { Router } from 'express';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../utils/prisma.js';
 import jwt from 'jsonwebtoken';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 const ADMIN_EMAIL = 'rahmaneking@gmail.com';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
@@ -64,11 +63,14 @@ router.get('/stats', requireAdmin, async (req, res) => {
     const portfoliosCount = await prisma.portfolio.count();
 
     // 4. Revenus et achats (Balance)
-    const purchases = await prisma.purchase.findMany({
-      where: { status: 'completed' }
+    const purchaseStats = await prisma.purchase.aggregate({
+      where: { status: 'completed' },
+      _sum: { amount: true },
+      _count: true,
     });
     
-    const totalRevenue = purchases.reduce((sum, p) => sum + (p.amount || 0), 0);
+    const totalRevenue = purchaseStats._sum.amount || 0;
+    const purchasesCount = purchaseStats._count || 0;
 
     // 5. Derniers utilisateurs (pour info)
     const recentUsers = await prisma.user.findMany({
@@ -83,7 +85,7 @@ router.get('/stats', requireAdmin, async (req, res) => {
       cvsCount,
       portfoliosCount,
       totalRevenue,
-      purchasesCount: purchases.length,
+      purchasesCount,
       recentUsers
     });
   } catch (error) {
@@ -95,12 +97,13 @@ router.get('/stats', requireAdmin, async (req, res) => {
 // POST /api/admin/visit - Ouvert à tous pour incrémenter les visites
 router.post('/visit', async (req, res) => {
   try {
-    // Upsert the global analytics record
-    await prisma.analytics.upsert({
+    // Upsert in background (fire-and-forget) to avoid blocking the response
+    prisma.analytics.upsert({
       where: { id: 'global' },
       update: { views: { increment: 1 } },
       create: { id: 'global', views: 1 }
-    });
+    }).catch(err => console.error('Background Analytics Visit error:', err));
+    
     res.json({ success: true });
   } catch (error) {
     console.error('Erreur Analytics Visit:', error);

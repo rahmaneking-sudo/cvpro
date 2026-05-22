@@ -51,6 +51,7 @@ export default function RegisterPage() {
   };
 
   const googleSignup = useGoogleLogin({
+    prompt: 'select_account',
     onSuccess: async (tokenResponse) => {
       try {
         setLoading(true);

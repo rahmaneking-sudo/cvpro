@@ -66,8 +66,8 @@ const apiLimiter = rateLimit({
 });
 
 // Body parsing avec limite
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(express.json({ limit: '2mb' }));
+app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 
 // Static files (Uploads)
 app.use('/uploads', express.static(join(__dirname, '../public/uploads')));
