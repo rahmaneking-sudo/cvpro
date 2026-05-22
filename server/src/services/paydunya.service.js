@@ -63,10 +63,8 @@ export const createDirectPay = async (amount, phone, walletProvider, accountAlia
   const url = `${baseUrl}/softpay/${walletMap[walletProvider]}`;
 
   const payload = {
-    payment_token: "", // Will be generated first
-    phone_number: phone,
-    wallet: walletMap[walletProvider],
-    account_alias: accountAlias || phone
+    payment_token: "", // Sera mis à jour après la création de la facture
+    phone_number: phone
   };
 
   try {
