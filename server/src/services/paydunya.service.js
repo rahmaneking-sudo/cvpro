@@ -13,8 +13,8 @@ const setup = new paydunya.Setup({
   mode: process.env.PAYDUNYA_MODE || autoMode // Automatique basé sur la clé
 });
 
-const clientDomain = process.env.CLIENT_URL || 'https://samacvpro.com';
-const serverDomain = process.env.SERVER_URL || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://samacvpro.com';
+// Pour PayDunya, on utilise TOUJOURS le domaine de production (pas CLIENT_URL qui peut être localhost)
+const PAYDUNYA_SITE_URL = 'https://samacvpro.com';
 
 // Configure Store - Les noms de propriétés doivent correspondre EXACTEMENT au SDK paydunya
 const store = new paydunya.Store({
@@ -22,11 +22,11 @@ const store = new paydunya.Store({
   tagline: "L'excellence pour votre CV",
   phoneNumber: "777185723",
   postalAddress: "Dakar, Sénégal",
-  logoURL: `${clientDomain}/logo.png`,
-  websiteURL: clientDomain,
-  returnURL: `${clientDomain}/dashboard?payment=success`,
-  cancelURL: `${clientDomain}/dashboard?payment=cancel`,
-  callbackURL: `${serverDomain}/api/payments/webhook`
+  logoURL: `${PAYDUNYA_SITE_URL}/logo.png`,
+  websiteURL: PAYDUNYA_SITE_URL,
+  returnURL: `${PAYDUNYA_SITE_URL}/dashboard?payment=success`,
+  cancelURL: `${PAYDUNYA_SITE_URL}/dashboard?payment=cancel`,
+  callbackURL: `${PAYDUNYA_SITE_URL}/api/payments/webhook`
 });
 
 /**

@@ -9,7 +9,8 @@ export const createCardPayment = async (req, res) => {
     const parsedAmount = amount ? Number(String(amount).replace(/[^\d]/g, '')) : 5000;
     
     // Configurer l'URL de retour (où le client atterrit après avoir payé)
-    const clientUrl = process.env.CLIENT_URL || 'https://samacvpro.com';
+    // On utilise TOUJOURS le domaine de production (pas CLIENT_URL qui peut être localhost)
+    const clientUrl = 'https://samacvpro.com';
     const returnUrl = `${clientUrl}/dashboard?payment=success`;
     const cancelUrl = `${clientUrl}/dashboard?payment=cancel`;
 
