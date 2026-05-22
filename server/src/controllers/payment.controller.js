@@ -1,4 +1,4 @@
-import { createInvoice, createDirectPay } from '../services/paydunya.service.js';
+import { createInvoice, createDirectPay, checkInvoiceStatus } from '../services/paydunya.service.js';
 
 // Route pour le paiement par carte (Redirection)
 export const createCardPayment = async (req, res) => {
@@ -56,16 +56,7 @@ export const checkPaymentStatus = async (req, res) => {
   try {
     const { token } = req.params;
     
-    // Call PayDunya confirm API
-    const response = await fetch(`https://app.paydunya.com/api/v1/checkout-invoice/confirm/${token}`, {
-      headers: {
-        'PAYDUNYA-MASTER-KEY': process.env.PAYDUNYA_MASTER_KEY,
-        'PAYDUNYA-PRIVATE-KEY': process.env.PAYDUNYA_PRIVATE_KEY,
-        'PAYDUNYA-TOKEN': process.env.PAYDUNYA_TOKEN
-      }
-    });
-
-    const data = await response.json();
+    const data = await checkInvoiceStatus(token);
     
     if (data.status === 'completed') {
       res.json({ success: true, status: 'completed' });

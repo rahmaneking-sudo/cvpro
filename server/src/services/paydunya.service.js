@@ -52,7 +52,9 @@ export const createInvoice = async (amount, description, cancelUrl, returnUrl) =
  * Nous allons faire un appel API REST standard vers l'endpoint SoftPay.
  */
 export const createDirectPay = async (amount, phone, walletProvider, accountAlias) => {
-  const url = 'https://app.paydunya.com/api/v1/softpay/create-payment';
+  // Use sandbox API if mode is test
+  const baseUrl = setup.mode === 'test' ? 'https://app.paydunya.com/sandbox-api/v1' : 'https://app.paydunya.com/api/v1';
+  const url = `${baseUrl}/softpay/create-payment`;
   
   // Le provider pour le Softpay (orange-money-senegal, wave-senegal, free-money-senegal)
   const walletMap = {
@@ -104,4 +106,28 @@ export const createDirectPay = async (amount, phone, walletProvider, accountAlia
     const baseMsg = error.message ? error.message : 'Refusé par PayDunya';
     throw new Error(`Erreur lors du paiement mobile : ${baseMsg} ${apiMsg ? '(' + apiMsg + ')' : ''}`);
   }
+};
+
+/**
+ * Vérifier le statut d'une facture PayDunya
+ */
+export const checkInvoiceStatus = async (token) => {
+  const baseUrl = setup.mode === 'test' ? 'https://app.paydunya.com/sandbox-api/v1' : 'https://app.paydunya.com/api/v1';
+  const url = `${baseUrl}/checkout-invoice/confirm/${token}`;
+  
+  const response = await fetch(url, {
+    headers: {
+      'PAYDUNYA-MASTER-KEY': process.env.PAYDUNYA_MASTER_KEY,
+      'PAYDUNYA-PRIVATE-KEY': process.env.PAYDUNYA_PRIVATE_KEY,
+      'PAYDUNYA-TOKEN': process.env.PAYDUNYA_TOKEN
+    }
+  });
+
+  const contentType = response.headers.get("content-type");
+  if (!contentType || !contentType.includes("application/json")) {
+    const text = await response.text();
+    throw new Error(`PayDunya a renvoyé une réponse non-JSON (HTML/Erreur serveur) : ${text.substring(0, 100)}...`);
+  }
+
+  return await response.json();
 };
