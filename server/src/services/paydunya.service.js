@@ -14,19 +14,23 @@ const setup = new paydunya.Setup({
 });
 
 const clientDomain = process.env.CLIENT_URL || 'https://samacvpro.com';
+const serverDomain = process.env.SERVER_URL || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://samacvpro.com';
 
-// Configure Store
+// Configure Store - Les noms de propriétés doivent correspondre EXACTEMENT au SDK paydunya
 const store = new paydunya.Store({
   name: "Samacvpro",
   tagline: "L'excellence pour votre CV",
-  phoneNumber: "777185723", // Numéro du client Abdou
+  phoneNumber: "777185723",
   postalAddress: "Dakar, Sénégal",
-  logoUrl: `${clientDomain}/logo.png`, // URL dynamique
-  websiteUrl: clientDomain
+  logoURL: `${clientDomain}/logo.png`,
+  websiteURL: clientDomain,
+  returnURL: `${clientDomain}/dashboard?payment=success`,
+  cancelURL: `${clientDomain}/dashboard?payment=cancel`,
+  callbackURL: `${serverDomain}/api/payments/webhook`
 });
 
 /**
- * Créer une facture pour paiement par carte (Redirection)
+ * Créer une facture pour paiement (Redirection vers page sécurisée PayDunya)
  */
 export const createInvoice = async (amount, description, cancelUrl, returnUrl) => {
   return new Promise((resolve, reject) => {
@@ -34,10 +38,10 @@ export const createInvoice = async (amount, description, cancelUrl, returnUrl) =
     invoice.addItem("Service CV Premium", 1, amount, amount, description);
     invoice.totalAmount = amount;
     
-    // Configurer les URLs de redirection
+    // Configurer les URLs de redirection (override si fournies)
     invoice.addCustomData('description', description);
-    invoice.cancelUrl = cancelUrl;
-    invoice.returnUrl = returnUrl;
+    if (returnUrl) invoice.returnURL = returnUrl;
+    if (cancelUrl) invoice.cancelURL = cancelUrl;
 
     invoice.create().then(() => {
       resolve({
