@@ -36,55 +36,18 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
     setStep(3); // Go to processing screen
     
     try {
-      if (method === 'card') {
-        const response = await api.post('/payments/create-invoice', {
-          amount: price || 5000,
-          description: `Achat CV Premium : ${templateName || 'Modèle'}`
-        });
-        
-        if (response.data.success && response.data.url) {
-          window.location.href = response.data.url;
-        } else {
-          throw new Error('Impossible de générer le lien de paiement sécurisé.');
-        }
+      // Suite à un problème avec l'API SoftPay (Direct Push) de PayDunya qui renvoie 
+      // des erreurs 500, nous redirigeons TOUTES les méthodes vers la page sécurisée 
+      // officielle de PayDunya qui gère correctement Wave/Orange.
+      const response = await api.post('/payments/create-invoice', {
+        amount: price || 5000,
+        description: `Achat CV Premium : ${templateName || 'Modèle'}`
+      });
+      
+      if (response.data.success && response.data.url) {
+        window.location.href = response.data.url;
       } else {
-        // Paiement Mobile (Wave, Orange, Free)
-        const response = await api.post('/payments/direct-charge', {
-          amount: price || 5000,
-          phone: phone,
-          provider: method // 'wave', 'orange', 'free'
-        });
-        
-        const token = response.data.token;
-        
-        // Polling pour vérifier si le client a validé sur son téléphone
-        const pollInterval = setInterval(async () => {
-          try {
-            const statusRes = await api.get(`/payments/status/${token}`);
-            if (statusRes.data.status === 'completed') {
-              clearInterval(pollInterval);
-              
-              // Optionnel: Débloquer le CV côté backend si ce n'est pas déjà fait par le Webhook
-              // await api.post('/cv/purchase/simulate', { templateId }); // Gardé pour démo/fallback si le webhook est lent
-              
-              setStep(4); // Success step
-              setTimeout(() => {
-                onSuccess();
-                onClose();
-              }, 2000);
-            } else if (statusRes.data.status === 'failed' || statusRes.data.status === 'cancelled') {
-              clearInterval(pollInterval);
-              setError('Le paiement a été refusé ou annulé.');
-              setIsProcessing(false);
-              setStep(1);
-            }
-          } catch (err) {
-            clearInterval(pollInterval);
-            setError('Erreur lors de la vérification du statut.');
-            setIsProcessing(false);
-            setStep(1);
-          }
-        }, 5000);
+        throw new Error('Impossible de générer le lien de paiement sécurisé.');
       }
     } catch (err) {
       console.error('Payment error:', err);
@@ -95,13 +58,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
   };
 
   const isFormValid = () => {
-    if (method === 'wave' || method === 'orange' || method === 'free') {
-      return phone.length >= 9;
-    }
-    if (method === 'card') {
-      return true; // La saisie se fera sur la page PayDunya
-    }
-    return false;
+    return true; // La saisie se fera sur la page PayDunya pour toutes les méthodes
   };
 
   return (
@@ -211,36 +168,17 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                 {/* Dynamic Inputs */}
                 <div className="mt-auto">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Détails du paiement</h3>
-                  
-                  {method === 'wave' || method === 'orange' || method === 'free' ? (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Numéro de téléphone</label>
-                      <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                          <Smartphone size={18} className="text-gray-400" />
-                        </div>
-                        <input 
-                          type="tel" 
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value.replace(/[^0-9\s+]/g, ''))}
-                          placeholder={method === 'wave' ? "Ex: 77 123 45 67" : method === 'orange' ? "Ex: 78 123 45 67" : "Ex: 76 123 45 67"}
-                          className="w-full pl-11 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#082f1f] focus:border-[#082f1f] outline-none text-lg bg-white text-gray-900 placeholder-gray-400"
-                        />
-                      </div>
+                  <div className="space-y-4 text-center py-6">
+                    <div className="mx-auto w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4">
+                      <Lock size={32} className="text-[#082f1f]" />
                     </div>
-                  ) : (
-                    <div className="space-y-4 text-center py-6">
-                      <div className="mx-auto w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4">
-                        <Lock size={32} className="text-blue-600" />
-                      </div>
-                      <h4 className="text-lg font-medium text-gray-900">Paiement 100% Sécurisé</h4>
-                      <p className="text-gray-500 text-sm max-w-sm mx-auto leading-relaxed">
-                        Pour des raisons de sécurité bancaire, nous ne stockons aucun numéro de carte.
-                        <br/><br/>
-                        En cliquant sur "Payer", vous serez redirigé vers la page certifiée PCI-DSS de <strong>PayDunya</strong> pour finaliser votre achat en toute sérénité.
-                      </p>
-                    </div>
-                  )}
+                    <h4 className="text-lg font-medium text-gray-900">Paiement 100% Sécurisé</h4>
+                    <p className="text-gray-500 text-sm max-w-sm mx-auto leading-relaxed">
+                      Pour des raisons de sécurité, nous ne stockons aucune donnée de paiement sur notre site.
+                      <br/><br/>
+                      En cliquant sur "Payer", vous serez redirigé vers la page certifiée de <strong>PayDunya</strong> pour finaliser votre transaction en toute sécurité avec le moyen de paiement de votre choix.
+                    </p>
+                  </div>
 
                   {error && (
                     <div className="mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm font-medium">
