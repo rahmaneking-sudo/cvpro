@@ -51,7 +51,7 @@ export default function LoginPage() {
   };
 
   const googleLogin = useGoogleLogin({
-    prompt: 'select_account',
+    prompt: 'consent',
     onSuccess: async (tokenResponse) => {
       try {
         setLoading(true);
