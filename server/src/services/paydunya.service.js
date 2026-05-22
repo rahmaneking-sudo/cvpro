@@ -98,8 +98,10 @@ export const createDirectPay = async (amount, phone, walletProvider, accountAlia
       data: data
     };
   } catch (error) {
-    console.error('PayDunya API Error Data:', error.data || error);
-    const apiMsg = error.data && error.data.response_text ? ` (${error.data.response_text})` : '';
-    throw new Error('Erreur lors du paiement mobile : ' + error.message + apiMsg);
+    console.error('PayDunya API Error Data:', error);
+    // error might be an object from PayDunya (e.g., { response_code: '...', response_text: '...' })
+    const apiMsg = error.response_text ? error.response_text : (error.data && error.data.response_text ? error.data.response_text : '');
+    const baseMsg = error.message ? error.message : 'Refusé par PayDunya';
+    throw new Error(`Erreur lors du paiement mobile : ${baseMsg} ${apiMsg ? '(' + apiMsg + ')' : ''}`);
   }
 };
