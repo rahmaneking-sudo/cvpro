@@ -916,7 +916,7 @@ export default function CVEditor() {
                     <label className={labelClass}>Salutation</label>
                     <input type="text" value={cvData.salutation} onChange={e => updateField('salutation', e.target.value)} placeholder="Madame, Monsieur," className={inputClass} />
                   </div>
-                  <div>
+                  <div className="relative">
                     <label className={labelClass}>Corps du texte *</label>
                     <textarea 
                       value={cvData.body} 
@@ -925,6 +925,14 @@ export default function CVEditor() {
                       rows={12} 
                       className={`${inputClass} resize-y`} 
                     />
+                    <button
+                      onClick={() => enhanceSection('lettre de motivation', cvData.body, (v) => updateField('body', v))}
+                      disabled={enhancingSection === 'lettre de motivation'}
+                      className="absolute top-8 right-2 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[rgba(201,169,110,0.15)] hover:bg-[rgba(201,169,110,0.25)] text-[var(--color-champagne)] text-[11px] font-medium transition-colors"
+                    >
+                      {enhancingSection === 'lettre de motivation' ? <Loader2 size={12} className="animate-spin" /> : <Wand2 size={12} />}
+                      IA
+                    </button>
                   </div>
                   <div>
                     <label className={labelClass}>Formule de politesse</label>
@@ -1089,6 +1097,14 @@ export default function CVEditor() {
                       rows={2}
                       className={`${inputClass} resize-none`}
                     />
+                    <button
+                      onClick={() => enhanceSection('formation', edu.description, (v) => updateEducation(idx, 'description', v))}
+                      disabled={enhancingSection === 'formation'}
+                      className="absolute top-8 right-2 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[rgba(201,169,110,0.15)] hover:bg-[rgba(201,169,110,0.25)] text-[var(--color-champagne)] text-[10px] font-medium transition-colors"
+                    >
+                      {enhancingSection === 'formation' ? <Loader2 size={10} className="animate-spin" /> : <Wand2 size={10} />}
+                      IA
+                    </button>
                   </div>
                 </div>
               </motion.div>
