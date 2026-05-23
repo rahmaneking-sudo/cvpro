@@ -13,6 +13,8 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [latestMessage, setLatestMessage] = useState(null);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
 
   useEffect(() => {
     let intervalId;
@@ -22,6 +24,7 @@ export default function Navbar() {
           const res = await api.get('/chat/unread');
           if (res.data.success) {
             setUnreadCount(res.data.count);
+            setLatestMessage(res.data.latestMessage);
           }
         }
       } catch (e) {
@@ -134,16 +137,62 @@ export default function Navbar() {
 
             {user ? (
               <>
-                <div 
-                  className="relative flex items-center text-[var(--color-white-muted)]"
-                  title="Notifications"
-                >
-                  <Bell size={20} />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[16px] h-[16px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold border border-[rgba(10,10,10,0.95)]">
-                      {unreadCount}
-                    </span>
-                  )}
+                {/* Notification Dropdown Container */}
+                <div className="relative">
+                  <div 
+                    onClick={() => setIsNotifOpen(!isNotifOpen)}
+                    className="relative flex items-center cursor-pointer hover:text-[var(--color-champagne)] transition-colors text-[var(--color-white-muted)]"
+                    title="Notifications"
+                  >
+                    <Bell size={20} />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[16px] h-[16px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold border border-[rgba(10,10,10,0.95)]">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </div>
+
+                  <AnimatePresence>
+                    {isNotifOpen && (
+                      <>
+                        <div 
+                          className="fixed inset-0 z-40" 
+                          onClick={() => setIsNotifOpen(false)}
+                        ></div>
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                          className="absolute right-0 mt-3 w-72 bg-[var(--color-charcoal)] border border-[var(--color-champagne)]/30 rounded-xl shadow-2xl z-50 overflow-hidden"
+                        >
+                          <div className="p-3 border-b border-white/5 bg-[var(--color-obsidian)]">
+                            <h4 className="text-sm font-bold text-white">Notifications</h4>
+                          </div>
+                          <div className="p-4">
+                            {unreadCount > 0 && latestMessage ? (
+                              <div className="space-y-3">
+                                <p className="text-xs text-[var(--color-champagne)] font-semibold">Nouveau message du support :</p>
+                                <p className="text-sm text-white/90 line-clamp-3 bg-white/5 p-3 rounded-lg border border-white/10">
+                                  {latestMessage.content}
+                                </p>
+                                <button 
+                                  onClick={() => {
+                                    setIsNotifOpen(false);
+                                    window.dispatchEvent(new CustomEvent('open-support-chat'));
+                                  }}
+                                  className="w-full mt-2 text-xs font-bold text-black bg-[var(--color-champagne)] py-2 rounded-lg hover:brightness-110 transition-all"
+                                >
+                                  Ouvrir le chat
+                                </button>
+                              </div>
+                            ) : (
+                              <p className="text-sm text-white/50 text-center py-4">Aucune nouvelle notification.</p>
+                            )}
+                          </div>
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
                 </div>
                 <Link
                   to="/dashboard"

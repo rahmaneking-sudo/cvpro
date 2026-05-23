@@ -103,8 +103,18 @@ export async function getUnreadCount(req, res) {
     });
 
     if (!session) {
-      return res.json({ success: true, count: 0 });
+      return res.json({ success: true, count: 0, latestMessage: null });
     }
+
+    const unreadMessages = await prisma.chatMessage.findMany({
+      where: { 
+        sessionId: session.id, 
+        sender: 'admin',
+        isRead: false 
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 1
+    });
 
     const count = await prisma.chatMessage.count({
       where: { 
@@ -114,7 +124,11 @@ export async function getUnreadCount(req, res) {
       }
     });
 
-    res.json({ success: true, count });
+    res.json({ 
+      success: true, 
+      count,
+      latestMessage: unreadMessages.length > 0 ? unreadMessages[0] : null
+    });
   } catch (error) {
     console.error('Chat getUnreadCount Error:', error);
     res.status(500).json({ error: 'Erreur serveur' });
