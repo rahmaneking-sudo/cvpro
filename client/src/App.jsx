@@ -3,6 +3,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from './store/AuthContext';
 import GrainOverlay from './components/ui/GrainOverlay';
 import PrivateRoute from './components/auth/PrivateRoute';
+import SupportChatWidget from './components/chat/SupportChatWidget';
 
 // Pages
 import LandingPage from './pages/LandingPage';
@@ -43,6 +44,7 @@ export default function App() {
         <AuthProvider>
           <VisitTracker />
           <GrainOverlay />
+          <SupportChatWidget />
           <Routes>
           {/* Public — accessible sans connexion */}
           <Route path="/" element={<LandingPage />} />

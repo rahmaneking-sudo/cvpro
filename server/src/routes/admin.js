@@ -111,4 +111,86 @@ router.post('/visit', async (req, res) => {
   }
 });
 
+// ==========================================
+// CHAT SUPPORT ADMIN ROUTES
+// ==========================================
+
+// GET /api/admin/chats
+router.get('/chats', requireAdmin, async (req, res) => {
+  try {
+    const sessions = await prisma.chatSession.findMany({
+      include: {
+        user: {
+          select: { name: true, email: true }
+        },
+        messages: {
+          orderBy: { createdAt: 'desc' },
+          take: 1
+        }
+      },
+      orderBy: { updatedAt: 'desc' }
+    });
+    res.json({ success: true, sessions });
+  } catch (error) {
+    console.error('Admin Chats Error:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// GET /api/admin/chats/:sessionId
+router.get('/chats/:sessionId', requireAdmin, async (req, res) => {
+  try {
+    const session = await prisma.chatSession.findUnique({
+      where: { id: req.params.sessionId },
+      include: {
+        user: { select: { name: true, email: true } },
+        messages: { orderBy: { createdAt: 'asc' } }
+      }
+    });
+    if (!session) return res.status(404).json({ error: 'Session introuvable' });
+    res.json({ success: true, session });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// POST /api/admin/chats/:sessionId/reply
+router.post('/chats/:sessionId/reply', requireAdmin, async (req, res) => {
+  try {
+    const { content } = req.body;
+    if (!content || !content.trim()) return res.status(400).json({ error: 'Message vide' });
+
+    const message = await prisma.chatMessage.create({
+      data: {
+        sessionId: req.params.sessionId,
+        sender: 'admin',
+        content: content.trim(),
+        isRead: false
+      }
+    });
+
+    await prisma.chatSession.update({
+      where: { id: req.params.sessionId },
+      data: { updatedAt: new Date(), status: 'open' }
+    });
+
+    res.json({ success: true, message });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// PUT /api/admin/chats/:sessionId/close
+router.put('/chats/:sessionId/close', requireAdmin, async (req, res) => {
+  try {
+    await prisma.chatSession.update({
+      where: { id: req.params.sessionId },
+      data: { status: 'closed' }
+    });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
 export default router;

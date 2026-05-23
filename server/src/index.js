@@ -8,6 +8,7 @@ import { dirname, join } from 'path';
 import authRoutes from './routes/auth.js';
 import cvRoutes from './routes/cv.js';
 import aiRoutes from './routes/ai.js';
+import chatRoutes from './routes/chat.js';
 import portfolioRoutes from './routes/portfolio.js';
 import uploadRoutes from './routes/upload.js';
 import adminRoutes from './routes/admin.js';
@@ -95,6 +96,9 @@ app.use('/api/cv', apiLimiter, cvRoutes);
 
 // AI routes avec rate limiting standard
 app.use('/api/ai', apiLimiter, aiRoutes);
+
+// Chat routes
+app.use('/api/chat', apiLimiter, chatRoutes);
 
 // Portfolio routes
 app.use('/api/portfolios', apiLimiter, portfolioRoutes);

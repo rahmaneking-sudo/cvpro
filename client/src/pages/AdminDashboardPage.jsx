@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Users, Eye, EyeOff, FileText, Briefcase, DollarSign, 
-  ArrowLeft, Activity, ShieldAlert, Loader2, ArrowUpRight 
+  ArrowLeft, Activity, ShieldAlert, Loader2, ArrowUpRight, MessageCircle 
 } from 'lucide-react';
 import axios from 'axios';
+import AdminChatPanel from '../components/admin/AdminChatPanel';
 
 export default function AdminDashboardPage() {
   const navigate = useNavigate();
@@ -324,6 +325,19 @@ export default function AdminDashboardPage() {
               </tbody>
             </table>
           </div>
+        </div>
+
+        {/* Support Chat Panel */}
+        <div className="mt-12">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-[var(--color-champagne)]/10 flex items-center justify-center text-[var(--color-champagne)]">
+              <MessageCircle size={20} />
+            </div>
+            <h2 className="text-2xl font-bold text-[var(--color-ivory)]" style={{ fontFamily: 'var(--font-serif)' }}>
+              Support Client En Direct
+            </h2>
+          </div>
+          <AdminChatPanel adminToken={adminToken} />
         </div>
 
       </div>

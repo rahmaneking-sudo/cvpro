@@ -35,6 +35,7 @@ model User {
   purchases     Purchase[]
   portfolios    Portfolio[]
   enhancements  CVEnhancement[]
+  chatSessions  ChatSession[]
 
   @@map("users")
 }
@@ -149,4 +150,36 @@ model Analytics {
   updatedAt DateTime @updatedAt
 
   @@map("analytics")
+}
+
+// ==========================================
+// SUPPORT CHAT
+// ==========================================
+
+model ChatSession {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    String   @default("open") // "open", "closed"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  messages  ChatMessage[]
+
+  @@index([userId])
+  @@index([status])
+  @@map("chat_sessions")
+}
+
+model ChatMessage {
+  id        String   @id @default(uuid())
+  sessionId String
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sender    String   // "user" | "admin"
+  content   String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([sessionId])
+  @@map("chat_messages")
 }
