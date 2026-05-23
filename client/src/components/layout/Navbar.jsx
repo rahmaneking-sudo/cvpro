@@ -133,12 +133,15 @@ export default function Navbar() {
 
             {user ? (
               <>
-                <div className="relative flex items-center cursor-pointer hover:text-[var(--color-champagne)] transition-colors text-[var(--color-white-muted)]">
+                <div 
+                  onClick={() => window.dispatchEvent(new CustomEvent('open-support-chat'))}
+                  className="relative flex items-center cursor-pointer hover:text-[var(--color-champagne)] transition-colors text-[var(--color-white-muted)]"
+                  title="Ouvrir le chat"
+                >
                   <Bell size={20} />
                   {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 border border-[rgba(10,10,10,0.95)]"></span>
+                    <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[16px] h-[16px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold border border-[rgba(10,10,10,0.95)]">
+                      {unreadCount}
                     </span>
                   )}
                 </div>
