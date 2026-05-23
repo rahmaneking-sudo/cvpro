@@ -1,22 +1,4 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { createRequire } from 'module';
-
-const require = createRequire(import.meta.url);
-
-// Dynamic import to avoid @napi-rs/canvas crash on Vercel serverless
-let pdfParse;
-async function getPdfParse() {
-  if (!pdfParse) {
-    try {
-      pdfParse = require('pdf-parse');
-    } catch (e) {
-      // Fallback: pdf-parse v2 may fail on serverless due to @napi-rs/canvas
-      console.warn('pdf-parse native load failed, using basic text extraction');
-      pdfParse = null;
-    }
-  }
-  return pdfParse;
-}
 
 export async function scanCV(req, res) {
   try {
@@ -35,23 +17,14 @@ export async function scanCV(req, res) {
     const fileBuffer = req.file.buffer;
     const mimeType = req.file.mimetype;
 
-    let textContent = '';
-    let isImage = false;
-    let base64Image = '';
-
-    if (mimeType === 'application/pdf') {
-      const parser = await getPdfParse();
-      if (!parser) {
-        return res.status(500).json({ error: 'Le parsing PDF n\'est pas disponible dans cet environnement.' });
-      }
-      const pdfData = await parser(fileBuffer);
-      textContent = pdfData.text;
-    } else if (mimeType.startsWith('image/')) {
-      isImage = true;
-      base64Image = fileBuffer.toString('base64');
-    } else {
+    const isPDF = mimeType === 'application/pdf';
+    const isImage = mimeType.startsWith('image/');
+    
+    if (!isPDF && !isImage) {
       return res.status(400).json({ error: 'Format non supporté. Veuillez utiliser un PDF ou une Image.' });
     }
+
+    const base64Data = fileBuffer.toString('base64');
 
     const systemPrompt = `Tu es une IA experte en Ressources Humaines. 
 Ton objectif est d'extraire les informations d'un CV et de les structurer en JSON EXACTEMENT selon le format suivant. Ne renvoie QUE le JSON, sans aucun markdown ni texte avant ou après.
@@ -89,20 +62,20 @@ Format JSON attendu :
 
 Si une information est manquante, mets une chaîne vide "" ou un tableau vide [].`;
 
-    let result;
-    if (isImage) {
-      const imageParts = [
-        {
-          inlineData: {
-            data: base64Image,
-            mimeType: mimeType
-          }
+    const imageParts = [
+      {
+        inlineData: {
+          data: base64Data,
+          mimeType: mimeType
         }
-      ];
-      result = await model.generateContent([systemPrompt, { text: "Voici le CV sous forme d'image. Extrait les informations en JSON." }, ...imageParts]);
-    } else {
-      result = await model.generateContent([systemPrompt, { text: `Voici le contenu brut extrait du PDF du CV :\n\n${textContent}` }]);
-    }
+      }
+    ];
+
+    const result = await model.generateContent([
+      systemPrompt, 
+      { text: `Voici le CV sous forme de ${isPDF ? 'PDF' : 'image'}. Extrait les informations en JSON.` }, 
+      ...imageParts
+    ]);
 
     let responseText = result.response.text();
     // Au cas où le modèle renverrait quand même des balises markdown malgré le mimetype JSON
@@ -113,6 +86,12 @@ Si une information est manquante, mets une chaîne vide "" ou un tableau vide []
     res.json({ success: true, data: parsedData });
   } catch (error) {
     console.error('OCR Error:', error);
+    
+    // Gérer l'erreur de Quota / Limite de requêtes de l'API Gemini
+    if (error.message && (error.message.includes('429') || error.message.includes('quota'))) {
+      return res.status(429).json({ error: 'Le quota de l\'IA est épuisé. Veuillez réessayer dans quelques instants ou configurer une nouvelle clé API.' });
+    }
+    
     res.status(500).json({ error: 'Erreur lors de l\'analyse du document par l\'IA.' });
   }
 }
