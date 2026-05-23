@@ -1,4 +1,4 @@
-import OpenAI from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
@@ -20,8 +20,12 @@ async function getPdfParse() {
 
 export async function scanCV(req, res) {
   try {
-    const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-1.5-flash",
+      generationConfig: {
+        responseMimeType: "application/json",
+      }
     });
 
     if (!req.file) {
@@ -85,33 +89,26 @@ Format JSON attendu :
 
 Si une information est manquante, mets une chaîne vide "" ou un tableau vide [].`;
 
-    let messages = [
-      { role: "system", content: systemPrompt }
-    ];
-
+    let result;
     if (isImage) {
-      messages.push({
-        role: "user",
-        content: [
-          { type: "text", text: "Voici le CV sous forme d'image. Extrait les informations en JSON." },
-          { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64Image}` } }
-        ]
-      });
+      const imageParts = [
+        {
+          inlineData: {
+            data: base64Image,
+            mimeType: mimeType
+          }
+        }
+      ];
+      result = await model.generateContent([systemPrompt, { text: "Voici le CV sous forme d'image. Extrait les informations en JSON." }, ...imageParts]);
     } else {
-      messages.push({
-        role: "user",
-        content: `Voici le contenu brut extrait du PDF du CV :\n\n${textContent}`
-      });
+      result = await model.generateContent([systemPrompt, { text: `Voici le contenu brut extrait du PDF du CV :\n\n${textContent}` }]);
     }
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: messages,
-      response_format: { type: "json_object" },
-      temperature: 0.2,
-    });
+    let responseText = result.response.text();
+    // Au cas où le modèle renverrait quand même des balises markdown malgré le mimetype JSON
+    responseText = responseText.replace(/```json\n?/, '').replace(/```\n?/, '');
 
-    const parsedData = JSON.parse(response.choices[0].message.content);
+    const parsedData = JSON.parse(responseText);
 
     res.json({ success: true, data: parsedData });
   } catch (error) {
