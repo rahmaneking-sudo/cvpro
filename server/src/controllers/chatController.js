@@ -75,7 +75,7 @@ export async function sendMessage(req, res) {
         data: {
           sessionId: session.id,
           sender: 'admin',
-          content: "Merci d'avoir contacté Sama CV pro. Nous allons vous revenir dans quelques instants.",
+          content: "Bonjour et bienvenue sur Sama CV Pro ! 👋 Nous avons bien reçu votre requête. Un membre de notre équipe va vous assister dans un instant. Merci de patienter.",
           isRead: false
         }
       });

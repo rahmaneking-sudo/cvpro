@@ -73,7 +73,10 @@ export default function SupportChatWidget() {
     setMessages(prev => [...prev, optimisticMsg]);
 
     try {
-      await api.post('/chat/message', { content });
+      const res = await api.post('/chat/message', { content });
+      if (res.data.success && res.data.autoReplyMessage) {
+        setMessages(prev => [...prev, res.data.autoReplyMessage]);
+      }
     } catch (error) {
       console.error('Send message error:', error);
       // Revert if error
