@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Globe, LogOut, LayoutDashboard, Bell } from 'lucide-react';
 import { useAuth } from '../../store/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 
 export default function Navbar() {
   const { t, i18n } = useTranslation();
