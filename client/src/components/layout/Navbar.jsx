@@ -134,9 +134,8 @@ export default function Navbar() {
             {user ? (
               <>
                 <div 
-                  onClick={() => window.dispatchEvent(new CustomEvent('open-support-chat'))}
-                  className="relative flex items-center cursor-pointer hover:text-[var(--color-champagne)] transition-colors text-[var(--color-white-muted)]"
-                  title="Ouvrir le chat"
+                  className="relative flex items-center text-[var(--color-white-muted)]"
+                  title="Notifications"
                 >
                   <Bell size={20} />
                   {unreadCount > 0 && (

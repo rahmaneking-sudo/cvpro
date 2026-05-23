@@ -8,13 +8,6 @@ export default function SupportChatWidget() {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [session, setSession] = useState(null);
-
-  // Listen for external open events (e.g. from Navbar bell)
-  useEffect(() => {
-    const handleOpenChat = () => setIsOpen(true);
-    window.addEventListener('open-support-chat', handleOpenChat);
-    return () => window.removeEventListener('open-support-chat', handleOpenChat);
-  }, []);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
