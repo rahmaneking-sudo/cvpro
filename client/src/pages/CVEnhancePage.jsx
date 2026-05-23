@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Wand2, ArrowLeft, Loader2, Upload, FileCheck, LayoutTemplate, CheckCircle2 } from 'lucide-react';
+import { Wand2, ArrowLeft, Loader2, Upload, FileCheck, LayoutTemplate, CheckCircle2, Eye, X } from 'lucide-react';
 import api from '../services/api';
-import { templates } from '../data/templates';
+import { templates, seriesLabels, tierLabels } from '../data/templates';
+import { sampleCVData, sampleExperiences, sampleEducation } from '../data/sampleCV';
+import CVPreview from '../components/cv/CVPreview';
 
 export default function CVEnhancePage() {
   const navigate = useNavigate();
@@ -11,6 +13,7 @@ export default function CVEnhancePage() {
   // States
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [previewTemplate, setPreviewTemplate] = useState(null);
   
   // Process States
   const [isProcessing, setIsProcessing] = useState(false);
@@ -260,14 +263,21 @@ export default function CVEnhancePage() {
                         )}
                       </div>
                       
-                      {/* Overlay Selection */}
-                      {selectedTemplate?.id === template.id && (
-                        <div className="absolute inset-0 bg-[var(--color-champagne)]/20 flex items-center justify-center">
+                      {/* Overlay Selection & Preview */}
+                      <div className={`absolute inset-0 transition-all duration-300 flex items-center justify-center ${selectedTemplate?.id === template.id ? 'bg-[var(--color-champagne)]/20' : 'bg-black/0 group-hover:bg-black/60 opacity-0 group-hover:opacity-100'}`}>
+                        {selectedTemplate?.id === template.id ? (
                           <div className="w-10 h-10 bg-[var(--color-champagne)] rounded-full flex items-center justify-center shadow-lg">
                             <CheckCircle2 size={24} className="text-[var(--color-obsidian)]" />
                           </div>
-                        </div>
-                      )}
+                        ) : (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setPreviewTemplate(template); }}
+                            className="flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-champagne)] text-[var(--color-obsidian)] text-xs font-semibold hover:scale-105 transition-transform"
+                          >
+                            <Eye size={14} /> Prévisualiser
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <div className="p-3 bg-[var(--color-charcoal)] border-t border-white/5">
                       <p className="text-sm font-bold truncate text-white">{template.name}</p>
@@ -297,6 +307,49 @@ export default function CVEnhancePage() {
 
         </div>
       </div>
+
+      {/* MODALE DE PRÉVISUALISATION DU VRAI DESIGN */}
+      <AnimatePresence>
+        {previewTemplate && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-[rgba(0,0,0,0.9)] backdrop-blur-lg"
+            onClick={() => setPreviewTemplate(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 30 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 30 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative max-w-[680px] w-full max-h-[92vh] overflow-hidden rounded-2xl shadow-[0_0_100px_rgba(201,169,110,0.12)]"
+            >
+              <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-[var(--color-charcoal)] border-b border-[rgba(255,255,255,0.06)]">
+                <div>
+                  <h3 className="text-lg font-bold text-[var(--color-ivory)]" style={{ fontFamily: 'var(--font-serif)' }}>{previewTemplate.name}</h3>
+                  <p className="text-xs text-[var(--color-white-muted)]">Aperçu du design avec des données d'exemple</p>
+                </div>
+                <div className="flex gap-3">
+                  <button 
+                    onClick={() => { setSelectedTemplate(previewTemplate); setPreviewTemplate(null); }} 
+                    className="btn-primary !py-2 !px-4 text-sm"
+                  >
+                    Choisir ce modèle
+                  </button>
+                  <button onClick={() => setPreviewTemplate(null)} className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-[var(--color-white-muted)]">
+                    <X size={18} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="overflow-y-auto max-h-[calc(92vh-72px)] bg-[#1a1a1a]">
+                <div className="p-6 flex justify-center">
+                  <div className="w-full max-w-[595px] shadow-[0_25px_80px_rgba(0,0,0,0.6)] rounded-lg overflow-hidden">
+                    <CVPreview template={previewTemplate} cvData={sampleCVData} experiences={sampleExperiences} educations={sampleEducation} />
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
