@@ -19,6 +19,7 @@ import PortfolioGalleryPage from './pages/PortfolioGalleryPage';
 import PortfolioEditorPage from './pages/PortfolioEditorPage';
 import MyPurchasesPage from './pages/MyPurchasesPage';
 import ComingSoonPage from './pages/ComingSoonPage';
+import CVEnhancePage from './pages/CVEnhancePage';
 import PublicPortfolioPage from './pages/PublicPortfolioPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import api from './services/api';
@@ -63,7 +64,7 @@ export default function App() {
           <Route path="/dashboard/purchases" element={<PrivateRoute><MyPurchasesPage /></PrivateRoute>} />
           <Route path="/dashboard/cv/templates" element={<PrivateRoute><TemplateGalleryPage /></PrivateRoute>} />
           <Route path="/dashboard/cv/editor" element={<PrivateRoute><CVEditorPage /></PrivateRoute>} />
-          <Route path="/dashboard/cv/enhance" element={<PrivateRoute><ComingSoonPage title="Améliorer mon CV avec l'IA" /></PrivateRoute>} />
+          <Route path="/dashboard/cv/enhance" element={<PrivateRoute><CVEnhancePage /></PrivateRoute>} />
           <Route path="/dashboard/cv/online" element={<PrivateRoute><ComingSoonPage title="CV en Ligne (Site Web)" /></PrivateRoute>} />
           <Route path="/dashboard/portfolio/templates" element={<PrivateRoute><PortfolioGalleryPage /></PrivateRoute>} />
           <Route path="/dashboard/portfolio/editor" element={<PrivateRoute><PortfolioEditorPage /></PrivateRoute>} />

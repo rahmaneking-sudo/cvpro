@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { scanCV } from '../controllers/aiController.js';
+import { scanCV, enhanceCVData } from '../controllers/aiController.js';
+import { authMiddleware } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -13,5 +14,6 @@ const upload = multer({
 });
 
 router.post('/scan', upload.single('document'), scanCV);
+router.post('/enhance-cv', authMiddleware, enhanceCVData);
 
 export default router;
