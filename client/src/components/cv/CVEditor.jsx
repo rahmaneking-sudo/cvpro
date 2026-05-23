@@ -164,6 +164,7 @@ const emptyCVData = {
   photo: '',
   skills: [],
   languages: [],
+  educations: [{ institution: '', degree: '', startDate: '', endDate: '', description: '' }],
   socialStats: { instagram: '', tiktok: '', youtube: '', engagement: '' },
   mediaKitDetails: {
     editorial: [],
@@ -233,6 +234,9 @@ export default function CVEditor() {
                 ...loadedData,
                 skills: loadedData.skills || [],
                 languages: loadedData.languages || [],
+                educations: loadedData.educations && loadedData.educations.length > 0 
+                  ? loadedData.educations 
+                  : [{ institution: '', degree: '', startDate: '', endDate: '', description: '' }],
                 socialStats: { ...prev.socialStats, ...(loadedData.socialStats || {}) },
                 mediaKitDetails: { ...prev.mediaKitDetails, ...(loadedData.mediaKitDetails || {}) },
                 collaborations: loadedData.collaborations || []
@@ -494,6 +498,27 @@ export default function CVEditor() {
     setCVData(prev => ({ ...prev, languages: prev.languages.filter((_, i) => i !== index) }));
   };
 
+  const updateEducation = useCallback((index, field, value) => {
+    setCVData(prev => ({
+      ...prev,
+      educations: prev.educations.map((edu, i) => i === index ? { ...edu, [field]: value } : edu)
+    }));
+  }, []);
+
+  const addEducation = () => {
+    setCVData(prev => ({
+      ...prev,
+      educations: [...(prev.educations || []), { institution: '', degree: '', startDate: '', endDate: '', description: '' }]
+    }));
+  };
+
+  const removeEducation = (index) => {
+    setCVData(prev => {
+      const newEducations = prev.educations.filter((_, i) => i !== index);
+      return { ...prev, educations: newEducations.length > 0 ? newEducations : [{ institution: '', degree: '', startDate: '', endDate: '', description: '' }] };
+    });
+  };
+
   // --- MEDIA KIT HELPERS ---
   const updateSocialStat = (field, value) => {
     setCVData(prev => ({
@@ -637,6 +662,7 @@ export default function CVEditor() {
           linkedin: parsed.linkedin || prev.linkedin,
           skills: parsed.skills?.length > 0 ? parsed.skills : prev.skills,
           languages: parsed.languages?.length > 0 ? parsed.languages : prev.languages,
+          educations: parsed.educations?.length > 0 ? parsed.educations : prev.educations,
         }));
 
         // Update experiences
@@ -1016,10 +1042,66 @@ export default function CVEditor() {
             </button>
           </section>
 
-          {/* Skills */}
+          {/* Education */}
           <section>
             <h3 className="text-lg font-bold text-[var(--color-ivory)] mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-serif)' }}>
               <span className="w-7 h-7 rounded-lg bg-[rgba(201,169,110,0.15)] flex items-center justify-center text-xs text-[var(--color-champagne)] font-bold">4</span>
+              Formation
+            </h3>
+            {(cvData.educations || []).map((edu, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="glass-card p-5 mb-4"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm font-medium text-[var(--color-ivory)]">Formation {idx + 1}</span>
+                  {(cvData.educations?.length || 0) > 1 && (
+                    <button onClick={() => removeEducation(idx)} className="text-[var(--color-white-muted)] hover:text-red-400 transition-colors">
+                      <Trash2 size={14} />
+                    </button>
+                  )}
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className={labelClass}>Établissement *</label>
+                    <input type="text" value={edu.institution} onChange={e => updateEducation(idx, 'institution', e.target.value)} placeholder="Université de Dakar" className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Diplôme *</label>
+                    <input type="text" value={edu.degree} onChange={e => updateEducation(idx, 'degree', e.target.value)} placeholder="Master en Informatique" className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Début</label>
+                    <input type="text" value={edu.startDate} onChange={e => updateEducation(idx, 'startDate', e.target.value)} placeholder="2018" className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Fin</label>
+                    <input type="text" value={edu.endDate} onChange={e => updateEducation(idx, 'endDate', e.target.value)} placeholder="2020" className={inputClass} />
+                  </div>
+                  <div className="col-span-1 sm:col-span-2 relative">
+                    <label className={labelClass}>Description</label>
+                    <textarea
+                      value={edu.description}
+                      onChange={e => updateEducation(idx, 'description', e.target.value)}
+                      placeholder="• Spécialisation en génie logiciel..."
+                      rows={2}
+                      className={`${inputClass} resize-none`}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+            <button onClick={addEducation} className="w-full py-3 rounded-xl border border-dashed border-[rgba(201,169,110,0.2)] text-sm text-[var(--color-champagne)] hover:bg-[rgba(201,169,110,0.05)] transition-colors flex items-center justify-center gap-2">
+              <Plus size={16} /> Ajouter une formation
+            </button>
+          </section>
+
+          {/* Skills */}
+          <section>
+            <h3 className="text-lg font-bold text-[var(--color-ivory)] mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-serif)' }}>
+              <span className="w-7 h-7 rounded-lg bg-[rgba(201,169,110,0.15)] flex items-center justify-center text-xs text-[var(--color-champagne)] font-bold">5</span>
               Compétences
             </h3>
             <div className="flex flex-wrap gap-2 mb-3">
@@ -1046,7 +1128,7 @@ export default function CVEditor() {
           {/* Languages */}
           <section className="pb-8">
             <h3 className="text-lg font-bold text-[var(--color-ivory)] mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-serif)' }}>
-              <span className="w-7 h-7 rounded-lg bg-[rgba(201,169,110,0.15)] flex items-center justify-center text-xs text-[var(--color-champagne)] font-bold">5</span>
+              <span className="w-7 h-7 rounded-lg bg-[rgba(201,169,110,0.15)] flex items-center justify-center text-xs text-[var(--color-champagne)] font-bold">6</span>
               Langues
             </h3>
             <div className="flex flex-wrap gap-2 mb-3">
@@ -1172,7 +1254,8 @@ export default function CVEditor() {
                 <CVPreview 
                   template={template} 
                   cvData={cvData} 
-                  experiences={experiences} 
+                  experiences={experiences}
+                  educations={cvData.educations}
                   onPhotoUpload={handlePhotoUpload}
                   onPhotoRemove={() => updateField('photo', '')}
                   isUploadingPhoto={isUploadingPhoto}

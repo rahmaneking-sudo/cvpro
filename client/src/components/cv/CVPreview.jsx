@@ -300,6 +300,9 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors }) 
                       <span>•</span>
                       <span>{edu.startDate}{edu.endDate ? ` - ${edu.endDate}` : ''}</span>
                     </div>
+                    {edu.description && (
+                      <p className="text-[11px] leading-relaxed mt-1.5" style={{ color: mutedColor }}>{edu.description}</p>
+                    )}
                   </div>
                 </article>
               ))}
@@ -370,7 +373,10 @@ function LayoutGrid({ template, cvData, experiences, educations, colors }) {
                     {edu.startDate} - {edu.endDate || 'PRÉSENT'}
                   </div>
                   <h4 className="font-bold text-[12px] uppercase mb-0.5" style={{ color: text }}>{edu.degree}</h4>
-                  <div className="text-[10px]" style={{ color: mutedColor }}>@ {edu.institution}</div>
+                  <div className="text-[10px] mb-2" style={{ color: mutedColor }}>@ {edu.institution}</div>
+                  {edu.description && (
+                    <p className="text-[11px] font-sans leading-relaxed" style={{ color: text, opacity: 0.8 }}>{edu.description}</p>
+                  )}
                 </article>
               ))}
             </div>
@@ -462,7 +468,10 @@ function LayoutAsymmetric({ template, cvData, experiences, educations, colors })
                     </div>
                     <div>
                       <h4 className="text-[14px] font-bold uppercase tracking-wide mb-1" style={{ color: text }}>{edu.degree}</h4>
-                      <p className="text-[11px] font-serif italic" style={{ color: accent }}>{edu.institution}</p>
+                      <p className="text-[11px] font-serif italic mb-2" style={{ color: accent }}>{edu.institution}</p>
+                      {edu.description && (
+                        <p className="text-[11.5px] leading-relaxed" style={{ color: mutedColor }}>{edu.description}</p>
+                      )}
                     </div>
                   </article>
                 ))}
@@ -548,13 +557,16 @@ function LayoutCreative({ template, cvData, experiences, educations, colors }) {
               <div className="space-y-4">
                 {(educations || []).filter(e => e.institution || e.degree).map((edu, i) => (
                   <article key={i} className="p-4 rounded-xl transition-transform" style={{ background: secondary }}>
-                    <div className="flex justify-between items-start mb-1">
+                    <div className="flex justify-between items-start mb-2">
                       <div>
                         <h4 className="font-bold text-[13px]" style={{ color: text }}>{edu.degree}</h4>
                         <div className="text-[11px] font-semibold" style={{ color: accent }}>{edu.institution}</div>
                       </div>
                       <span className="text-[10px] font-bold px-2 py-1 rounded bg-black/5" style={{ color: mutedColor }}>{edu.startDate} - {edu.endDate}</span>
                     </div>
+                    {edu.description && (
+                      <p className="text-[11.5px] leading-relaxed mt-2" style={{ color: mutedColor }}>{edu.description}</p>
+                    )}
                   </article>
                 ))}
               </div>
