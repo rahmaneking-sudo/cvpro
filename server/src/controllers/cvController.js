@@ -174,17 +174,17 @@ export async function enhanceSection(req, res) {
       return res.status(400).json({ error: 'Section et contenu requis' });
     }
 
-    // Check if OpenAI key is configured
-    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'your_openai_api_key') {
-      // Return mock enhancement in dev
+    // Check if Gemini key is configured
+    if (!process.env.GEMINI_API_KEY) {
       return res.json({
         enhanced: `[IA] ${content}`,
-        message: 'Mode démo — configurez OPENAI_API_KEY pour l\'IA réelle',
+        message: 'Mode démo — configurez GEMINI_API_KEY pour l\'IA réelle',
       });
     }
 
-    const { default: OpenAI } = await import('openai');
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const { GoogleGenerativeAI } = await import('@google/generative-ai');
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const systemPrompt = `Tu es un expert en recrutement et rédaction de CV avec 20 ans d'expérience.
 Tu dois améliorer la section "${section}" d'un CV.
@@ -201,17 +201,12 @@ RÈGLES STRICTES :
 - Sois concis et impactant
 - Retourne UNIQUEMENT le texte amélioré, sans commentaire ni explication`;
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: `Améliore cette section "${section}" :\n\n${content}` },
-      ],
-      max_tokens: 1000,
-      temperature: 0.7,
-    });
+    const result = await model.generateContent([
+      systemPrompt,
+      { text: `Améliore cette section "${section}" :\n\n${content}` }
+    ]);
 
-    const enhanced = completion.choices[0]?.message?.content?.trim();
+    const enhanced = result.response.text().trim();
 
     res.json({ enhanced });
   } catch (err) {
