@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 // Get the user's active chat session or create one
 export async function getSession(req, res) {
   try {
-    const userId = req.user.id;
+    const userId = req.userId;
 
     let session = await prisma.chatSession.findFirst({
       where: { userId, status: 'open' },
@@ -38,7 +38,7 @@ export async function getSession(req, res) {
 // Send a message as a user
 export async function sendMessage(req, res) {
   try {
-    const userId = req.user.id;
+    const userId = req.userId;
     const { content } = req.body;
 
     if (!content || !content.trim()) {
