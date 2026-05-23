@@ -64,15 +64,85 @@ export async function sendMessage(req, res) {
       }
     });
 
+    // Count user messages to see if it's the very first message
+    const userMessageCount = await prisma.chatMessage.count({
+      where: { sessionId: session.id, sender: 'user' }
+    });
+
+    let autoReplyMessage = null;
+    if (userMessageCount === 1) {
+      autoReplyMessage = await prisma.chatMessage.create({
+        data: {
+          sessionId: session.id,
+          sender: 'admin',
+          content: "Merci d'avoir contacté Sama CV pro. Nous allons vous revenir dans quelques instants.",
+          isRead: false
+        }
+      });
+    }
+
     // Update session updatedAt to bring it to the top of the admin list
     await prisma.chatSession.update({
       where: { id: session.id },
       data: { updatedAt: new Date() }
     });
 
-    res.json({ success: true, message });
+    res.json({ success: true, message, autoReplyMessage });
   } catch (error) {
     console.error('Chat sendMessage Error:', error);
     res.status(500).json({ error: 'Erreur lors de l\'envoi du message.' });
+  }
+}
+
+// Get unread messages count
+export async function getUnreadCount(req, res) {
+  try {
+    const userId = req.userId;
+    const session = await prisma.chatSession.findFirst({
+      where: { userId, status: 'open' }
+    });
+
+    if (!session) {
+      return res.json({ success: true, count: 0 });
+    }
+
+    const count = await prisma.chatMessage.count({
+      where: { 
+        sessionId: session.id, 
+        sender: 'admin',
+        isRead: false 
+      }
+    });
+
+    res.json({ success: true, count });
+  } catch (error) {
+    console.error('Chat getUnreadCount Error:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+}
+
+// Mark session messages as read
+export async function markAsRead(req, res) {
+  try {
+    const userId = req.userId;
+    const session = await prisma.chatSession.findFirst({
+      where: { userId, status: 'open' }
+    });
+
+    if (session) {
+      await prisma.chatMessage.updateMany({
+        where: { 
+          sessionId: session.id, 
+          sender: 'admin', 
+          isRead: false 
+        },
+        data: { isRead: true }
+      });
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Chat markAsRead Error:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
   }
 }

@@ -41,6 +41,13 @@ export default function SupportChatWidget() {
     };
   }, [user, isOpen]);
 
+  // Mark as read when chat is opened
+  useEffect(() => {
+    if (isOpen && user) {
+      api.put('/chat/read').catch(e => console.error(e));
+    }
+  }, [isOpen, user]);
+
   // Scroll to bottom on new message
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -86,7 +93,7 @@ export default function SupportChatWidget() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="mb-4 w-80 sm:w-96 h-[500px] max-h-[80vh] bg-[var(--color-charcoal)] border border-[var(--color-champagne)] rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+            className="mb-4 w-80 sm:w-96 h-[400px] max-h-[60vh] bg-[var(--color-charcoal)] border border-[var(--color-champagne)] rounded-2xl shadow-2xl flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-[var(--color-gold-dark)] to-[var(--color-champagne)] p-4 flex items-center justify-between shrink-0">

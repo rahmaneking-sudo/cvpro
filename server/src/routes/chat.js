@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getSession, sendMessage } from '../controllers/chatController.js';
+import { getSession, sendMessage, getUnreadCount, markAsRead } from '../controllers/chatController.js';
 import { authMiddleware } from '../middleware/auth.js';
 
 const router = Router();
@@ -9,5 +9,7 @@ router.use(authMiddleware);
 
 router.get('/session', getSession);
 router.post('/message', sendMessage);
+router.get('/unread', getUnreadCount);
+router.put('/read', markAsRead);
 
 export default router;

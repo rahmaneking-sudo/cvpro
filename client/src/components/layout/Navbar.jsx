@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Globe, LogOut, LayoutDashboard } from 'lucide-react';
+import { Menu, X, Globe, LogOut, LayoutDashboard, Bell } from 'lucide-react';
 import { useAuth } from '../../store/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -11,6 +11,30 @@ export default function Navbar() {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    let intervalId;
+    const fetchUnread = async () => {
+      try {
+        if (user) {
+          const res = await api.get('/chat/unread');
+          if (res.data.success) {
+            setUnreadCount(res.data.count);
+          }
+        }
+      } catch (e) {
+        // Ignore error
+      }
+    };
+
+    if (user) {
+      fetchUnread();
+      intervalId = setInterval(fetchUnread, 5000); // Check every 5s
+    }
+
+    return () => clearInterval(intervalId);
+  }, [user]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -109,6 +133,15 @@ export default function Navbar() {
 
             {user ? (
               <>
+                <div className="relative flex items-center cursor-pointer hover:text-[var(--color-champagne)] transition-colors text-[var(--color-white-muted)]">
+                  <Bell size={20} />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 border border-[rgba(10,10,10,0.95)]"></span>
+                    </span>
+                  )}
+                </div>
                 <Link
                   to="/dashboard"
                   className="btn-primary !py-2.5 !px-6 !text-sm flex items-center gap-2"
