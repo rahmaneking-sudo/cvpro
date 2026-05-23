@@ -212,10 +212,52 @@ export default function CVEnhancePage() {
                     } ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <div className="aspect-[1/1.4] bg-white w-full relative">
-                      {/* Thumbnail Placeholder - Dans un vrai cas, on chargerait l'image du template */}
-                      <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
-                        <LayoutTemplate size={40} className="text-gray-300" />
-                        <span className="absolute bottom-4 text-gray-400 text-xs font-bold uppercase tracking-widest">{template.name}</span>
+                      {/* Design du Template abstrait */}
+                      <div className="absolute inset-0 p-3 flex flex-col" style={{ background: template.bg, color: template.text }}>
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-6 h-6 rounded-full shrink-0" style={{ background: `linear-gradient(135deg, ${template.accent}, ${template.accent}80)` }} />
+                          <div className="flex-1 space-y-1">
+                            <div className="h-1.5 rounded-full" style={{ background: `${template.text}50`, width: '80%' }} />
+                            <div className="h-1 rounded-full" style={{ background: `${template.accent}60`, width: '60%' }} />
+                          </div>
+                        </div>
+                        <div className="flex gap-1 mb-2">
+                          {[40, 35, 30].map((w, i) => (
+                            <div key={i} className="h-1 rounded-full" style={{ background: `${template.text}20`, width: `${w}%` }} />
+                          ))}
+                        </div>
+                        <div className="h-[1px] mb-2" style={{ background: `${template.accent}25` }} />
+                        
+                        {template.layout === 'two-column' || template.layout === 'grid' ? (
+                          <div className="flex gap-2 flex-1">
+                            <div className="w-[35%] space-y-1.5" style={{ background: template.secondary, borderRadius: 3, padding: 3 }}>
+                              {[80, 70, 90, 60].map((w, i) => (
+                                <div key={i} className="h-0.5 rounded-full" style={{ background: `${template.text}${Math.max(10, 25 - i * 3)}`, width: `${w}%` }} />
+                              ))}
+                            </div>
+                            <div className="flex-1 space-y-1.5 pt-1">
+                              <div className="h-1 rounded-full mb-1" style={{ background: `${template.accent}40`, width: '45%' }} />
+                              {[95, 90, 85].map((w, i) => (
+                                <div key={i} className="h-0.5 rounded-full" style={{ background: `${template.text}${Math.max(8, 20 - i * 3)}`, width: `${w}%` }} />
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-1.5 flex-1">
+                            <div className="h-1 rounded-full mb-1" style={{ background: `${template.accent}40`, width: '35%' }} />
+                            {[95, 85, 90].map((w, i) => (
+                              <div key={i} className="h-0.5 rounded-full" style={{ background: `${template.text}15`, width: `${w}%` }} />
+                            ))}
+                            <div className="mt-2 h-1 rounded-full" style={{ background: `${template.accent}40`, width: '40%' }} />
+                            <div className="flex items-center gap-1 mt-1">
+                              <div className="w-3 h-3 rounded-full" style={{ background: `${template.accent}20` }} />
+                              <div className="space-y-0.5 flex-1">
+                                <div className="h-0.5 rounded-full" style={{ background: `${template.text}20`, width: '70%' }} />
+                                <div className="h-0.5 rounded-full" style={{ background: `${template.accent}30`, width: '40%' }} />
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                       
                       {/* Overlay Selection */}
