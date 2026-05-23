@@ -1,243 +1,259 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Wand2, ArrowLeft, Loader2, FileText, CheckCircle2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Wand2, ArrowLeft, Loader2, Upload, FileCheck, LayoutTemplate, CheckCircle2 } from 'lucide-react';
 import api from '../services/api';
+import { templates } from '../data/templates';
 
 export default function CVEnhancePage() {
   const navigate = useNavigate();
-  const [cvs, setCvs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedCv, setSelectedCv] = useState(null);
-  const [isEnhancing, setIsEnhancing] = useState(false);
-  const [enhancedCvData, setEnhancedCvData] = useState(null);
-  const [isSaving, setIsSaving] = useState(false);
+  
+  // States
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  
+  // Process States
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processStep, setProcessStep] = useState(0); // 0: Idle, 1: Scanning, 2: Enhancing, 3: Creating
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchCvs = async () => {
-      try {
-        const res = await api.get('/cv/user');
-        setCvs(res.data.cvs || []);
-      } catch (err) {
-        console.error('Erreur fetch CVs:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCvs();
-  }, []);
+  // Filter templates to only show standard and premium ones (exclude cover-letters, media-kits if needed)
+  const availableTemplates = templates.filter(t => t.tier === 'standard' || t.tier === 'premium');
 
-  const handleEnhance = async () => {
-    if (!selectedCv) return;
-    setIsEnhancing(true);
-    try {
-      const payload = {
-        cvData: {
-          summary: selectedCv.data.summary,
-          experiences: selectedCv.experiences.map(exp => ({
-            id: exp.id,
-            company: exp.company,
-            position: exp.position,
-            description: exp.description,
-            startDate: exp.startDate,
-            endDate: exp.endDate
-          }))
-        }
-      };
-      
-      const res = await api.post('/ai/enhance-cv', payload);
-      if (res.data.success) {
-        setEnhancedCvData(res.data.enhancedData);
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.type === 'application/pdf' || file.type.startsWith('image/')) {
+        setSelectedFile(file);
+        setError(null);
+      } else {
+        setError("Veuillez sélectionner un document PDF ou une Image.");
       }
-    } catch (err) {
-      console.error('Erreur lors de l\'amélioration:', err);
-      alert('Une erreur est survenue lors de l\'amélioration par l\'IA.');
-    } finally {
-      setIsEnhancing(false);
     }
   };
 
-  const handleSave = async () => {
-    if (!selectedCv || !enhancedCvData) return;
-    setIsSaving(true);
+  const handleGenerate = async () => {
+    if (!selectedFile || !selectedTemplate) return;
+    
+    setIsProcessing(true);
+    setError(null);
+    setProcessStep(1); // Étape 1 : Scan du document
+
     try {
-      // Fusionner les données améliorées avec les données existantes
-      const updatedData = { ...selectedCv.data, summary: enhancedCvData.summary };
+      // 1. Scan du document
+      const formData = new FormData();
+      formData.append('document', selectedFile);
       
-      const updatedExperiences = selectedCv.experiences.map(exp => {
-        const enhancedExp = enhancedCvData.experiences.find(e => e.id === exp.id || (e.company === exp.company && e.position === exp.position));
-        return {
-          ...exp,
-          description: enhancedExp ? enhancedExp.description : exp.description
-        };
+      const scanRes = await api.post('/ai/scan', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
+      
+      if (!scanRes.data.success || !scanRes.data.data) {
+        throw new Error("Échec de l'extraction des données du document.");
+      }
+      
+      const rawCvData = scanRes.data.data;
+      
+      // 2. Amélioration par l'IA
+      setProcessStep(2);
+      const enhanceRes = await api.post('/ai/enhance-cv', { cvData: rawCvData });
+      
+      if (!enhanceRes.data.success || !enhanceRes.data.enhancedData) {
+        throw new Error("Échec de l'amélioration du CV par l'IA.");
+      }
+      
+      const enhancedData = enhanceRes.data.enhancedData;
 
-      const payload = {
-        templateId: selectedCv.templateId,
-        title: selectedCv.title,
-        data: updatedData,
-        experiences: updatedExperiences
+      // 3. Création du nouveau CV en base de données
+      setProcessStep(3);
+      const createPayload = {
+        templateId: selectedTemplate.id,
+        title: `CV IA - ${enhancedData.fullName || 'Nouveau CV'}`,
+        data: enhancedData,
+        experiences: enhancedData.experiences || []
       };
 
-      await api.put(`/cv/${selectedCv.id}`, payload);
-      alert('Votre CV a été mis à jour avec les améliorations IA !');
-      navigate('/dashboard');
+      const createRes = await api.post('/cv', createPayload);
+
+      if (!createRes.data.cv) {
+        throw new Error("Échec de la sauvegarde du CV.");
+      }
+
+      // 4. Succès et redirection
+      setProcessStep(4);
+      setTimeout(() => {
+        navigate(`/dashboard/cv/editor?template=${selectedTemplate.id}&cvId=${createRes.data.cv.id}`);
+      }, 1000);
+
     } catch (err) {
-      console.error('Erreur save:', err);
-      alert('Erreur lors de la sauvegarde du CV.');
-    } finally {
-      setIsSaving(false);
+      console.error("Erreur Workflow IA:", err);
+      setError(err.response?.data?.error || err.message || "Une erreur est survenue lors de la génération.");
+      setIsProcessing(false);
+      setProcessStep(0);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[var(--color-obsidian)] flex items-center justify-center">
-        <Loader2 size={32} className="animate-spin text-[var(--color-champagne)]" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[var(--color-obsidian)] text-[var(--color-ivory)] pt-24 pb-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-[var(--color-white-muted)] hover:text-[var(--color-champagne)] transition-colors mb-8">
           <ArrowLeft size={20} /> Retour au tableau de bord
         </button>
 
-        <div className="flex items-center gap-4 mb-8">
-          <div className="w-12 h-12 rounded-xl bg-[rgba(201,169,110,0.15)] flex items-center justify-center text-[var(--color-champagne)]">
-            <Wand2 size={24} />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold font-[var(--font-serif)]">Améliorer mon CV avec l'IA</h1>
-            <p className="text-[var(--color-white-muted)]">Donnez un aspect professionnel et percutant à votre CV en un clic.</p>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#C9A96E] to-[#D4B878] flex items-center justify-center text-[var(--color-obsidian)] shadow-lg shadow-[rgba(201,169,110,0.2)]">
+              <Wand2 size={32} />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold font-[var(--font-serif)]">Création Magique IA</h1>
+              <p className="text-[var(--color-white-muted)] mt-1">Importez votre ancien CV, choisissez un design, l'IA fait le reste.</p>
+            </div>
           </div>
         </div>
 
-        {!selectedCv ? (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-6 rounded-2xl">
-            <h2 className="text-xl font-bold mb-6">Sélectionnez le CV à améliorer</h2>
-            {cvs.length === 0 ? (
-              <p className="text-[var(--color-white-muted)]">Vous n'avez pas encore de CV. Créez-en un depuis l'éditeur d'abord.</p>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {cvs.map(cv => (
+        {error && (
+          <div className="mb-8 p-4 bg-red-500/10 border border-red-500/50 rounded-xl text-red-200">
+            {error}
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Colonne de gauche : Upload */}
+          <div className="lg:col-span-1 space-y-6">
+            <div className="glass-card p-6 rounded-2xl">
+              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-[rgba(201,169,110,0.15)] flex items-center justify-center text-xs text-[var(--color-champagne)] font-bold">1</span>
+                Votre ancien CV
+              </h2>
+              
+              <label className="block w-full cursor-pointer group">
+                <input 
+                  type="file" 
+                  accept=".pdf, image/*" 
+                  onChange={handleFileSelect} 
+                  className="hidden"
+                  disabled={isProcessing}
+                />
+                <div className={`border-2 border-dashed rounded-xl p-8 text-center transition-all ${selectedFile ? 'border-[var(--color-champagne)] bg-[rgba(201,169,110,0.05)]' : 'border-white/10 hover:border-white/30 hover:bg-white/5'}`}>
+                  {selectedFile ? (
+                    <div className="flex flex-col items-center">
+                      <FileCheck size={40} className="text-[var(--color-champagne)] mb-3" />
+                      <p className="text-sm font-bold text-white truncate w-full px-4">{selectedFile.name}</p>
+                      <p className="text-xs text-[var(--color-white-muted)] mt-1">Cliquez pour modifier</p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center">
+                      <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-[var(--color-white-muted)] mb-3 group-hover:text-white transition-colors">
+                        <Upload size={24} />
+                      </div>
+                      <p className="text-sm font-bold text-white mb-1">Uploader un document</p>
+                      <p className="text-xs text-[var(--color-white-muted)]">Formats supportés : PDF, PNG, JPG</p>
+                    </div>
+                  )}
+                </div>
+              </label>
+            </div>
+
+            {/* État du processus */}
+            <AnimatePresence>
+              {isProcessing && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="glass-card p-6 rounded-2xl overflow-hidden"
+                >
+                  <h3 className="text-sm font-bold mb-4 text-[var(--color-champagne)]">Création en cours...</h3>
+                  <div className="space-y-4">
+                    <div className={`flex items-center gap-3 text-sm ${processStep >= 1 ? 'text-white' : 'text-white/30'}`}>
+                      {processStep > 1 ? <CheckCircle2 size={16} className="text-green-400" /> : processStep === 1 ? <Loader2 size={16} className="animate-spin text-[var(--color-champagne)]" /> : <div className="w-4 h-4 rounded-full border border-white/30" />}
+                      Extraction des données (PDF)
+                    </div>
+                    <div className={`flex items-center gap-3 text-sm ${processStep >= 2 ? 'text-white' : 'text-white/30'}`}>
+                      {processStep > 2 ? <CheckCircle2 size={16} className="text-green-400" /> : processStep === 2 ? <Loader2 size={16} className="animate-spin text-[var(--color-champagne)]" /> : <div className="w-4 h-4 rounded-full border border-white/30" />}
+                      Amélioration des textes par l'IA
+                    </div>
+                    <div className={`flex items-center gap-3 text-sm ${processStep >= 3 ? 'text-white' : 'text-white/30'}`}>
+                      {processStep > 3 ? <CheckCircle2 size={16} className="text-green-400" /> : processStep === 3 ? <Loader2 size={16} className="animate-spin text-[var(--color-champagne)]" /> : <div className="w-4 h-4 rounded-full border border-white/30" />}
+                      Génération du design
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+          </div>
+
+          {/* Colonne de droite : Modèles */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="glass-card p-6 rounded-2xl">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-[rgba(201,169,110,0.15)] flex items-center justify-center text-xs text-[var(--color-champagne)] font-bold">2</span>
+                  Choisissez votre modèle
+                </h2>
+                {selectedTemplate && (
+                  <span className="text-sm text-[var(--color-champagne)] font-bold bg-[rgba(201,169,110,0.1)] px-3 py-1 rounded-full">
+                    {selectedTemplate.name} sélectionné
+                  </span>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                {availableTemplates.map(template => (
                   <div 
-                    key={cv.id} 
-                    onClick={() => setSelectedCv(cv)}
-                    className="border border-[rgba(255,255,255,0.1)] rounded-xl p-4 hover:border-[var(--color-champagne)] cursor-pointer transition-all hover:bg-white/5"
+                    key={template.id}
+                    onClick={() => !isProcessing && setSelectedTemplate(template)}
+                    className={`relative rounded-xl border-2 transition-all cursor-pointer overflow-hidden group ${
+                      selectedTemplate?.id === template.id 
+                        ? 'border-[var(--color-champagne)] shadow-[0_0_15px_rgba(201,169,110,0.3)]' 
+                        : 'border-white/5 hover:border-white/20'
+                    } ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-[rgba(255,255,255,0.05)] flex items-center justify-center text-[var(--color-white-muted)]">
-                        <FileText size={20} />
+                    <div className="aspect-[1/1.4] bg-white w-full relative">
+                      {/* Thumbnail Placeholder - Dans un vrai cas, on chargerait l'image du template */}
+                      <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
+                        <LayoutTemplate size={40} className="text-gray-300" />
+                        <span className="absolute bottom-4 text-gray-400 text-xs font-bold uppercase tracking-widest">{template.name}</span>
                       </div>
-                      <div>
-                        <h3 className="font-bold text-[var(--color-ivory)]">{cv.title}</h3>
-                        <p className="text-xs text-[var(--color-white-muted)] mt-1">
-                          Mis à jour le {new Date(cv.updatedAt).toLocaleDateString()}
-                        </p>
-                      </div>
+                      
+                      {/* Overlay Selection */}
+                      {selectedTemplate?.id === template.id && (
+                        <div className="absolute inset-0 bg-[var(--color-champagne)]/20 flex items-center justify-center">
+                          <div className="w-10 h-10 bg-[var(--color-champagne)] rounded-full flex items-center justify-center shadow-lg">
+                            <CheckCircle2 size={24} className="text-[var(--color-obsidian)]" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-3 bg-[var(--color-charcoal)] border-t border-white/5">
+                      <p className="text-sm font-bold truncate text-white">{template.name}</p>
+                      <p className="text-[10px] text-[var(--color-white-muted)] uppercase tracking-wider mt-1">{template.tier === 'premium' ? '👑 Premium' : '⭐ Standard'}</p>
                     </div>
                   </div>
                 ))}
               </div>
-            )}
-          </motion.div>
-        ) : !enhancedCvData ? (
-          <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="glass-card p-8 rounded-2xl text-center">
-            <h2 className="text-2xl font-bold mb-4">Prêt à améliorer "{selectedCv.title}" ?</h2>
-            <p className="text-[var(--color-white-muted)] max-w-lg mx-auto mb-8">
-              Notre IA Gemini va analyser votre résumé et vos descriptions d'expériences pour les réécrire avec un vocabulaire plus professionnel, percutant et axé sur les résultats.
-            </p>
-            
-            <button 
-              onClick={handleEnhance}
-              disabled={isEnhancing}
-              className="btn-primary !px-8 !py-4 text-lg w-full max-w-md flex items-center justify-center gap-3 mx-auto"
-            >
-              {isEnhancing ? (
-                <><Loader2 size={24} className="animate-spin" /> Analyse IA en cours...</>
-              ) : (
-                <><Wand2 size={24} /> Lancer la magie IA</>
-              )}
-            </button>
-            <button 
-              onClick={() => setSelectedCv(null)} 
-              className="mt-6 text-sm text-[var(--color-white-muted)] hover:text-white transition-colors"
-              disabled={isEnhancing}
-            >
-              Choisir un autre CV
-            </button>
-          </motion.div>
-        ) : (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-            <div className="glass-card p-6 rounded-2xl">
-              <h3 className="text-xl font-bold text-[var(--color-champagne)] mb-4 flex items-center gap-2">
-                <CheckCircle2 size={20} /> Résumé Professionnel
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <p className="text-xs font-bold text-[var(--color-white-muted)] uppercase tracking-wider mb-2">Original</p>
-                  <div className="p-4 rounded-xl bg-black/20 border border-white/5 text-sm text-white/70">
-                    {selectedCv.data.summary || "Aucun résumé original."}
-                  </div>
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-green-400 uppercase tracking-wider mb-2">Version IA</p>
-                  <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/30 text-sm text-white">
-                    {enhancedCvData.summary}
-                  </div>
-                </div>
-              </div>
             </div>
 
-            {selectedCv.experiences.map((exp, idx) => {
-              const enhancedExp = enhancedCvData.experiences.find(e => e.id === exp.id || (e.company === exp.company && e.position === exp.position));
-              if (!enhancedExp) return null;
-              
-              return (
-                <div key={exp.id || idx} className="glass-card p-6 rounded-2xl">
-                  <h3 className="text-lg font-bold text-[var(--color-champagne)] mb-1">{exp.position}</h3>
-                  <p className="text-sm text-[var(--color-white-muted)] mb-4">{exp.company}</p>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <p className="text-xs font-bold text-[var(--color-white-muted)] uppercase tracking-wider mb-2">Original</p>
-                      <div className="p-4 rounded-xl bg-black/20 border border-white/5 text-sm text-white/70 whitespace-pre-wrap">
-                        {exp.description || "Aucune description originale."}
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-green-400 uppercase tracking-wider mb-2">Version IA</p>
-                      <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/30 text-sm text-white whitespace-pre-wrap">
-                        {enhancedExp.description}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-
-            <div className="flex gap-4 pt-4">
+            {/* Bouton de génération */}
+            <div className="sticky bottom-6 z-10">
               <button 
-                onClick={() => setEnhancedCvData(null)}
-                className="btn-ghost flex-1 py-4 text-center"
-                disabled={isSaving}
+                onClick={handleGenerate}
+                disabled={!selectedFile || !selectedTemplate || isProcessing}
+                className="w-full btn-primary !py-5 text-lg font-bold shadow-[0_10px_40px_rgba(201,169,110,0.3)] hover:shadow-[0_10px_50px_rgba(201,169,110,0.5)] disabled:opacity-50 disabled:shadow-none flex items-center justify-center gap-3"
               >
-                Annuler
-              </button>
-              <button 
-                onClick={handleSave}
-                disabled={isSaving}
-                className="btn-primary flex-1 py-4 text-center flex items-center justify-center gap-2"
-              >
-                {isSaving ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
-                Sauvegarder les améliorations
+                {isProcessing ? (
+                  <><Loader2 size={24} className="animate-spin" /> Génération du CV Magique...</>
+                ) : (
+                  <><Wand2 size={24} /> Générer mon nouveau CV</>
+                )}
               </button>
             </div>
-          </motion.div>
-        )}
+
+          </div>
+
+        </div>
       </div>
     </div>
   );
