@@ -174,18 +174,6 @@ export async function enhanceSection(req, res) {
       return res.status(400).json({ error: 'Section et contenu requis' });
     }
 
-    // Check if Gemini key is configured
-    if (!process.env.GEMINI_API_KEY) {
-      return res.json({
-        enhanced: `[IA] ${content}`,
-        message: 'Mode démo — configurez GEMINI_API_KEY pour l\'IA réelle',
-      });
-    }
-
-    const { GoogleGenerativeAI } = await import('@google/generative-ai');
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
     const systemPrompt = `Tu es un expert en recrutement et rédaction de CV avec 20 ans d'expérience.
 Tu dois améliorer la section "${section}" d'un CV.
 
@@ -201,12 +189,59 @@ RÈGLES STRICTES :
 - Sois concis et impactant
 - Retourne UNIQUEMENT le texte amélioré, sans commentaire ni explication`;
 
-    const result = await model.generateContent([
-      systemPrompt,
-      { text: `Améliore cette section "${section}" :\n\n${content}` }
-    ]);
+    // Système de Fallback (OpenAI -> Gemini)
+    let enhanced = null;
+    let lastError = null;
 
-    const enhanced = result.response.text().trim();
+    // Tentative 1 : OpenAI (Priorité si abonnement)
+    if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'your_openai_api_key') {
+      try {
+        const { default: OpenAI } = await import('openai');
+        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+        
+        const completion = await openai.chat.completions.create({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: `Améliore cette section "${section}" :\n\n${content}` }
+          ],
+          max_tokens: 1000,
+          temperature: 0.7,
+        });
+        
+        enhanced = completion.choices[0]?.message?.content?.trim();
+      } catch (err) {
+        console.warn("OpenAI fallback déclenché (Erreur:", err.message, ")");
+        lastError = err;
+      }
+    }
+
+    // Tentative 2 : Gemini (Si OpenAI échoue ou n'est pas configuré)
+    if (!enhanced && process.env.GEMINI_API_KEY) {
+      try {
+        const { GoogleGenerativeAI } = await import('@google/generative-ai');
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        
+        const result = await model.generateContent([
+          systemPrompt,
+          { text: `Améliore cette section "${section}" :\n\n${content}` }
+        ]);
+        
+        enhanced = result.response.text().trim();
+      } catch (err) {
+        console.warn("Gemini a également échoué (Erreur:", err.message, ")");
+        lastError = err;
+      }
+    }
+
+    if (!enhanced) {
+      // Si les deux API ont échoué, on remonte l'erreur 429
+      if (lastError && (lastError.message.includes('429') || lastError.message.includes('quota') || lastError.message.includes('Too Many Requests'))) {
+         return res.status(429).json({ error: 'Le quota de l\'IA est épuisé. Veuillez réessayer ou vérifier votre abonnement API.' });
+      }
+      return res.status(500).json({ error: 'Erreur lors de l\'amélioration IA' });
+    }
 
     res.json({ enhanced });
   } catch (err) {
