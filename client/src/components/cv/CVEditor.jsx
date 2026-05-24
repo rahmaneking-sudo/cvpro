@@ -477,16 +477,19 @@ export default function CVEditor() {
       if (H > 1115) {
         const scale = 1115 / H;
         originalTransform = el.style.transform;
-        if (wrapper) wrapperOriginalHeight = wrapper.style.height;
         
         // Override with !important to bypass Tailwind's print:!transform-none
         el.style.setProperty('transform', `scale(${scale})`, 'important');
         el.style.setProperty('transform-origin', 'top center', 'important');
         
-        // Also force the wrapper height so it doesn't trigger a new page
+        // Also force the wrapper height and background color so it doesn't trigger a new page and hides side margins
         if (wrapper) {
+          wrapperOriginalHeight = wrapper.style.height;
+          wrapper.dataset.originalBg = wrapper.style.backgroundColor;
+          
           wrapper.style.setProperty('height', '1115px', 'important');
           wrapper.style.setProperty('overflow', 'hidden', 'important');
+          wrapper.style.setProperty('background-color', template.bg || '#ffffff', 'important');
         }
       }
     }
@@ -502,6 +505,7 @@ export default function CVEditor() {
         if (wrapper) {
           wrapper.style.height = wrapperOriginalHeight || '';
           wrapper.style.overflow = 'visible';
+          wrapper.style.backgroundColor = wrapper.dataset.originalBg || '';
         }
       }
     }, 2000);
