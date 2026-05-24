@@ -465,8 +465,27 @@ export default function CVEditor() {
     }
     setShowExportMenu(false);
     showToast("N'oubliez pas de cocher 'Imprimer les arrière-plans' dans la fenêtre qui va s'ouvrir !", 'success');
+    
+    const el = document.getElementById('cv-preview-container');
+    let originalTransform = '';
+    
+    if (el) {
+      const H = el.offsetHeight;
+      if (H > 1123) {
+        const scale = 1123 / H;
+        originalTransform = el.style.transform;
+        el.style.transform = `scale(${scale})`;
+        el.classList.remove('print:!transform-none');
+      }
+    }
+
     setTimeout(() => {
       window.print();
+      
+      if (el && originalTransform) {
+        el.style.transform = originalTransform;
+        el.classList.add('print:!transform-none');
+      }
     }, 2000);
   };
 
@@ -1334,7 +1353,7 @@ export default function CVEditor() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+              className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm print:hidden"
               style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
             >
               <motion.div 
