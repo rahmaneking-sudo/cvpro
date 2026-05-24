@@ -41,7 +41,8 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
       // officielle de PayDunya qui gère correctement Wave/Orange.
       const response = await api.post('/payments/create-invoice', {
         amount: price || 5000,
-        description: `Achat CV Premium : ${templateName || 'Modèle'}`
+        description: `Achat CV Premium : ${templateName || 'Modèle'}`,
+        templateId
       });
       
       if (response.data.success && response.data.url) {

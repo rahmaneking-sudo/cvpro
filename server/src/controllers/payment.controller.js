@@ -1,9 +1,10 @@
 import { createInvoice, createDirectPay, checkInvoiceStatus } from '../services/paydunya.service.js';
+import prisma from '../utils/prisma.js';
 
 // Route pour le paiement par carte (Redirection)
 export const createCardPayment = async (req, res) => {
   try {
-    const { amount, description } = req.body;
+    const { amount, description, templateId } = req.body;
     
     // Ensure amount is a valid number, even if passed as a string like "5 000"
     const parsedAmount = amount ? Number(String(amount).replace(/[^\d]/g, '')) : 5000;
@@ -15,6 +16,22 @@ export const createCardPayment = async (req, res) => {
     const cancelUrl = `${clientUrl}/dashboard?payment=cancel`;
 
     const invoice = await createInvoice(parsedAmount || 5000, description || "Abonnement CV Premium", cancelUrl, returnUrl);
+    
+    // Enregistrer le paiement en attente dans la base de données
+    if (templateId && req.userId) {
+      await prisma.purchase.create({
+        data: {
+          userId: req.userId,
+          product: 'cv_template',
+          productId: templateId,
+          provider: 'paydunya',
+          currency: 'XOF',
+          amount: parsedAmount || 5000,
+          status: 'pending',
+          webhookId: invoice.token
+        }
+      });
+    }
     
     res.json({
       success: true,
@@ -83,9 +100,13 @@ export const handleWebhook = async (req, res) => {
     const status = data.status; // 'completed', 'failed', 'cancelled'
     const invoiceToken = data.invoice?.token || data.token;
     
-    if (status === 'completed') {
+    if (status === 'completed' && invoiceToken) {
       console.log(`Paiement validé pour la facture ${invoiceToken}`);
       // Mettre à jour la base de données de l'utilisateur via Prisma
+      await prisma.purchase.updateMany({
+        where: { webhookId: invoiceToken },
+        data: { status: 'completed' }
+      });
     }
 
     // PayDunya attend un statut 200 pour confirmer la réception du webhook
