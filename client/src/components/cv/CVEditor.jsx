@@ -468,23 +468,41 @@ export default function CVEditor() {
     
     const el = document.getElementById('cv-preview-container');
     let originalTransform = '';
+    let wrapperOriginalHeight = '';
     
     if (el) {
       const H = el.offsetHeight;
-      if (H > 1123) {
-        const scale = 1123 / H;
+      const wrapper = el.parentElement;
+      // 1115px is slightly less than A4 height (297mm) to guarantee no page spill
+      if (H > 1115) {
+        const scale = 1115 / H;
         originalTransform = el.style.transform;
-        el.style.transform = `scale(${scale})`;
-        el.classList.remove('print:!transform-none');
+        if (wrapper) wrapperOriginalHeight = wrapper.style.height;
+        
+        // Override with !important to bypass Tailwind's print:!transform-none
+        el.style.setProperty('transform', `scale(${scale})`, 'important');
+        el.style.setProperty('transform-origin', 'top center', 'important');
+        
+        // Also force the wrapper height so it doesn't trigger a new page
+        if (wrapper) {
+          wrapper.style.setProperty('height', '1115px', 'important');
+          wrapper.style.setProperty('overflow', 'hidden', 'important');
+        }
       }
     }
 
     setTimeout(() => {
       window.print();
       
-      if (el && originalTransform) {
-        el.style.transform = originalTransform;
-        el.classList.add('print:!transform-none');
+      // Revert after print dialog closes
+      if (el) {
+        el.style.transform = originalTransform || '';
+        el.style.transformOrigin = 'top left';
+        const wrapper = el.parentElement;
+        if (wrapper) {
+          wrapper.style.height = wrapperOriginalHeight || '';
+          wrapper.style.overflow = 'visible';
+        }
       }
     }, 2000);
   };
