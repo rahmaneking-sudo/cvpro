@@ -1411,7 +1411,6 @@ export default function CVEditor() {
         </AnimatePresence>,
         document.body
       )}
-
       {/* Payment Modal Simulation */}
       <PaymentModal 
         isOpen={showPaymentModal}
@@ -1423,7 +1422,12 @@ export default function CVEditor() {
         }}
         templateId={templateId}
         templateName={`Modèle: ${template?.name || templateId}`}
-        price={isMediaKit ? "2 000" : "1 500"}
+        price={
+          template?.tier === 'premium' ? 5000 :
+          template?.tier === 'media-kit' ? 2000 :
+          1500
+        }
+        productType="cv_template"
       />
     </div>
   );

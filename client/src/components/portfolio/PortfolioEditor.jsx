@@ -800,7 +800,7 @@ export default function PortfolioEditor() {
         }}
         templateId={templateId}
         templateName={template?.name}
-        price={template?.price || 1500}
+        price={template?.tier === 'premium' ? 5000 : 2000}
         productType="portfolio_premium"
       />
     </div>
