@@ -4,7 +4,7 @@ import prisma from '../utils/prisma.js';
 // Route pour le paiement par carte (Redirection)
 export const createCardPayment = async (req, res) => {
   try {
-    const { amount, description, templateId } = req.body;
+    const { amount, description, templateId, productType } = req.body;
     
     // Ensure amount is a valid number, even if passed as a string like "5 000"
     const parsedAmount = amount ? Number(String(amount).replace(/[^\d]/g, '')) : 5000;
@@ -22,7 +22,7 @@ export const createCardPayment = async (req, res) => {
       await prisma.purchase.create({
         data: {
           userId: req.userId,
-          product: 'cv_template',
+          product: productType || 'cv_template',
           productId: templateId,
           provider: 'paydunya',
           currency: 'XOF',

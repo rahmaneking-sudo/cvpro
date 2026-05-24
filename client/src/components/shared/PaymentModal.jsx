@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, Smartphone, Lock, CheckCircle2 } from 'lucide-react';
 import api from '../../services/api';
 
-export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, templateName, price }) {
+export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, templateName, price, productType = 'cv_template' }) {
   const [step, setStep] = useState(1);
   const [method, setMethod] = useState('wave'); // 'wave', 'orange', 'card'
   const [phone, setPhone] = useState('');
@@ -39,10 +39,14 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
       // Suite à un problème avec l'API SoftPay (Direct Push) de PayDunya qui renvoie 
       // des erreurs 500, nous redirigeons TOUTES les méthodes vers la page sécurisée 
       // officielle de PayDunya qui gère correctement Wave/Orange.
+      
+      const descPrefix = productType === 'portfolio_premium' ? 'Achat Portfolio Premium' : 'Achat CV Premium';
+      
       const response = await api.post('/payments/create-invoice', {
         amount: price || 5000,
-        description: `Achat CV Premium : ${templateName || 'Modèle'}`,
-        templateId
+        description: `${descPrefix} : ${templateName || 'Modèle'}`,
+        templateId,
+        productType
       });
       
       if (response.data.success && response.data.url) {

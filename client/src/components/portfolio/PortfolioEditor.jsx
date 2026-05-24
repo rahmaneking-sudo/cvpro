@@ -799,8 +799,9 @@ export default function PortfolioEditor() {
           showToast('Paiement réussi ! Vous pouvez maintenant exporter et partager.');
         }}
         templateId={templateId}
-        templateName={`Modèle: ${template.name}`}
-        price={template.tier === 'premium' ? '5 000' : '2 000'}
+        templateName={template?.name}
+        price={template?.price || 1500}
+        productType="portfolio_premium"
       />
     </div>
   );
