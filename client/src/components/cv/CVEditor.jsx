@@ -414,30 +414,27 @@ export default function CVEditor() {
         
         const canvasWidth = canvas.width;
         const canvasHeight = canvas.height;
-        const imgHeightInPdf = (canvasHeight * pdfWidth) / canvasWidth;
+        let imgWidthInPdf = pdfWidth;
+        let imgHeightInPdf = (canvasHeight * pdfWidth) / canvasWidth;
         
-        let heightLeft = imgHeightInPdf;
-        let position = 0;
+        // --- NOUVELLE LOGIQUE : Forcer sur 1 seule page ---
+        // Si le contenu est plus long que la page A4, on le réduit proportionnellement
+        // pour qu'il tienne exactement sur une seule page.
+        if (imgHeightInPdf > pdfHeight) {
+          const scaleFactor = pdfHeight / imgHeightInPdf;
+          imgWidthInPdf = imgWidthInPdf * scaleFactor;
+          imgHeightInPdf = pdfHeight;
+        }
+
+        const xOffset = (pdfWidth - imgWidthInPdf) / 2;
         
-        // Fill page background color first to guarantee uniform background
+        // Remplir le fond de la page
         const bgRgb = hexToRgb(template.bg || '#ffffff');
         pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
         pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
 
-        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInPdf);
-        heightLeft -= pdfHeight;
-        
-        while (heightLeft > 15) {
-          position = heightLeft - imgHeightInPdf;
-          pdf.addPage();
-
-          // Fill new page background color first
-          pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
-          pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
-
-          pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInPdf);
-          heightLeft -= pdfHeight;
-        }
+        // Ajouter l'image centrée
+        pdf.addImage(imgData, 'JPEG', xOffset, 0, imgWidthInPdf, imgHeightInPdf);
         
         const pdfBlob = pdf.output('blob');
         const pdfUrl = URL.createObjectURL(pdfBlob);
