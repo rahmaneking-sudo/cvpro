@@ -326,9 +326,6 @@ export default function CVEditor() {
       showToast('Préparation du PDF en cours...', 'success');
       
       document.body.classList.add('printing');
-      const originalTransform = element.style.transform;
-      // Remove inline transform temporarily so html2canvas measures the full 794px box
-      element.style.transform = 'none';
       
       try {
         const canvas = await html2canvas(element, {
@@ -465,8 +462,6 @@ export default function CVEditor() {
         showToast('Erreur lors de la génération du PDF.', 'error');
         if (isIOS && newWindow) newWindow.close();
       } finally {
-        // Restore the original transform (scale) for the live preview
-        element.style.transform = originalTransform;
         document.body.classList.remove('printing');
       }
     } else {
