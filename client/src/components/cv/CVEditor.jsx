@@ -529,11 +529,20 @@ export default function CVEditor() {
 
     document.body.classList.add('printing');
     
+    // Clean up title and URL to prevent messy browser headers/footers in Safari iOS print
+    const originalTitle = document.title;
+    const originalUrl = window.location.href;
+    document.title = cvData.fullName ? `CV_${cvData.fullName.replace(/\s+/g, '_')}` : 'CV';
+    window.history.replaceState({}, '', '/cv');
+    
     // Call print immediately to avoid browser popup blockers ("impression automatique n'est pas autorisée")
     window.print();
     
     // Revert after print dialog closes
     const revert = () => {
+      document.title = originalTitle;
+      window.history.replaceState({}, '', originalUrl);
+      
       if (el) {
         el.style.transform = originalTransform || '';
         el.style.transformOrigin = 'top left';

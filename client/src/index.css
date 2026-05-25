@@ -468,7 +468,10 @@
   .cursor-ring,
   nav,
   .app-sidebar,
-  .app-header {
+  .app-header,
+  #vercel-live-feedback,
+  vercel-live-feedback,
+  .vercel-toolbar {
     display: none !important;
   }
 
