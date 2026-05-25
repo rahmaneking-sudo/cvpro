@@ -58,18 +58,18 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
   const { mutedColor, dividerColor } = colors;
 
   return (
-    <div className="p-10">
-      <header className="flex flex-col items-center text-center mb-8 pb-6 border-b" style={{ borderColor: dividerColor }}>
-        <div className="mb-4">
+    <div className="p-6">
+      <header className="flex flex-col items-center text-center mb-5 pb-4 border-b" style={{ borderColor: dividerColor }}>
+        <div className="mb-3">
           <Initials name={cvData.fullName} accent={accent} photo={cvData.photo} />
         </div>
-        <h1 className="text-3xl font-bold tracking-tight mb-2 uppercase" style={{ color: text }}>
+        <h1 className="text-2xl font-bold tracking-tight mb-1 uppercase" style={{ color: text }}>
           {cvData.fullName || 'Votre Nom'}
         </h1>
-        <h2 className="text-sm font-semibold tracking-[0.2em] uppercase mb-4" style={{ color: accent }}>
+        <h2 className="text-[11px] font-semibold tracking-[0.2em] uppercase mb-3" style={{ color: accent }}>
           {cvData.jobTitle || 'Votre Titre'}
         </h2>
-        <div className="flex items-center justify-center gap-5 flex-wrap">
+        <div className="flex items-center justify-center gap-4 flex-wrap">
           <ContactItem icon={Mail} value={cvData.email} color={mutedColor} />
           <ContactItem icon={Phone} value={cvData.phone} color={mutedColor} />
           <ContactItem icon={MapPin} value={cvData.location} color={mutedColor} />
@@ -77,29 +77,29 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
       </header>
 
       {cvData.summary && (
-        <section className="mb-8">
-          <h3 className="text-[11px] font-bold uppercase tracking-widest mb-3" style={{ color: text }}>Profil Professionnel</h3>
-          <p className="text-[11px] leading-[1.8] text-justify" style={{ color: mutedColor }}>{cvData.summary}</p>
+        <section className="mb-5">
+          <h3 className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: text }}>Profil Professionnel</h3>
+          <p className="text-[11px] leading-[1.6] text-justify" style={{ color: mutedColor }}>{cvData.summary}</p>
         </section>
       )}
 
       {experiences?.length > 0 && (
-        <section className="mb-8">
-          <h3 className="text-[11px] font-bold uppercase tracking-widest mb-4 pb-2 border-b" style={{ color: text, borderColor: dividerColor }}>
+        <section className="mb-5">
+          <h3 className="text-[11px] font-bold uppercase tracking-widest mb-3 pb-1 border-b" style={{ color: text, borderColor: dividerColor }}>
             Expériences
           </h3>
-          <div className="space-y-5">
+          <div className="space-y-3">
             {(experiences || []).filter(e => e.company || e.position).map((exp, i) => (
               <article key={i}>
-                <div className="flex items-baseline justify-between mb-1">
-                  <h4 className="font-bold text-[12px]" style={{ color: text }}>{exp.position}</h4>
-                  <span className="text-[10px] font-medium" style={{ color: accent }}>
+                <div className="flex items-baseline justify-between mb-0.5">
+                  <h4 className="font-bold text-[11px]" style={{ color: text }}>{exp.position}</h4>
+                  <span className="text-[9px] font-medium" style={{ color: accent }}>
                     {exp.startDate}{exp.endDate ? ` — ${exp.endDate}` : ''}
                   </span>
                 </div>
-                <div className="text-[11px] font-medium mb-2" style={{ color: text, opacity: 0.8 }}>{exp.company}</div>
+                <div className="text-[11px] font-medium mb-1" style={{ color: text, opacity: 0.8 }}>{exp.company}</div>
                 {exp.description && (
-                  <p className="text-[11px] leading-[1.7]" style={{ color: mutedColor }}>{exp.description}</p>
+                  <p className="text-[10px] leading-[1.6]" style={{ color: mutedColor }}>{exp.description}</p>
                 )}
               </article>
             ))}
@@ -108,22 +108,22 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
       )}
 
       {educations?.length > 0 && (
-        <section className="mb-8">
-          <h3 className="text-[11px] font-bold uppercase tracking-widest mb-4 pb-2 border-b" style={{ color: text, borderColor: dividerColor }}>
+        <section className="mb-5">
+          <h3 className="text-[11px] font-bold uppercase tracking-widest mb-3 pb-1 border-b" style={{ color: text, borderColor: dividerColor }}>
             Formation
           </h3>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {(educations || []).filter(e => e.institution || e.degree).map((edu, i) => (
               <article key={i}>
-                <div className="flex items-baseline justify-between mb-1">
-                  <h4 className="font-bold text-[12px]" style={{ color: text }}>{edu.degree}</h4>
-                  <span className="text-[10px] font-medium" style={{ color: accent }}>
+                <div className="flex items-baseline justify-between mb-0.5">
+                  <h4 className="font-bold text-[11px]" style={{ color: text }}>{edu.degree}</h4>
+                  <span className="text-[9px] font-medium" style={{ color: accent }}>
                     {edu.startDate}{edu.endDate ? ` — ${edu.endDate}` : ''}
                   </span>
                 </div>
                 <div className="text-[11px] font-medium mb-1" style={{ color: text, opacity: 0.8 }}>{edu.institution}</div>
                 {edu.description && (
-                  <p className="text-[11px] leading-[1.7]" style={{ color: mutedColor }}>{edu.description}</p>
+                  <p className="text-[10px] leading-[1.6]" style={{ color: mutedColor }}>{edu.description}</p>
                 )}
               </article>
             ))}
@@ -131,25 +131,25 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
         </section>
       )}
 
-      <div className="flex gap-8">
+      <div className="flex gap-6">
         {cvData.skills?.length > 0 && (
           <section className="flex-1">
-            <h3 className="text-[11px] font-bold uppercase tracking-widest mb-3 pb-2 border-b" style={{ color: text, borderColor: dividerColor }}>
+            <h3 className="text-[11px] font-bold uppercase tracking-widest mb-2 pb-1 border-b" style={{ color: text, borderColor: dividerColor }}>
               Compétences
             </h3>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {cvData.skills?.map((skill, i) => <SkillBadge key={i} skill={skill} accent={accent} />)}
             </div>
           </section>
         )}
         {cvData.languages?.length > 0 && (
           <section className="w-1/3">
-            <h3 className="text-[11px] font-bold uppercase tracking-widest mb-3 pb-2 border-b" style={{ color: text, borderColor: dividerColor }}>
+            <h3 className="text-[11px] font-bold uppercase tracking-widest mb-2 pb-1 border-b" style={{ color: text, borderColor: dividerColor }}>
               Langues
             </h3>
             <ul className="space-y-1">
               {cvData.languages?.map((lang, i) => (
-                <li key={i} className="text-[11px] flex items-center gap-2" style={{ color: mutedColor }}>
+                <li key={i} className="text-[10px] flex items-center gap-1.5" style={{ color: mutedColor }}>
                   <span className="w-1 h-1 rounded-full bg-current opacity-50" /> {lang}
                 </li>
               ))}
