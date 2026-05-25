@@ -483,9 +483,14 @@ export default function CVEditor() {
     if (el) {
       originalTransform = el.style.transform;
       
-      // Force dimensions exactes A4
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      // Pour iOS, la seule façon de réduire la hauteur pour éviter le débordement sur la page 2
+      // est d'augmenter légèrement la largeur. Safari réduira proportionnellement l'ensemble !
+      // 880px provoque une réduction d'environ 10%, faisant passer la hauteur de 1123px à ~1010px.
+      const printWidth = isIOS ? '880px' : '210mm';
+      
       el.style.setProperty('transform', 'none', 'important');
-      el.style.setProperty('width', '210mm', 'important');
+      el.style.setProperty('width', printWidth, 'important');
       el.style.setProperty('margin', '0', 'important');
       
       const wrapper = el.parentElement;
@@ -494,10 +499,11 @@ export default function CVEditor() {
         wrapper.dataset.originalMaxWidth = wrapper.style.maxWidth;
         wrapper.dataset.originalBg = wrapper.style.backgroundColor;
         
-        wrapper.style.setProperty('width', '210mm', 'important');
+        wrapper.style.setProperty('width', printWidth, 'important');
         wrapper.style.setProperty('max-width', 'none', 'important');
         wrapper.style.setProperty('background-color', template.bg || '#ffffff', 'important');
         wrapper.style.setProperty('margin', '0 auto', 'important');
+        wrapper.style.setProperty('overflow', 'hidden', 'important');
       }
     }
 
@@ -527,6 +533,7 @@ export default function CVEditor() {
             wrapper.style.maxWidth = wrapper.dataset.originalMaxWidth || '';
             wrapper.style.backgroundColor = wrapper.dataset.originalBg || '';
             wrapper.style.margin = '';
+            wrapper.style.removeProperty('overflow');
           }
         }
         document.body.style.removeProperty('background-color');
