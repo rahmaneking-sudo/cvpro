@@ -462,12 +462,22 @@ export default function CVEditor() {
 
         const xOffset = (pdfWidth - imgWidthInPdf) / 2;
         
-        // Remplir le fond de la page
+        // --- TEXTE CACHÉ POUR LES ATS ---
+        // On extrait le texte pur du CV et on l'injecte dans le PDF.
+        // Ce texte sera recouvert par le fond coloré et l'image HD, le rendant invisible à l'œil nu,
+        // mais parfaitement lisible pour les robots de recrutement (ATS).
+        const rawText = element.innerText || '';
+        pdf.setTextColor(200, 200, 200); // Couleur claire par sécurité
+        pdf.setFontSize(8);
+        const splitText = pdf.splitTextToSize(rawText, pdfWidth - 20);
+        pdf.text(splitText, 10, 10);
+        
+        // Remplir le fond de la page (Ceci va masquer le texte injecté ci-dessus)
         const bgRgb = hexToRgb(template.bg || '#ffffff');
         pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
         pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
 
-        // Ajouter l'image centrée
+        // Ajouter l'image centrée par dessus tout
         pdf.addImage(imgData, 'JPEG', xOffset, 0, imgWidthInPdf, imgHeightInPdf);
         
         const pdfBlob = pdf.output('blob');
