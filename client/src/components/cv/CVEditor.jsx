@@ -16,7 +16,14 @@ import CoverLetterPreview from './CoverLetterPreview';
 const PreviewScaler = ({ children }) => {
   const containerRef = React.useRef(null);
   const contentRef = React.useRef(null);
-  const [scale, setScale] = React.useState(1);
+  const [scale, setScale] = React.useState(() => {
+    if (typeof window !== 'undefined') {
+      const w = window.innerWidth;
+      const available = w > 1024 ? w * 0.55 : w;
+      return Math.min(1, (available - 32) / 794);
+    }
+    return 1;
+  });
   const [contentHeight, setContentHeight] = React.useState(1123);
 
   React.useEffect(() => {
@@ -473,102 +480,68 @@ export default function CVEditor() {
       return;
     }
     setShowExportMenu(false);
-    showToast("N'oubliez pas de cocher 'Imprimer les arrière-plans' dans la fenêtre qui va s'ouvrir !", 'success');
+    showToast("Cochez 'Imprimer les arrière-plans' (ou 'Graphiques d'arrière-plan') !", 'success');
     
     const el = document.getElementById('cv-preview-container');
     let originalTransform = '';
-    let wrapperOriginalWidth = '';
-    let wrapperOriginalMaxWidth = '';
-    let wrapperOriginalHeight = '';
     
     if (el) {
-      const H = el.offsetHeight;
+      originalTransform = el.style.transform;
+      
+      // Force dimensions exactes A4
+      el.style.setProperty('transform', 'none', 'important');
+      el.style.setProperty('width', '210mm', 'important');
+      el.style.setProperty('margin', '0', 'important');
+      
       const wrapper = el.parentElement;
-      // Only scale down if the content actively overflows A4 height (1123px) by a margin
-      // CVs that are exactly A4 height (1123px) should NOT be scaled, otherwise they leave a white strip at the bottom.
-      if (H > 1125) {
-        // We scale to 1122px (exact A4 height minus 1px) to prevent multi-page spill
-        const scale = 1122 / H;
-        originalTransform = el.style.transform;
+      if (wrapper) {
+        wrapper.dataset.originalWidth = wrapper.style.width;
+        wrapper.dataset.originalMaxWidth = wrapper.style.maxWidth;
+        wrapper.dataset.originalBg = wrapper.style.backgroundColor;
         
-        // Safari iOS print completely ignores CSS transforms (scale) AND zoom!
-        // The ONLY way to force it to shrink vertically on iOS is to make the container physically wider horizontally,
-        // so Safari's native "fit to paper width" scales down the entire page proportionately!
-        const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
-        
-        if (!isFirefox) {
-          const virtualWidth = 794 / scale;
-          el.style.setProperty('transform', 'none', 'important');
-          el.style.setProperty('margin', '0 auto', 'important');
-          
-          if (wrapper) {
-            wrapperOriginalWidth = wrapper.style.width;
-            wrapperOriginalMaxWidth = wrapper.style.maxWidth;
-            wrapper.dataset.originalBg = wrapper.style.backgroundColor;
-            
-            wrapper.style.setProperty('width', `${virtualWidth}px`, 'important');
-            wrapper.style.setProperty('max-width', `${virtualWidth}px`, 'important');
-            wrapper.style.setProperty('background-color', template.bg || '#ffffff', 'important');
-            wrapper.style.setProperty('overflow', 'hidden', 'important');
-            wrapper.style.setProperty('height', `${H}px`, 'important'); // Let it keep full height, Safari will shrink it
-          }
-        } else {
-          el.style.setProperty('transform', `scale(${scale})`, 'important');
-          el.style.setProperty('transform-origin', 'top center', 'important');
-          el.style.setProperty('margin-bottom', `-${H - 1100}px`, 'important');
-          
-          if (wrapper) {
-            wrapperOriginalHeight = wrapper.style.height;
-            wrapper.dataset.originalBg = wrapper.style.backgroundColor;
-            
-            wrapper.style.setProperty('height', '1100px', 'important');
-            wrapper.style.setProperty('overflow', 'hidden', 'important');
-            wrapper.style.setProperty('background-color', template.bg || '#ffffff', 'important');
-          }
-        }
+        wrapper.style.setProperty('width', '210mm', 'important');
+        wrapper.style.setProperty('max-width', 'none', 'important');
+        wrapper.style.setProperty('background-color', template.bg || '#ffffff', 'important');
+        wrapper.style.setProperty('margin', '0 auto', 'important');
       }
     }
 
     document.body.classList.add('printing');
-    // Force body background to match CV background, so any microscopic gaps at the bottom of the page blend in perfectly
     document.body.style.setProperty('background-color', template.bg || '#ffffff', 'important');
     
-    // Clean up title and URL to prevent messy browser headers/footers in Safari iOS print
     const originalTitle = document.title;
     const originalUrl = window.location.href;
     document.title = cvData.fullName ? `CV_${cvData.fullName.replace(/\s+/g, '_')}` : 'CV';
     window.history.replaceState({}, '', '/cv');
     
-    // Call print immediately to avoid browser popup blockers ("impression automatique n'est pas autorisée")
-    window.print();
-    
-    // Revert after print dialog closes
-    const revert = () => {
-      document.title = originalTitle;
-      window.history.replaceState({}, '', originalUrl);
+    setTimeout(() => {
+      window.print();
       
-      if (el) {
-        el.style.transform = originalTransform || '';
-        el.style.transformOrigin = 'top left';
-        el.style.removeProperty('margin');
-        el.style.removeProperty('margin-bottom');
-        const wrapper = el.parentElement;
-        if (wrapper) {
-          wrapper.style.width = wrapperOriginalWidth || '';
-          wrapper.style.maxWidth = wrapperOriginalMaxWidth || '';
-          wrapper.style.height = wrapperOriginalHeight || '';
-          wrapper.style.overflow = 'visible';
-          wrapper.style.backgroundColor = wrapper.dataset.originalBg || '';
+      const revert = () => {
+        document.title = originalTitle;
+        window.history.replaceState({}, '', originalUrl);
+        
+        if (el) {
+          el.style.transform = originalTransform || '';
+          el.style.removeProperty('width');
+          el.style.removeProperty('margin');
+          
+          const wrapper = el.parentElement;
+          if (wrapper) {
+            wrapper.style.width = wrapper.dataset.originalWidth || '';
+            wrapper.style.maxWidth = wrapper.dataset.originalMaxWidth || '';
+            wrapper.style.backgroundColor = wrapper.dataset.originalBg || '';
+            wrapper.style.margin = '';
+          }
         }
-      }
-      document.body.style.removeProperty('background-color');
-      document.body.classList.remove('printing');
-      window.removeEventListener('afterprint', revert);
-    };
+        document.body.style.removeProperty('background-color');
+        document.body.classList.remove('printing');
+        window.removeEventListener('afterprint', revert);
+      };
 
-    window.addEventListener('afterprint', revert);
-    // Fallback for browsers that don't reliably fire afterprint (like some mobile browsers)
-    setTimeout(revert, 3000);
+      window.addEventListener('afterprint', revert);
+      setTimeout(revert, 5000);
+    }, 150);
   };
 
 

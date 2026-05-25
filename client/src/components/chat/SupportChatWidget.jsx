@@ -36,10 +36,14 @@ export default function SupportChatWidget() {
         console.error('Chat fetch error:', error);
       }
     };
+    const initFetch = async () => {
+      setIsLoading(true);
+      await fetchSession();
+      setIsLoading(false);
+    };
 
     if (user && isOpen) {
-      setIsLoading(true);
-      fetchSession().finally(() => setIsLoading(false));
+      initFetch();
       intervalId = setInterval(fetchSession, 3000); // Poll every 3 seconds
     }
 
