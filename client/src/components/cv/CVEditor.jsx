@@ -318,6 +318,10 @@ export default function CVEditor() {
       
       showToast('Préparation du PDF en cours...', 'success');
       
+      const originalTransform = element.style.transform;
+      // Remove inline transform temporarily so html2canvas measures the full 794px box
+      element.style.transform = 'none';
+      
       try {
         const canvas = await html2canvas(element, {
           scale: 2,
@@ -452,6 +456,9 @@ export default function CVEditor() {
         console.error('PDF generation error:', err);
         showToast('Erreur lors de la génération du PDF.', 'error');
         if (isIOS && newWindow) newWindow.close();
+      } finally {
+        // Restore the original transform (scale) for the live preview
+        element.style.transform = originalTransform;
       }
     } else {
       setShowPaymentModal(true);
@@ -481,6 +488,7 @@ export default function CVEditor() {
         // Override with !important to bypass Tailwind's print:!transform-none
         el.style.setProperty('transform', `scale(${scale})`, 'important');
         el.style.setProperty('transform-origin', 'top center', 'important');
+        el.style.setProperty('margin-bottom', `-${H - 1100}px`, 'important');
         
         // Also force the wrapper height and background color so it doesn't trigger a new page and hides side margins
         if (wrapper) {
@@ -502,6 +510,7 @@ export default function CVEditor() {
       if (el) {
         el.style.transform = originalTransform || '';
         el.style.transformOrigin = 'top left';
+        el.style.removeProperty('margin-bottom');
         const wrapper = el.parentElement;
         if (wrapper) {
           wrapper.style.height = wrapperOriginalHeight || '';
