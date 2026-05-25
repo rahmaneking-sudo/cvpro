@@ -70,17 +70,18 @@ const PreviewScaler = ({ children }) => {
   return (
     <div ref={containerRef} className="w-full flex justify-center print:!block print:!w-auto print:!m-0 print:!p-0">
       <div 
-        className="print:!h-auto print:!w-full print:!static"
+        className="print:!w-full print:!static print:!h-auto"
         style={{ 
           width: `${794 * scale}px`, 
           height: `${contentHeight * scale}px`,
-          position: 'relative'
+          position: 'relative',
+          '--print-scale': contentHeight > 1123 ? 1123 / contentHeight : 1
         }}
       >
         <div 
           id="cv-preview-container"
           ref={contentRef}
-          className="w-[794px] min-h-[1123px] bg-white shadow-cinematic print:shadow-none print:m-0 print:!h-auto origin-top-left"
+          className="w-[794px] min-h-[1123px] bg-white shadow-cinematic print:shadow-none print:m-0 origin-top-left"
           style={{
             transform: `scale(${scale})`,
             position: 'absolute',
@@ -333,189 +334,32 @@ export default function CVEditor() {
     }
   };
 
-  const handleExport = async () => {
-    if (hasPurchased) {
-      const element = document.getElementById('cv-preview-container');
-      if (!element) return;
-      
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-      let newWindow;
-      
-      if (isIOS) {
-        newWindow = window.open('', '_blank');
-        if (newWindow) {
-          newWindow.document.write('<div style="font-family:sans-serif;padding:20px;text-align:center;color:#666;margin-top:50px;">Génération du PDF en cours...<br/>Veuillez patienter.</div>');
-        }
-      }
-      
-      showToast('Préparation du PDF en cours...', 'success');
-      
-      document.body.classList.add('printing');
-      
-      try {
-        const canvas = await html2canvas(element, {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          width: 794,
-          windowWidth: 794,
-          backgroundColor: null,
-          onclone: (clonedDoc) => {
-            try {
-              const el = clonedDoc.getElementById('cv-preview-container');
-              if (el) {
-                const bgVal = template.bg || '#ffffff';
-                clonedDoc.body.style.background = bgVal;
-                clonedDoc.body.style.backgroundColor = bgVal;
-                clonedDoc.documentElement.style.background = bgVal;
-                clonedDoc.documentElement.style.backgroundColor = bgVal;
-
-                // Reset transform, scaling, and force auto height to allow full vertical render
-                el.style.transform = 'none';
-                el.style.position = 'static';
-                el.style.width = '794px';
-                el.style.height = 'auto';
-                el.style.minHeight = 'auto';
-                el.style.overflow = 'visible';
-
-                if (el.parentElement) {
-                  el.parentElement.style.width = '794px';
-                  el.parentElement.style.transform = 'none';
-                  el.parentElement.style.height = 'auto';
-                  el.parentElement.style.minHeight = 'auto';
-                  el.parentElement.style.position = 'static';
-                  el.parentElement.style.overflow = 'visible';
-                }
-
-                // Copy contents of all canvas elements
-                const originalCanvases = element.querySelectorAll('canvas');
-                const clonedCanvases = el.querySelectorAll('canvas');
-                originalCanvases.forEach((origCanvas, index) => {
-                  const clonedCanvas = clonedCanvases[index];
-                  if (clonedCanvas) {
-                    const ctx = clonedCanvas.getContext('2d');
-                    clonedCanvas.width = origCanvas.width;
-                    clonedCanvas.height = origCanvas.height;
-                    ctx.drawImage(origCanvas, 0, 0);
-                  }
-                });
-
-                // Force image colors (remove grayscale)
-                const images = el.getElementsByTagName('img');
-                for (let img of images) {
-                  if (img.classList && img.classList.remove) {
-                    img.classList.remove('grayscale');
-                  }
-                  if (img.style) {
-                    img.style.filter = 'none';
-                    img.style.webkitFilter = 'none';
-                  }
-                  if (img.setAttribute && !img.hasAttribute('crossOrigin')) {
-                    img.setAttribute('crossOrigin', 'anonymous');
-                  }
-                }
-              }
-            } catch (e) {
-              console.error('onclone error:', e);
-            }
-          }
-        });
-        
-        let imgData;
-        try {
-          imgData = canvas.toDataURL('image/jpeg', 0.98);
-        } catch (e) {
-          console.error('Canvas tainted or export failed:', e);
-          showToast('Impossible d\'exporter : Certaines images bloquent la génération PDF (Erreur CORS).', 'error');
-          if (isIOS && newWindow) newWindow.close();
-          return;
-        }
-
-        const hexToRgb = (hexStr) => {
-          const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-          const fullHex = hexStr.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
-          const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
-          return result ? {
-            r: parseInt(result[1], 16),
-            g: parseInt(result[2], 16),
-            b: parseInt(result[3], 16)
-          } : { r: 255, g: 255, b: 255 };
-        };
-
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
-        
-        const canvasWidth = canvas.width;
-        const canvasHeight = canvas.height;
-        let imgWidthInPdf = pdfWidth;
-        let imgHeightInPdf = (canvasHeight * pdfWidth) / canvasWidth;
-        
-        // --- NOUVELLE LOGIQUE : Forcer sur 1 seule page ---
-        // Si le contenu est plus long que la page A4, on le réduit proportionnellement
-        // pour qu'il tienne exactement sur une seule page.
-        if (imgHeightInPdf > pdfHeight) {
-          const scaleFactor = pdfHeight / imgHeightInPdf;
-          imgWidthInPdf = imgWidthInPdf * scaleFactor;
-          imgHeightInPdf = pdfHeight;
-        }
-
-        const xOffset = (pdfWidth - imgWidthInPdf) / 2;
-        
-        // Remplir le fond de la page
-        const bgRgb = hexToRgb(template.bg || '#ffffff');
-        pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
-        pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
-
-        // Ajouter l'image centrée
-        pdf.addImage(imgData, 'JPEG', xOffset, 0, imgWidthInPdf, imgHeightInPdf);
-        
-        const pdfBlob = pdf.output('blob');
-        const pdfUrl = URL.createObjectURL(pdfBlob);
-        
-        showToast('PDF généré avec succès !');
-        if (isIOS && newWindow) {
-          newWindow.location.href = pdfUrl;
-        } else {
-          const link = document.createElement('a');
-          link.href = pdfUrl;
-          link.download = `${cvData.fullName || 'CV'}.pdf`;
-          link.click();
-        }
-      } catch (err) {
-        console.error('PDF generation error:', err);
-        showToast('Erreur lors de la génération du PDF.', 'error');
-        if (isIOS && newWindow) newWindow.close();
-      } finally {
-        document.body.classList.remove('printing');
-      }
-    } else {
-      setShowPaymentModal(true);
-    }
-  };
-
-  const handleATSExport = () => {
+  const handleExport = () => {
     if (!hasPurchased) {
       setShowPaymentModal(true);
       return;
     }
-    setShowExportMenu(false);
-    showToast("Cochez 'Imprimer les arrière-plans' (ou 'Graphiques d'arrière-plan') !", 'success');
     
-    // On passe la couleur de fond dynamique au CSS via une variable
-    document.body.style.setProperty('--template-bg', template.bg || '#ffffff');
+    showToast("Assurez-vous d'activer les 'Couleurs d'arrière-plan' si demandé par votre téléphone !", 'success');
+    
     document.body.classList.add('printing-ats');
     
     const el = document.getElementById('cv-preview-container');
     if (el && el.parentElement) {
       el.parentElement.classList.add('ats-wrapper');
-      
-      // Check if it's a 1-page CV
-      const isOnePage = el.offsetHeight <= 1160;
-      if (isOnePage) {
-        document.body.classList.add('ats-one-page');
-      }
+      document.body.classList.add('ats-one-page');
     }
+
+    setTimeout(() => {
+      window.print();
+      
+      document.body.classList.remove('printing-ats');
+      document.body.classList.remove('ats-one-page');
+      if (el && el.parentElement) {
+        el.parentElement.classList.remove('ats-wrapper');
+      }
+    }, 500);
+  };
     
     const originalTitle = document.title;
     const originalUrl = window.location.href;
@@ -801,48 +645,15 @@ export default function CVEditor() {
             {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} 
             <span className="hidden sm:inline">{saving ? 'Sauvegarde...' : 'Sauvegarder'}</span>
           </button>
-          <div className="relative">
-            <button 
-              onClick={() => setShowExportMenu(!showExportMenu)}
-              disabled={saving || isLoadingCV || isCheckingPurchase}
-              className="btn-primary !py-2 !px-3 lg:!px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50"
-            >
-              {isCheckingPurchase ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} 
-              <span className="hidden sm:inline">Exporter PDF</span>
-              <ChevronDown size={14} className={`transition-transform ${showExportMenu ? 'rotate-180' : ''}`} />
-            </button>
-
-            {showExportMenu && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setShowExportMenu(false)} />
-                <div className="absolute right-0 mt-2 w-[280px] bg-[var(--color-obsidian)] border border-[rgba(255,255,255,0.1)] rounded-xl shadow-2xl z-50 overflow-hidden">
-                  <button 
-                    onClick={() => {
-                      setShowExportMenu(false);
-                      handleExport();
-                    }}
-                    className="w-full flex items-start gap-3 p-4 hover:bg-[rgba(255,255,255,0.05)] transition-colors text-left border-b border-[rgba(255,255,255,0.05)]"
-                  >
-                    <ImageIcon size={18} className="text-[var(--color-champagne)] mt-0.5 shrink-0" />
-                    <div>
-                      <div className="text-sm font-bold text-[var(--color-ivory)] mb-1">PDF Haute Fidélité</div>
-                      <div className="text-[10px] text-[var(--color-white-muted)] leading-relaxed">Design parfait 100% garanti. Idéal pour l'impression et l'envoi par e-mail.</div>
-                    </div>
-                  </button>
-                  <button 
-                    onClick={handleATSExport}
-                    className="w-full flex items-start gap-3 p-4 hover:bg-[rgba(255,255,255,0.05)] transition-colors text-left"
-                  >
-                    <FileText size={18} className="text-[var(--color-champagne)] mt-0.5 shrink-0" />
-                    <div>
-                      <div className="text-sm font-bold text-[var(--color-ivory)] mb-1">PDF pour Recruteur (ATS)</div>
-                      <div className="text-[10px] text-[var(--color-white-muted)] leading-relaxed">Texte sélectionnable. Optimisé pour les logiciels de tri de CV.</div>
-                    </div>
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
+          
+          <button 
+            onClick={handleExport}
+            disabled={saving || isLoadingCV || isCheckingPurchase}
+            className="btn-primary !py-2 !px-3 lg:!px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50"
+          >
+            {isCheckingPurchase ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} 
+            <span className="hidden sm:inline">Télécharger PDF</span>
+          </button>
         </div>
       </div>
 

@@ -510,18 +510,19 @@
     display: none !important;
   }
 
-  /* Reset the container to take exactly the printable space */
+  /* Force 1-page scaling */
   body.printing-ats #cv-preview-container {
-    width: 100% !important;
-    max-width: 100% !important;
+    width: 794px !important;
     height: auto !important;
-    min-height: 100vh !important;
-    margin: 0 !important;
+    min-height: 1123px !important;
+    margin: 0 auto !important;
     padding: 0 !important;
     position: relative !important;
     left: auto !important;
     top: auto !important;
-    transform: none !important;
+    /* Apply dynamic scale calculated by React to fit 1 page */
+    transform: scale(var(--print-scale, 1)) !important;
+    transform-origin: top center !important;
     zoom: 1 !important;
     box-shadow: none !important;
     border-radius: 0 !important;
@@ -530,16 +531,19 @@
   body.printing-ats .ats-wrapper {
     width: 100% !important;
     max-width: 100% !important;
-    height: auto !important;
+    height: 100vh !important;
+    overflow: hidden !important;
     margin: 0 !important;
     padding: 0 !important;
     background-color: var(--template-bg, #ffffff) !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
   }
 
-  /* Remove all forced height cutoffs to allow natural pagination */
   body.printing-ats.ats-one-page .ats-wrapper {
-    height: auto !important;
-    overflow: visible !important;
+    height: 100vh !important;
+    overflow: hidden !important;
   }
 }
 
