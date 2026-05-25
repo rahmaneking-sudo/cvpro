@@ -479,31 +479,47 @@ export default function CVEditor() {
     
     const el = document.getElementById('cv-preview-container');
     let originalTransform = '';
+    let originalTransformOrigin = '';
     
     if (el) {
       originalTransform = el.style.transform;
+      originalTransformOrigin = el.style.transformOrigin;
       
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-      // Pour iOS, la seule façon de réduire la hauteur pour éviter le débordement sur la page 2
-      // est d'augmenter légèrement la largeur. Safari réduira proportionnellement l'ensemble !
-      // 880px provoque une réduction d'environ 10%, faisant passer la hauteur de 1123px à ~1010px.
-      const printWidth = isIOS ? '880px' : '210mm';
+      const isOnePage = el.offsetHeight <= 1160;
       
-      el.style.setProperty('transform', 'none', 'important');
-      el.style.setProperty('width', printWidth, 'important');
-      el.style.setProperty('margin', '0', 'important');
+      if (isIOS && isOnePage) {
+        // Force le CV à tenir dans la hauteur imprimable de Safari iOS (~1040px)
+        // sans dépendre du paramètre "Mise à l'échelle" de l'utilisateur.
+        el.style.setProperty('transform', 'scale(0.925)', 'important');
+        el.style.setProperty('transform-origin', 'top center', 'important');
+      } else {
+        el.style.setProperty('transform', 'none', 'important');
+      }
+      
+      el.style.setProperty('width', '794px', 'important'); // Taille exacte A4
+      el.style.setProperty('margin', '0 auto', 'important');
+      el.style.setProperty('position', 'relative', 'important');
+      el.style.setProperty('left', 'auto', 'important');
+      el.style.setProperty('top', 'auto', 'important');
       
       const wrapper = el.parentElement;
       if (wrapper) {
         wrapper.dataset.originalWidth = wrapper.style.width;
         wrapper.dataset.originalMaxWidth = wrapper.style.maxWidth;
         wrapper.dataset.originalBg = wrapper.style.backgroundColor;
+        wrapper.dataset.originalHeight = wrapper.style.height || '';
         
-        wrapper.style.setProperty('width', printWidth, 'important');
+        wrapper.style.setProperty('width', '210mm', 'important');
         wrapper.style.setProperty('max-width', 'none', 'important');
         wrapper.style.setProperty('background-color', template.bg || '#ffffff', 'important');
         wrapper.style.setProperty('margin', '0 auto', 'important');
-        wrapper.style.setProperty('overflow', 'hidden', 'important');
+        
+        if (isIOS && isOnePage) {
+          // Bloquer la hauteur du conteneur parent pour empêcher Safari de créer la page 2
+          wrapper.style.setProperty('height', '1040px', 'important');
+          wrapper.style.setProperty('overflow', 'hidden', 'important');
+        }
       }
     }
 
@@ -524,14 +540,19 @@ export default function CVEditor() {
         
         if (el) {
           el.style.transform = originalTransform || '';
+          el.style.transformOrigin = originalTransformOrigin || 'top left';
           el.style.removeProperty('width');
           el.style.removeProperty('margin');
+          el.style.removeProperty('position');
+          el.style.removeProperty('left');
+          el.style.removeProperty('top');
           
           const wrapper = el.parentElement;
           if (wrapper) {
             wrapper.style.width = wrapper.dataset.originalWidth || '';
             wrapper.style.maxWidth = wrapper.dataset.originalMaxWidth || '';
             wrapper.style.backgroundColor = wrapper.dataset.originalBg || '';
+            wrapper.style.height = wrapper.dataset.originalHeight || '';
             wrapper.style.margin = '';
             wrapper.style.removeProperty('overflow');
           }
