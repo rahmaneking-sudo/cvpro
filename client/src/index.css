@@ -493,6 +493,11 @@
    ATS EXPORT - PURE CSS PRINTING LOGIC
    ======================================== */
 @media print {
+  @page {
+    margin: 0 !important;
+    size: auto;
+  }
+
   body.printing-ats {
     background-color: var(--template-bg, #ffffff) !important;
   }
@@ -505,29 +510,36 @@
     display: none !important;
   }
 
+  /* Reset the container to take exactly the printable space */
   body.printing-ats #cv-preview-container {
-    width: 210mm !important;
-    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
     position: relative !important;
     left: auto !important;
     top: auto !important;
-    /* Safari ignore souvent le transform en impression, on utilise zoom ! */
-    zoom: 0.93 !important;
-    -webkit-text-size-adjust: none !important;
-    text-size-adjust: none !important;
+    transform: none !important;
+    zoom: 1 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
   }
   
   body.printing-ats .ats-wrapper {
-    width: 210mm !important;
-    max-width: none !important;
-    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
     background-color: var(--template-bg, #ffffff) !important;
   }
 
+  /* Remove all forced height cutoffs to allow natural pagination */
   body.printing-ats.ats-one-page .ats-wrapper {
-    /* Safe printable height in Safari */
-    height: 1040px !important;
-    overflow: hidden !important;
+    height: auto !important;
+    overflow: visible !important;
   }
 }
 
