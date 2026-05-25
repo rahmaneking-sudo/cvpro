@@ -170,7 +170,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors }) 
   const { mutedColor, dividerColor } = colors;
 
   return (
-    <div className="flex min-h-[842px]">
+    <div className="flex min-h-[1123px]">
       <aside className="w-[32%] p-8 flex flex-col" style={{ background: secondary }}>
         <div className="w-24 h-24 rounded-full mb-6 mx-auto flex items-center justify-center text-2xl font-bold shadow-lg overflow-hidden relative"
           style={{ 
@@ -413,7 +413,7 @@ function LayoutAsymmetric({ template, cvData, experiences, educations, colors })
   const { mutedColor, dividerColor } = colors;
 
   return (
-    <div className="p-10 flex flex-col min-h-[842px]">
+    <div className="p-10 flex flex-col min-h-[1123px]">
       <header className="flex justify-between items-end mb-10 pb-6 border-b-2" style={{ borderColor: text }}>
         <div className="w-[60%]">
           <h1 className="text-5xl font-black uppercase leading-none tracking-tighter mb-2" style={{ color: text, fontFamily: "'Playfair Display', serif" }}>
@@ -610,7 +610,7 @@ function LayoutMediaKit({ template, cvData, colors, onPhotoUpload, onPhotoRemove
   const { mutedColor, dividerColor } = colors;
 
   return (
-    <div className="flex flex-col min-h-[842px]" style={{ background: bg, color: text }}>
+    <div className="flex flex-col min-h-[1123px]" style={{ background: bg, color: text }}>
       <header className="p-10 pb-6 flex items-center justify-between" style={{ background: secondary }}>
         <div className="flex-1">
           <h1 className="text-5xl font-black uppercase tracking-tighter mb-2" style={{ color: text }}>
