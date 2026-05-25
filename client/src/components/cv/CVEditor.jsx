@@ -484,9 +484,11 @@ export default function CVEditor() {
     if (el) {
       const H = el.offsetHeight;
       const wrapper = el.parentElement;
-      // 1100px is safely less than A4 height (297mm) to guarantee no page spill
-      if (H > 1100) {
-        const scale = 1100 / H;
+      // Only scale down if the content actively overflows A4 height (1123px) by a margin
+      // CVs that are exactly A4 height (1123px) should NOT be scaled, otherwise they leave a white strip at the bottom.
+      if (H > 1125) {
+        // We scale to 1122px (exact A4 height minus 1px) to prevent multi-page spill
+        const scale = 1122 / H;
         originalTransform = el.style.transform;
         
         // Safari iOS print completely ignores CSS transforms (scale) AND zoom!
@@ -528,6 +530,8 @@ export default function CVEditor() {
     }
 
     document.body.classList.add('printing');
+    // Force body background to match CV background, so any microscopic gaps at the bottom of the page blend in perfectly
+    document.body.style.setProperty('background-color', template.bg || '#ffffff', 'important');
     
     // Clean up title and URL to prevent messy browser headers/footers in Safari iOS print
     const originalTitle = document.title;
@@ -557,6 +561,7 @@ export default function CVEditor() {
           wrapper.style.backgroundColor = wrapper.dataset.originalBg || '';
         }
       }
+      document.body.style.removeProperty('background-color');
       document.body.classList.remove('printing');
       window.removeEventListener('afterprint', revert);
     };
