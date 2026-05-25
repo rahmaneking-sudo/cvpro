@@ -27,18 +27,43 @@ const PreviewScaler = ({ children }) => {
   const [contentHeight, setContentHeight] = React.useState(1123);
 
   React.useEffect(() => {
+    // 1. Observer pour la largeur (responsive scale)
     const observer = new ResizeObserver(() => {
       if (containerRef.current) {
         const availableWidth = containerRef.current.clientWidth;
-        // 794px = 210mm at 96dpi. Max scale is 1.
         setScale(Math.min(1, availableWidth / 794));
       }
       if (contentRef.current) {
-        setContentHeight(contentRef.current.offsetHeight);
+        setContentHeight(Math.max(1123, contentRef.current.offsetHeight));
       }
     });
+
     if (containerRef.current) observer.observe(containerRef.current);
     if (contentRef.current) observer.observe(contentRef.current);
+
+    // 2. Fix absolu pour le bug de "superposition" sur Safari iOS (First Load)
+    // Safari ne recalcule pas correctement les flexbox dans un conteneur "absolu + scale"
+    // lorsque les polices personnalisées ont fini de charger. On force le reflow !
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        if (contentRef.current) {
+          // Force un recalcul complet du layout CSS
+          contentRef.current.style.display = 'none';
+          void contentRef.current.offsetHeight; // Trigger reflow
+          contentRef.current.style.display = '';
+          setContentHeight(Math.max(1123, contentRef.current.offsetHeight));
+        }
+      });
+    }
+
+    // 3. Fix pour les images qui chargent asynchrone
+    const imgs = document.querySelectorAll('#cv-preview-container img');
+    imgs.forEach(img => {
+      img.addEventListener('load', () => {
+        if (contentRef.current) setContentHeight(Math.max(1123, contentRef.current.offsetHeight));
+      });
+    });
+
     return () => observer.disconnect();
   }, []);
 
@@ -55,14 +80,14 @@ const PreviewScaler = ({ children }) => {
         <div 
           id="cv-preview-container"
           ref={contentRef}
-          className="shadow-[var(--shadow-cinematic)] rounded-lg overflow-hidden print:!transform-none print:!w-[210mm] print:!static print:!shadow-none print:!rounded-none"
-          style={{ 
-            width: '794px', 
-            transform: `scale(${scale})`, 
-            transformOrigin: 'top left',
+          className="w-[794px] min-h-[1123px] bg-white shadow-cinematic print:shadow-none print:m-0 print:!h-auto origin-top-left"
+          style={{
+            transform: `scale(${scale})`,
             position: 'absolute',
             top: 0,
-            left: 0
+            left: 0,
+            WebkitTextSizeAdjust: 'none',
+            textSizeAdjust: 'none'
           }}
         >
           {children}
