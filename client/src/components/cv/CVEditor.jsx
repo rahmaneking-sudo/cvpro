@@ -477,54 +477,20 @@ export default function CVEditor() {
     setShowExportMenu(false);
     showToast("Cochez 'Imprimer les arrière-plans' (ou 'Graphiques d'arrière-plan') !", 'success');
     
-    const el = document.getElementById('cv-preview-container');
-    let originalTransform = '';
-    let originalTransformOrigin = '';
+    // On passe la couleur de fond dynamique au CSS via une variable
+    document.body.style.setProperty('--template-bg', template.bg || '#ffffff');
+    document.body.classList.add('printing-ats');
     
-    if (el) {
-      originalTransform = el.style.transform;
-      originalTransformOrigin = el.style.transformOrigin;
+    const el = document.getElementById('cv-preview-container');
+    if (el && el.parentElement) {
+      el.parentElement.classList.add('ats-wrapper');
       
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      // Check if it's a 1-page CV
       const isOnePage = el.offsetHeight <= 1160;
-      
-      if (isIOS && isOnePage) {
-        // Force le CV à tenir dans la hauteur imprimable de Safari iOS (~1040px)
-        // sans dépendre du paramètre "Mise à l'échelle" de l'utilisateur.
-        el.style.setProperty('transform', 'scale(0.925)', 'important');
-        el.style.setProperty('transform-origin', 'top center', 'important');
-      } else {
-        el.style.setProperty('transform', 'none', 'important');
-      }
-      
-      el.style.setProperty('width', '794px', 'important'); // Taille exacte A4
-      el.style.setProperty('margin', '0 auto', 'important');
-      el.style.setProperty('position', 'relative', 'important');
-      el.style.setProperty('left', 'auto', 'important');
-      el.style.setProperty('top', 'auto', 'important');
-      
-      const wrapper = el.parentElement;
-      if (wrapper) {
-        wrapper.dataset.originalWidth = wrapper.style.width;
-        wrapper.dataset.originalMaxWidth = wrapper.style.maxWidth;
-        wrapper.dataset.originalBg = wrapper.style.backgroundColor;
-        wrapper.dataset.originalHeight = wrapper.style.height || '';
-        
-        wrapper.style.setProperty('width', '210mm', 'important');
-        wrapper.style.setProperty('max-width', 'none', 'important');
-        wrapper.style.setProperty('background-color', template.bg || '#ffffff', 'important');
-        wrapper.style.setProperty('margin', '0 auto', 'important');
-        
-        if (isIOS && isOnePage) {
-          // Bloquer la hauteur du conteneur parent pour empêcher Safari de créer la page 2
-          wrapper.style.setProperty('height', '1040px', 'important');
-          wrapper.style.setProperty('overflow', 'hidden', 'important');
-        }
+      if (isOnePage) {
+        document.body.classList.add('ats-one-page');
       }
     }
-
-    document.body.classList.add('printing');
-    document.body.style.setProperty('background-color', template.bg || '#ffffff', 'important');
     
     const originalTitle = document.title;
     const originalUrl = window.location.href;
@@ -537,33 +503,19 @@ export default function CVEditor() {
       const revert = () => {
         document.title = originalTitle;
         window.history.replaceState({}, '', originalUrl);
-        
-        if (el) {
-          el.style.transform = originalTransform || '';
-          el.style.transformOrigin = originalTransformOrigin || 'top left';
-          el.style.removeProperty('width');
-          el.style.removeProperty('margin');
-          el.style.removeProperty('position');
-          el.style.removeProperty('left');
-          el.style.removeProperty('top');
-          
-          const wrapper = el.parentElement;
-          if (wrapper) {
-            wrapper.style.width = wrapper.dataset.originalWidth || '';
-            wrapper.style.maxWidth = wrapper.dataset.originalMaxWidth || '';
-            wrapper.style.backgroundColor = wrapper.dataset.originalBg || '';
-            wrapper.style.height = wrapper.dataset.originalHeight || '';
-            wrapper.style.margin = '';
-            wrapper.style.removeProperty('overflow');
-          }
+        document.body.classList.remove('printing-ats', 'ats-one-page');
+        document.body.style.removeProperty('--template-bg');
+        if (el && el.parentElement) {
+          el.parentElement.classList.remove('ats-wrapper');
         }
-        document.body.style.removeProperty('background-color');
-        document.body.classList.remove('printing');
         window.removeEventListener('afterprint', revert);
       };
 
+      // Se déclenche dès que la boîte de dialogue d'impression se ferme (ou est annulée)
       window.addEventListener('afterprint', revert);
-      setTimeout(revert, 5000);
+      
+      // Fallback de sécurité long (5 minutes) pour ne pas interrompre l'utilisateur
+      setTimeout(revert, 300000);
     }, 150);
   };
 
