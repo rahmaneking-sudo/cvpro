@@ -493,12 +493,10 @@
    ATS EXPORT - PURE CSS PRINTING LOGIC
    ======================================== */
 @media print {
-  /* When ATS export is triggered */
   body.printing-ats {
     background-color: var(--template-bg, #ffffff) !important;
   }
   
-  /* Hide UI elements */
   body.printing-ats header,
   body.printing-ats footer,
   body.printing-ats .no-print,
@@ -507,19 +505,18 @@
     display: none !important;
   }
 
-  /* Force the A4 width and scale it slightly to fit iOS printable height */
   body.printing-ats #cv-preview-container {
-    width: 794px !important;
+    width: 210mm !important;
     margin: 0 auto !important;
     position: relative !important;
     left: auto !important;
     top: auto !important;
-    /* Scale content down slightly to guarantee 1-page fit on iOS */
-    transform: scale(0.925) !important;
-    transform-origin: top center !important;
+    /* Safari ignore souvent le transform en impression, on utilise zoom ! */
+    zoom: 0.93 !important;
+    -webkit-text-size-adjust: none !important;
+    text-size-adjust: none !important;
   }
   
-  /* Wrapper acts as the physical 1-page boundary */
   body.printing-ats .ats-wrapper {
     width: 210mm !important;
     max-width: none !important;
@@ -527,9 +524,16 @@
     background-color: var(--template-bg, #ffffff) !important;
   }
 
-  /* Only crop the height if it's naturally a 1-page CV */
   body.printing-ats.ats-one-page .ats-wrapper {
+    /* Safe printable height in Safari */
     height: 1040px !important;
     overflow: hidden !important;
   }
+}
+
+/* Force Safari to NEVER auto-resize text (prevents superposition bugs on load) */
+#cv-preview-container, 
+#cv-preview-container * {
+  -webkit-text-size-adjust: none !important;
+  text-size-adjust: none !important;
 }
