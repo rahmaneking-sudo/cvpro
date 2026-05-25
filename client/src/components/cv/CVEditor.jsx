@@ -477,6 +477,8 @@ export default function CVEditor() {
     
     const el = document.getElementById('cv-preview-container');
     let originalTransform = '';
+    let wrapperOriginalWidth = '';
+    let wrapperOriginalMaxWidth = '';
     let wrapperOriginalHeight = '';
     
     if (el) {
@@ -487,27 +489,40 @@ export default function CVEditor() {
         const scale = 1100 / H;
         originalTransform = el.style.transform;
         
-        // Safari iOS print completely ignores CSS transforms (scale) but respects zoom!
-        // Firefox doesn't support zoom, so we fallback to transform for it.
+        // Safari iOS print completely ignores CSS transforms (scale) AND zoom!
+        // The ONLY way to force it to shrink vertically on iOS is to make the container physically wider horizontally,
+        // so Safari's native "fit to paper width" scales down the entire page proportionately!
         const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
         
         if (!isFirefox) {
-          el.style.setProperty('zoom', scale, 'important');
+          const virtualWidth = 794 / scale;
           el.style.setProperty('transform', 'none', 'important');
+          el.style.setProperty('margin', '0 auto', 'important');
+          
+          if (wrapper) {
+            wrapperOriginalWidth = wrapper.style.width;
+            wrapperOriginalMaxWidth = wrapper.style.maxWidth;
+            wrapper.dataset.originalBg = wrapper.style.backgroundColor;
+            
+            wrapper.style.setProperty('width', `${virtualWidth}px`, 'important');
+            wrapper.style.setProperty('max-width', `${virtualWidth}px`, 'important');
+            wrapper.style.setProperty('background-color', template.bg || '#ffffff', 'important');
+            wrapper.style.setProperty('overflow', 'hidden', 'important');
+            wrapper.style.setProperty('height', `${H}px`, 'important'); // Let it keep full height, Safari will shrink it
+          }
         } else {
           el.style.setProperty('transform', `scale(${scale})`, 'important');
           el.style.setProperty('transform-origin', 'top center', 'important');
           el.style.setProperty('margin-bottom', `-${H - 1100}px`, 'important');
-        }
-        
-        // Also force the wrapper height and background color so it doesn't trigger a new page and hides side margins
-        if (wrapper) {
-          wrapperOriginalHeight = wrapper.style.height;
-          wrapper.dataset.originalBg = wrapper.style.backgroundColor;
           
-          wrapper.style.setProperty('height', '1100px', 'important');
-          wrapper.style.setProperty('overflow', 'hidden', 'important');
-          wrapper.style.setProperty('background-color', template.bg || '#ffffff', 'important');
+          if (wrapper) {
+            wrapperOriginalHeight = wrapper.style.height;
+            wrapper.dataset.originalBg = wrapper.style.backgroundColor;
+            
+            wrapper.style.setProperty('height', '1100px', 'important');
+            wrapper.style.setProperty('overflow', 'hidden', 'important');
+            wrapper.style.setProperty('background-color', template.bg || '#ffffff', 'important');
+          }
         }
       }
     }
@@ -522,10 +537,12 @@ export default function CVEditor() {
       if (el) {
         el.style.transform = originalTransform || '';
         el.style.transformOrigin = 'top left';
-        el.style.removeProperty('zoom');
+        el.style.removeProperty('margin');
         el.style.removeProperty('margin-bottom');
         const wrapper = el.parentElement;
         if (wrapper) {
+          wrapper.style.width = wrapperOriginalWidth || '';
+          wrapper.style.maxWidth = wrapperOriginalMaxWidth || '';
           wrapper.style.height = wrapperOriginalHeight || '';
           wrapper.style.overflow = 'visible';
           wrapper.style.backgroundColor = wrapper.dataset.originalBg || '';
