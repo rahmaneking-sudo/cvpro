@@ -9,6 +9,8 @@ import PaymentModal from '../shared/PaymentModal';
 import api from '../../services/api';
 import { uploadFile } from '../../services/cloudinaryUpload';
 import { Country, State, City } from 'country-state-city';
+import html2canvas from 'html2canvas-pro';
+import { jsPDF } from 'jspdf';
 import CoverLetterPreview from './CoverLetterPreview';
 
 const PreviewScaler = ({ children }) => {
@@ -331,50 +333,165 @@ export default function CVEditor() {
     }
   };
 
-  const handleExport = () => {
-    if (!hasPurchased) {
-      setShowPaymentModal(true);
-      return;
-    }
-    setShowExportMenu(false);
-    showToast("Pour un rendu optimal, assurez-vous d'activer les 'Couleurs d'arrière-plan' dans les options d'impression !", 'success');
-    
-    // On passe la couleur de fond dynamique au CSS via une variable
-    document.body.style.setProperty('--template-bg', template.bg || '#ffffff');
-    document.body.classList.add('printing-ats');
-    
-    const el = document.getElementById('cv-preview-container');
-    if (el && el.parentElement) {
-      el.parentElement.classList.add('ats-wrapper');
+  const handleExport = async () => {
+    if (hasPurchased) {
+      const element = document.getElementById('cv-preview-container');
+      if (!element) return;
       
-      // Toujours forcer une seule page (demande utilisateur)
-      document.body.classList.add('ats-one-page');
-    }
-    
-    const originalTitle = document.title;
-    const originalUrl = window.location.href;
-    document.title = cvData.fullName ? `CV_${cvData.fullName.replace(/\s+/g, '_')}` : 'CV';
-    window.history.replaceState({}, '', '/cv');
-    
-    setTimeout(() => {
-      window.print();
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      let newWindow;
       
-      const revert = () => {
-        document.title = originalTitle;
-        window.history.replaceState({}, '', originalUrl);
-        document.body.classList.remove('printing-ats', 'ats-one-page');
-        document.body.style.removeProperty('--template-bg');
-        if (el && el.parentElement) {
-          el.parentElement.classList.remove('ats-wrapper');
+      if (isIOS) {
+        newWindow = window.open('', '_blank');
+        if (newWindow) {
+          newWindow.document.write('<div style="font-family:sans-serif;padding:20px;text-align:center;color:#666;margin-top:50px;">Génération du PDF en cours...<br/>Veuillez patienter.</div>');
         }
-        window.removeEventListener('afterprint', revert);
-      };
-
-      window.addEventListener('afterprint', revert);
+      }
       
-      // Fallback de sécurité long (5 minutes) pour ne pas interrompre l'utilisateur
-      setTimeout(revert, 300000);
-    }, 150);
+      showToast('Préparation du PDF en cours...', 'success');
+      
+      document.body.classList.add('printing');
+      
+      try {
+        const canvas = await html2canvas(element, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          width: 794,
+          windowWidth: 794,
+          backgroundColor: null,
+          onclone: (clonedDoc) => {
+            try {
+              const el = clonedDoc.getElementById('cv-preview-container');
+              if (el) {
+                const bgVal = template.bg || '#ffffff';
+                clonedDoc.body.style.background = bgVal;
+                clonedDoc.body.style.backgroundColor = bgVal;
+                clonedDoc.documentElement.style.background = bgVal;
+                clonedDoc.documentElement.style.backgroundColor = bgVal;
+
+                // Reset transform, scaling, and force auto height to allow full vertical render
+                el.style.transform = 'none';
+                el.style.position = 'static';
+                el.style.width = '794px';
+                el.style.height = 'auto';
+                el.style.minHeight = 'auto';
+                el.style.overflow = 'visible';
+
+                if (el.parentElement) {
+                  el.parentElement.style.width = '794px';
+                  el.parentElement.style.transform = 'none';
+                  el.parentElement.style.height = 'auto';
+                  el.parentElement.style.minHeight = 'auto';
+                  el.parentElement.style.position = 'static';
+                  el.parentElement.style.overflow = 'visible';
+                }
+
+                // Copy contents of all canvas elements
+                const originalCanvases = element.querySelectorAll('canvas');
+                const clonedCanvases = el.querySelectorAll('canvas');
+                originalCanvases.forEach((origCanvas, index) => {
+                  const clonedCanvas = clonedCanvases[index];
+                  if (clonedCanvas) {
+                    const ctx = clonedCanvas.getContext('2d');
+                    clonedCanvas.width = origCanvas.width;
+                    clonedCanvas.height = origCanvas.height;
+                    ctx.drawImage(origCanvas, 0, 0);
+                  }
+                });
+
+                // Force image colors (remove grayscale)
+                const images = el.getElementsByTagName('img');
+                for (let img of images) {
+                  if (img.classList && img.classList.remove) {
+                    img.classList.remove('grayscale');
+                  }
+                  if (img.style) {
+                    img.style.filter = 'none';
+                    img.style.webkitFilter = 'none';
+                  }
+                  if (img.setAttribute && !img.hasAttribute('crossOrigin')) {
+                    img.setAttribute('crossOrigin', 'anonymous');
+                  }
+                }
+              }
+            } catch (e) {
+              console.error('onclone error:', e);
+            }
+          }
+        });
+        
+        let imgData;
+        try {
+          imgData = canvas.toDataURL('image/jpeg', 0.98);
+        } catch (e) {
+          console.error('Canvas tainted or export failed:', e);
+          showToast('Impossible d\'exporter : Certaines images bloquent la génération PDF (Erreur CORS).', 'error');
+          if (isIOS && newWindow) newWindow.close();
+          return;
+        }
+
+        const hexToRgb = (hexStr) => {
+          const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+          const fullHex = hexStr.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
+          const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
+          return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+          } : { r: 255, g: 255, b: 255 };
+        };
+
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
+        
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        let imgWidthInPdf = pdfWidth;
+        let imgHeightInPdf = (canvasHeight * pdfWidth) / canvasWidth;
+        
+        // --- NOUVELLE LOGIQUE : Forcer sur 1 seule page ---
+        // Si le contenu est plus long que la page A4, on le réduit proportionnellement
+        // pour qu'il tienne exactement sur une seule page.
+        if (imgHeightInPdf > pdfHeight) {
+          const scaleFactor = pdfHeight / imgHeightInPdf;
+          imgWidthInPdf = imgWidthInPdf * scaleFactor;
+          imgHeightInPdf = pdfHeight;
+        }
+
+        const xOffset = (pdfWidth - imgWidthInPdf) / 2;
+        
+        // Remplir le fond de la page
+        const bgRgb = hexToRgb(template.bg || '#ffffff');
+        pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
+        pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
+
+        // Ajouter l'image centrée
+        pdf.addImage(imgData, 'JPEG', xOffset, 0, imgWidthInPdf, imgHeightInPdf);
+        
+        const pdfBlob = pdf.output('blob');
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        
+        showToast('PDF généré avec succès !');
+        if (isIOS && newWindow) {
+          newWindow.location.href = pdfUrl;
+        } else {
+          const link = document.createElement('a');
+          link.href = pdfUrl;
+          link.download = `${cvData.fullName || 'CV'}.pdf`;
+          link.click();
+        }
+      } catch (err) {
+        console.error('PDF generation error:', err);
+        showToast('Erreur lors de la génération du PDF.', 'error');
+        if (isIOS && newWindow) newWindow.close();
+      } finally {
+        document.body.classList.remove('printing');
+      }
+    } else {
+      setShowPaymentModal(true);
+    }
   };
 
 
