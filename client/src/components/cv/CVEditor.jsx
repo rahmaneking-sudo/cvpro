@@ -814,9 +814,9 @@ export default function CVEditor() {
       </div>
 
       {/* Editor area */}
-      <div className="flex flex-col lg:flex-row flex-1 overflow-hidden print:overflow-visible print:block print:h-auto">
+      <div className="flex flex-col lg:flex-row flex-1 lg:overflow-hidden print:overflow-visible print:block print:h-auto">
         {/* LEFT — Form */}
-        <div className="w-full lg:w-[45%] overflow-y-auto p-4 lg:p-6 space-y-6 lg:space-y-8 border-b lg:border-b-0 lg:border-r border-[rgba(255,255,255,0.06)] print:hidden">
+        <div className="w-full lg:w-[45%] lg:overflow-y-auto p-4 lg:p-6 space-y-6 lg:space-y-8 border-b lg:border-b-0 lg:border-r border-[rgba(255,255,255,0.06)] print:hidden">
           {/* AI Import Box */}
           <section className="relative overflow-hidden rounded-2xl border border-[rgba(201,169,110,0.3)] bg-gradient-to-br from-[rgba(201,169,110,0.05)] to-transparent p-6 group cursor-pointer transition-colors hover:border-[var(--color-champagne)]">
             <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-champagne)] opacity-5 blur-[60px] rounded-full group-hover:opacity-10 transition-opacity" />
@@ -1346,7 +1346,7 @@ export default function CVEditor() {
         </div>
 
         {/* RIGHT — Live Preview */}
-        <div className="flex-1 overflow-y-auto bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:relative print:z-10">
+        <div className="flex-1 lg:overflow-y-auto bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:relative print:z-10">
           <div className="w-full max-w-[100%] lg:max-w-[794px] print:max-w-none print:w-full print:mx-auto print:overflow-visible">
             <PreviewScaler>
               {isCoverLetter ? (
