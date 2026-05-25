@@ -318,6 +318,7 @@ export default function CVEditor() {
       
       showToast('Préparation du PDF en cours...', 'success');
       
+      document.body.classList.add('printing');
       const originalTransform = element.style.transform;
       // Remove inline transform temporarily so html2canvas measures the full 794px box
       element.style.transform = 'none';
@@ -459,6 +460,7 @@ export default function CVEditor() {
       } finally {
         // Restore the original transform (scale) for the live preview
         element.style.transform = originalTransform;
+        document.body.classList.remove('printing');
       }
     } else {
       setShowPaymentModal(true);
@@ -485,10 +487,18 @@ export default function CVEditor() {
         const scale = 1100 / H;
         originalTransform = el.style.transform;
         
-        // Override with !important to bypass Tailwind's print:!transform-none
-        el.style.setProperty('transform', `scale(${scale})`, 'important');
-        el.style.setProperty('transform-origin', 'top center', 'important');
-        el.style.setProperty('margin-bottom', `-${H - 1100}px`, 'important');
+        // Safari iOS print completely ignores CSS transforms (scale) but respects zoom!
+        // Firefox doesn't support zoom, so we fallback to transform for it.
+        const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+        
+        if (!isFirefox) {
+          el.style.setProperty('zoom', scale, 'important');
+          el.style.setProperty('transform', 'none', 'important');
+        } else {
+          el.style.setProperty('transform', `scale(${scale})`, 'important');
+          el.style.setProperty('transform-origin', 'top center', 'important');
+          el.style.setProperty('margin-bottom', `-${H - 1100}px`, 'important');
+        }
         
         // Also force the wrapper height and background color so it doesn't trigger a new page and hides side margins
         if (wrapper) {
@@ -502,6 +512,8 @@ export default function CVEditor() {
       }
     }
 
+    document.body.classList.add('printing');
+    
     // Call print immediately to avoid browser popup blockers ("impression automatique n'est pas autorisée")
     window.print();
     
@@ -510,6 +522,7 @@ export default function CVEditor() {
       if (el) {
         el.style.transform = originalTransform || '';
         el.style.transformOrigin = 'top left';
+        el.style.removeProperty('zoom');
         el.style.removeProperty('margin-bottom');
         const wrapper = el.parentElement;
         if (wrapper) {
@@ -518,6 +531,7 @@ export default function CVEditor() {
           wrapper.style.backgroundColor = wrapper.dataset.originalBg || '';
         }
       }
+      document.body.classList.remove('printing');
       window.removeEventListener('afterprint', revert);
     };
 

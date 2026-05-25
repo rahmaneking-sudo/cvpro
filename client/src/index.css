@@ -384,29 +384,28 @@
    RESPONSIVE
    ======================================== */
 
-@media (max-width: 768px) {
+@media screen and (max-width: 768px) {
   :root {
     --spacing-section: 60px;
     --spacing-card: 20px;
   }
 
-  h1 { font-size: 2.2rem !important; }
-  h2 { font-size: 1.6rem !important; }
+  /* Only apply typography overrides to UI elements, not the CV preview which needs absolute fidelity */
+  body:not(.printing) header h1, body:not(.printing) .glass-card h1 { font-size: 2.2rem !important; }
+  body:not(.printing) header h2, body:not(.printing) .glass-card h2 { font-size: 1.6rem !important; }
 
   .cursor-dot, .cursor-ring {
     display: none;
   }
 
-  /* Prevent any horizontal overflow on mobile */
+  /* Prevent any horizontal overflow on mobile - only for UI */
   .glass-card,
-  section,
-  form,
-  [class*="grid"] {
+  form {
     max-width: 100%;
     overflow-x: hidden;
   }
 
-  /* Force text to wrap and not overflow */
+  /* Force text to wrap and not overflow - UI only */
   input,
   select,
   textarea {
@@ -426,18 +425,12 @@
     padding: 10px 20px;
     font-size: 0.85rem;
   }
-
-  /* Ensure word-break on long text */
-  p, span, div, label, td, th {
-    word-break: break-word;
-    overflow-wrap: break-word;
-  }
 }
 
-@media (max-width: 480px) {
-  h1 { font-size: 1.6rem !important; }
-  h2 { font-size: 1.3rem !important; }
-  h3 { font-size: 1.05rem !important; }
+@media screen and (max-width: 480px) {
+  body:not(.printing) header h1 { font-size: 1.6rem !important; }
+  body:not(.printing) header h2 { font-size: 1.3rem !important; }
+  body:not(.printing) header h3 { font-size: 1.05rem !important; }
 
   .btn-primary,
   .btn-ghost {
