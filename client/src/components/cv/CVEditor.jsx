@@ -473,9 +473,9 @@ export default function CVEditor() {
     if (el) {
       const H = el.offsetHeight;
       const wrapper = el.parentElement;
-      // 1115px is slightly less than A4 height (297mm) to guarantee no page spill
-      if (H > 1115) {
-        const scale = 1115 / H;
+      // 1100px is safely less than A4 height (297mm) to guarantee no page spill
+      if (H > 1100) {
+        const scale = 1100 / H;
         originalTransform = el.style.transform;
         
         // Override with !important to bypass Tailwind's print:!transform-none
@@ -487,17 +487,18 @@ export default function CVEditor() {
           wrapperOriginalHeight = wrapper.style.height;
           wrapper.dataset.originalBg = wrapper.style.backgroundColor;
           
-          wrapper.style.setProperty('height', '1115px', 'important');
+          wrapper.style.setProperty('height', '1100px', 'important');
           wrapper.style.setProperty('overflow', 'hidden', 'important');
           wrapper.style.setProperty('background-color', template.bg || '#ffffff', 'important');
         }
       }
     }
 
-    setTimeout(() => {
-      window.print();
-      
-      // Revert after print dialog closes
+    // Call print immediately to avoid browser popup blockers ("impression automatique n'est pas autorisée")
+    window.print();
+    
+    // Revert after print dialog closes
+    const revert = () => {
       if (el) {
         el.style.transform = originalTransform || '';
         el.style.transformOrigin = 'top left';
@@ -508,7 +509,12 @@ export default function CVEditor() {
           wrapper.style.backgroundColor = wrapper.dataset.originalBg || '';
         }
       }
-    }, 2000);
+      window.removeEventListener('afterprint', revert);
+    };
+
+    window.addEventListener('afterprint', revert);
+    // Fallback for browsers that don't reliably fire afterprint (like some mobile browsers)
+    setTimeout(revert, 3000);
   };
 
 
