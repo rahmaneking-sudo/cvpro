@@ -9,8 +9,6 @@ import PaymentModal from '../shared/PaymentModal';
 import api from '../../services/api';
 import { uploadFile } from '../../services/cloudinaryUpload';
 import { Country, State, City } from 'country-state-city';
-import html2canvas from 'html2canvas-pro';
-import { jsPDF } from 'jspdf';
 import CoverLetterPreview from './CoverLetterPreview';
 
 const PreviewScaler = ({ children }) => {
@@ -70,18 +68,17 @@ const PreviewScaler = ({ children }) => {
   return (
     <div ref={containerRef} className="w-full flex justify-center print:!block print:!w-auto print:!m-0 print:!p-0">
       <div 
-        className="print:!w-full print:!static print:!h-auto"
+        className="print:!h-auto print:!w-full print:!static"
         style={{ 
           width: `${794 * scale}px`, 
           height: `${contentHeight * scale}px`,
-          position: 'relative',
-          '--print-scale': contentHeight > 1123 ? 1123 / contentHeight : 1
+          position: 'relative'
         }}
       >
         <div 
           id="cv-preview-container"
           ref={contentRef}
-          className="w-[794px] min-h-[1123px] bg-white shadow-cinematic print:shadow-none print:m-0 origin-top-left"
+          className="w-[794px] min-h-[1123px] bg-white shadow-cinematic print:shadow-none print:m-0 print:!h-auto origin-top-left"
           style={{
             transform: `scale(${scale})`,
             position: 'absolute',
@@ -339,27 +336,20 @@ export default function CVEditor() {
       setShowPaymentModal(true);
       return;
     }
+    setShowExportMenu(false);
+    showToast("Pour un rendu optimal, assurez-vous d'activer les 'Couleurs d'arrière-plan' dans les options d'impression !", 'success');
     
-    showToast("Assurez-vous d'activer les 'Couleurs d'arrière-plan' si demandé par votre téléphone !", 'success');
-    
+    // On passe la couleur de fond dynamique au CSS via une variable
+    document.body.style.setProperty('--template-bg', template.bg || '#ffffff');
     document.body.classList.add('printing-ats');
     
     const el = document.getElementById('cv-preview-container');
     if (el && el.parentElement) {
       el.parentElement.classList.add('ats-wrapper');
+      
+      // Toujours forcer une seule page (demande utilisateur)
       document.body.classList.add('ats-one-page');
     }
-
-    setTimeout(() => {
-      window.print();
-      
-      document.body.classList.remove('printing-ats');
-      document.body.classList.remove('ats-one-page');
-      if (el && el.parentElement) {
-        el.parentElement.classList.remove('ats-wrapper');
-      }
-    }, 500);
-  };
     
     const originalTitle = document.title;
     const originalUrl = window.location.href;
@@ -380,7 +370,6 @@ export default function CVEditor() {
         window.removeEventListener('afterprint', revert);
       };
 
-      // Se déclenche dès que la boîte de dialogue d'impression se ferme (ou est annulée)
       window.addEventListener('afterprint', revert);
       
       // Fallback de sécurité long (5 minutes) pour ne pas interrompre l'utilisateur
@@ -645,15 +634,16 @@ export default function CVEditor() {
             {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} 
             <span className="hidden sm:inline">{saving ? 'Sauvegarde...' : 'Sauvegarder'}</span>
           </button>
-          
-          <button 
-            onClick={handleExport}
-            disabled={saving || isLoadingCV || isCheckingPurchase}
-            className="btn-primary !py-2 !px-3 lg:!px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50"
-          >
-            {isCheckingPurchase ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} 
-            <span className="hidden sm:inline">Télécharger PDF</span>
-          </button>
+          <div className="relative">
+            <button 
+              onClick={handleExport}
+              disabled={saving || isLoadingCV || isCheckingPurchase}
+              className="btn-primary !py-2 !px-3 lg:!px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50"
+            >
+              {isCheckingPurchase ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} 
+              <span className="hidden sm:inline">Télécharger PDF</span>
+            </button>
+          </div>
         </div>
       </div>
 
