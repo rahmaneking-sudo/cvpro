@@ -325,6 +325,10 @@ export default function CVEditor() {
                 clonedDoc.documentElement.style.background = bgVal;
                 clonedDoc.documentElement.style.backgroundColor = bgVal;
 
+                el.style.opacity = '1';
+                el.style.position = 'static';
+                el.style.pointerEvents = 'auto';
+
                 const originalCanvases = element.querySelectorAll('canvas');
                 const clonedCanvases = el.querySelectorAll('canvas');
                 originalCanvases.forEach((origCanvas, index) => {
@@ -1231,7 +1235,7 @@ export default function CVEditor() {
         <div className="flex-1 lg:overflow-y-auto bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:relative print:z-10">
           
           {/* Hidden Export Container for flawless html2canvas rendering */}
-          <div style={{ position: 'fixed', top: '-9999px', left: '-9999px', zIndex: -1000 }}>
+          <div style={{ position: 'absolute', top: 0, left: 0, width: 0, height: 0, overflow: 'hidden', zIndex: -1000 }}>
             <div id="cv-export-container" style={{ width: '794px', backgroundColor: '#fff' }}>
               {isCoverLetter ? (
                 <CoverLetterPreview template={template} cvData={cvData} />

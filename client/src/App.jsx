@@ -65,7 +65,7 @@ export default function App() {
             <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
             <Route path="/dashboard/purchases" element={<PrivateRoute><MyPurchasesPage /></PrivateRoute>} />
             <Route path="/dashboard/cv/templates" element={<PrivateRoute><TemplateGalleryPage /></PrivateRoute>} />
-            <Route path="/dashboard/cv/editor" element={<PrivateRoute><CVEditorPage /></PrivateRoute>} />
+            <Route path="/dashboard/cv/editor" element={<CVEditorPage />} />
             <Route path="/dashboard/cv/enhance" element={<PrivateRoute><CVEnhancePage /></PrivateRoute>} />
             <Route path="/dashboard/cv/online" element={<PrivateRoute><CVOnlineQuotePage /></PrivateRoute>} />
             <Route path="/dashboard/portfolio/templates" element={<PrivateRoute><PortfolioGalleryPage /></PrivateRoute>} />
