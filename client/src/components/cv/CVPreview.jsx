@@ -170,8 +170,8 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors }) 
   const { mutedColor, dividerColor } = colors;
 
   return (
-    <div className="min-h-[1123px]" style={{ display: 'grid', gridTemplateColumns: '254px 540px' }}>
-      <aside className="p-8 flex flex-col" style={{ background: secondary, minWidth: 0 }}>
+    <div className="min-h-[1123px]" style={{ display: 'grid', gridTemplateColumns: '254px 540px', width: '794px' }}>
+      <aside className="p-8 flex flex-col" style={{ background: secondary, minWidth: '254px', maxWidth: '254px' }}>
         <div className="w-24 h-24 rounded-full mb-6 mx-auto flex items-center justify-center text-2xl font-bold shadow-lg overflow-hidden relative"
           style={{ 
             background: `linear-gradient(135deg, ${accent}, ${accent}80)`, 
@@ -235,7 +235,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors }) 
         )}
       </aside>
 
-      <main className="p-8" style={{ minWidth: 0 }}>
+      <main className="p-8" style={{ minWidth: '540px', maxWidth: '540px' }}>
         <header className="mb-8">
           <h1 className="text-3xl font-extrabold mb-1" style={{ color: text, fontFamily: "'Inter', sans-serif" }}>
             {cvData.fullName || 'Votre Nom'}
@@ -344,7 +344,7 @@ function LayoutGrid({ template, cvData, experiences, educations, colors }) {
         </section>
       )}
 
-      <div className="grid grid-cols-[1fr_250px] gap-8">
+      <div className="grid grid-cols-[1fr_250px] gap-8" style={{ minWidth: '794px' }}>
         <section>
           <h3 className="text-xs font-bold uppercase mb-4" style={{ color: text }}>&gt; Expériences</h3>
           <div className="relative border-l ml-2" style={{ borderColor: dividerColor }}>
@@ -383,7 +383,7 @@ function LayoutGrid({ template, cvData, experiences, educations, colors }) {
           </section>
         )}
 
-        <aside className="space-y-8">
+        <aside className="space-y-8" style={{ minWidth: '250px' }}>
           <section>
             <h3 className="text-xs font-bold uppercase mb-3" style={{ color: text }}>&gt; Stack Tech</h3>
             <div className="flex flex-wrap gap-1.5">
@@ -430,8 +430,8 @@ function LayoutAsymmetric({ template, cvData, experiences, educations, colors })
         </div>
       </header>
 
-      <div className="flex gap-10 flex-1">
-        <main className="flex-1">
+      <div className="flex gap-10 flex-1" style={{ width: '794px' }}>
+        <main style={{ minWidth: '476px', maxWidth: '476px', flexShrink: 0 }}>
           {cvData.summary && (
             <section className="mb-10">
               <h3 className="text-[9px] font-bold uppercase tracking-[0.3em] mb-4" style={{ color: accent }}>A propos</h3>
@@ -480,7 +480,7 @@ function LayoutAsymmetric({ template, cvData, experiences, educations, colors })
           )}
         </main>
 
-        <aside className="w-[200px] shrink-0 space-y-10">
+        <aside className="w-[200px] shrink-0 space-y-10" style={{ minWidth: '200px' }}>
           <section>
             <h3 className="text-[9px] font-bold uppercase tracking-[0.3em] mb-4" style={{ color: accent }}>Expertise</h3>
             <ul className="space-y-2">
