@@ -183,11 +183,11 @@ function PreviewModal({ template, onClose, onSelect, isLoggedIn }) {
         onClick={(e) => e.stopPropagation()}
         className="relative max-w-[680px] w-full max-h-[92vh] overflow-hidden rounded-2xl shadow-[0_0_100px_rgba(201,169,110,0.12)]"
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-[var(--color-charcoal)] border-b border-[rgba(255,255,255,0.06)]">
+        <div className="sticky top-0 z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-[var(--color-charcoal)] border-b border-[rgba(255,255,255,0.06)]">
           <div className="flex items-center gap-3">
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-bold text-[var(--color-ivory)]" style={{ fontFamily: 'var(--font-serif)' }}>{template.name}</h3>
+                <h3 className="text-base sm:text-lg font-bold text-[var(--color-ivory)]" style={{ fontFamily: 'var(--font-serif)' }}>{template.name}</h3>
                 {isPremium && (
                   <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase" style={{ background: `${tierInfo.color}20`, color: tierInfo.color }}>
                     {tierInfo.fr}
@@ -197,12 +197,12 @@ function PreviewModal({ template, onClose, onSelect, isLoggedIn }) {
               <p className="text-xs text-[var(--color-white-muted)]">{seriesLabels[template.series]?.fr}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <button onClick={() => onSelect(template.id)} className="btn-primary !py-2.5 !px-6 !text-sm flex items-center gap-2">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <button onClick={() => onSelect(template.id)} className="btn-primary !py-2 sm:!py-2.5 !px-4 sm:!px-6 !text-xs sm:!text-sm flex items-center gap-2 flex-1 sm:flex-none justify-center">
               {isPremium && <Lock size={12} />}
               {isLoggedIn ? 'Utiliser ce modèle' : 'Créer mon CV'} <ArrowRight size={14} />
             </button>
-            <button onClick={onClose} className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-[var(--color-white-muted)]">
+            <button onClick={onClose} className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-[var(--color-white-muted)] shrink-0">
               <X size={18} />
             </button>
           </div>
@@ -339,18 +339,18 @@ export default function TemplateGallery() {
         <AnimatePresence>
           {selectedId && (
             <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 40 }}
-              className="fixed bottom-0 left-0 right-0 p-4 bg-[rgba(10,10,10,0.95)] backdrop-blur-xl border-t border-[rgba(201,169,110,0.15)] z-50"
+              className="fixed bottom-0 left-0 right-0 p-3 sm:p-4 bg-[rgba(10,10,10,0.95)] backdrop-blur-xl border-t border-[rgba(201,169,110,0.15)] z-50"
             >
-              <div className="max-w-7xl mx-auto flex items-center justify-between">
-                <div>
+              <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="text-center sm:text-left">
                   <p className="text-sm text-[var(--color-ivory)] font-medium">{templates.find(t => t.id === selectedId)?.name}</p>
                   <p className="text-xs text-[var(--color-white-muted)]">Modèle sélectionné</p>
                 </div>
-                <div className="flex gap-3">
-                  <button onClick={() => setPreviewTemplate(templates.find(t => t.id === selectedId))} className="btn-ghost !py-2.5 !px-5 !text-sm flex items-center gap-2">
+                <div className="flex gap-3 w-full sm:w-auto">
+                  <button onClick={() => setPreviewTemplate(templates.find(t => t.id === selectedId))} className="btn-ghost !py-2.5 !px-5 !text-sm flex items-center justify-center gap-2 flex-1 sm:flex-none">
                     <Eye size={14} /> Prévisualiser
                   </button>
-                  <button onClick={() => handleSelect()} className="btn-primary !py-2.5 !px-6 !text-sm">
+                  <button onClick={() => handleSelect()} className="btn-primary !py-2.5 !px-6 !text-sm flex-1 sm:flex-none">
                     {isLoggedIn ? 'Utiliser ce modèle' : 'Créer mon CV'}
                   </button>
                 </div>

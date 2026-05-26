@@ -67,17 +67,17 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
   };
 
   return (
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 lg:p-8 bg-black/80 backdrop-blur-sm overflow-y-auto">
+    <div className="fixed inset-0 z-[99999] flex items-start lg:items-center justify-center p-0 lg:p-8 bg-black/80 backdrop-blur-sm overflow-y-auto">
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }} 
         animate={{ opacity: 1, scale: 1, y: 0 }} 
-        className="w-full max-w-5xl bg-[#f4f5f5] rounded-2xl shadow-2xl overflow-hidden relative flex flex-col lg:flex-row my-auto"
+        className="w-full max-w-5xl bg-[#f4f5f5] min-h-screen lg:min-h-0 lg:rounded-2xl shadow-2xl overflow-hidden relative flex flex-col lg:flex-row m-auto"
       >
         
         {/* Left Panel */}
         <div className="flex-1 p-6 lg:p-10 flex flex-col relative min-h-[500px]">
           {step === 1 && !isProcessing && (
-            <button onClick={onClose} className="absolute top-6 left-6 text-gray-500 hover:text-gray-900 transition-colors z-10 font-medium text-sm flex items-center gap-2">
+            <button onClick={onClose} className="absolute top-4 right-4 lg:top-6 lg:left-6 lg:right-auto text-gray-500 hover:text-gray-900 transition-colors z-50 font-medium text-sm flex items-center gap-2 bg-white/80 lg:bg-transparent px-3 py-1.5 lg:p-0 rounded-full shadow-sm lg:shadow-none">
               ✕ Fermer
             </button>
           )}
@@ -89,9 +89,9 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                 initial={{ opacity: 0, x: -20 }} 
                 animate={{ opacity: 1, x: 0 }} 
                 exit={{ opacity: 0, x: 20 }} 
-                className="flex flex-col h-full mt-10 lg:mt-6"
+                className="flex flex-col h-full mt-6 lg:mt-6"
               >
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Choisissez un moyen de paiement</h2>
+                <h2 className="text-xl lg:text-2xl font-bold text-gray-900 mb-6 pr-10 lg:pr-0">Choisissez un moyen de paiement</h2>
                 
                 <div className="space-y-3 mb-8">
                   {/* Wave Option */}
@@ -243,8 +243,8 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
         </div>
 
         {/* Right Panel (Summary) */}
-        <div className="w-full lg:w-[420px] bg-[#082f1f] text-white p-6 lg:p-10 flex flex-col shrink-0">
-          <h2 className="text-lg font-medium text-gray-300 mb-8 lg:mb-12">Résumé de la commande</h2>
+        <div className="w-full lg:w-[420px] bg-[#082f1f] text-white p-6 lg:p-10 flex flex-col shrink-0 order-first lg:order-last">
+          <h2 className="text-lg font-medium text-gray-300 mb-6 lg:mb-12">Résumé de la commande</h2>
           
           <div className="mb-8 lg:mb-12">
             <div className="text-sm text-[#a0b2a8] mb-2">Total de la commande</div>
@@ -267,7 +267,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
             </div>
           </div>
 
-          <div className="mt-auto pt-8 lg:pt-0">
+          <div className="mt-4 lg:mt-auto pt-6 lg:pt-0">
             <button 
               disabled={isProcessing || step === 4 || !isFormValid()}
               onClick={handleProcessPayment}
