@@ -175,7 +175,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
   const { mutedColor, dividerColor } = colors;
 
   return (
-    <div className="flex min-h-[1123px]">
+    <div className="flex min-h-[1123px] max-h-[1123px] overflow-hidden">
       {/* Sidebar */}
       <aside className="w-[30%] p-5 flex flex-col" style={{ background: secondary }}>
         {/* Photo / Initiales avec upload */}
@@ -240,12 +240,12 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
         {/* Compétences */}
         {cvData.skills?.length > 0 && (
           <section className="mb-5">
-            <h3 className="text-[11px] font-bold uppercase tracking-widest mb-2.5" style={{ color: accent }}>Expertise</h3>
-            <ul className="space-y-1.5">
+            <h3 className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: accent }}>Expertise</h3>
+            <div className="flex flex-wrap gap-1">
               {cvData.skills?.map((skill, i) => (
-                <li key={i} className="text-[11px]" style={{ color: mutedColor }}>• {skill}</li>
+                <span key={i} className="text-[9px] px-1.5 py-0.5 rounded" style={{ color: mutedColor, background: `${accent}15` }}>{skill}</span>
               ))}
-            </ul>
+            </div>
           </section>
         )}
 
@@ -280,7 +280,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
         {cvData.summary && (
           <section className="mb-4">
             <div className="w-8 h-0.5 mb-2" style={{ background: accent }} />
-            <p className="text-[11px] leading-[1.5] line-clamp-4" style={{ color: mutedColor }}>{cvData.summary}</p>
+            <p className="text-[11px] leading-[1.5] line-clamp-3" style={{ color: mutedColor }}>{cvData.summary}</p>
           </section>
         )}
 
@@ -307,7 +307,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
                       <span>{exp.startDate}{exp.endDate ? ` - ${exp.endDate}` : ''}</span>
                     </div>
                     {exp.description && (
-                      <p className="text-[11px] leading-[1.5] line-clamp-3" style={{ color: mutedColor }}>{exp.description}</p>
+                      <p className="text-[11px] leading-[1.5] line-clamp-2" style={{ color: mutedColor }}>{exp.description}</p>
                     )}
                   </div>
                 </article>
@@ -854,7 +854,7 @@ export default function CVPreview({ template, cvData, experiences, educations, o
 
   return (
     <div
-      className="w-full min-h-[297mm] relative print:min-h-[297mm]"
+      className="w-full min-h-[297mm] max-h-[297mm] overflow-hidden relative print:min-h-[297mm] print:max-h-[297mm]"
       style={{
         background: bg,
         color: text,
