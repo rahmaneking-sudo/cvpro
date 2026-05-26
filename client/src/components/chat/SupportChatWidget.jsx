@@ -59,12 +59,14 @@ export default function SupportChatWidget() {
     }
   }, [isOpen, user]);
 
-  // Scroll to bottom on new message
+  const chatScrollRef = useRef(null);
+
+  // Scroll to bottom only when message count changes
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (chatScrollRef.current) {
+      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages.length]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -129,7 +131,7 @@ export default function SupportChatWidget() {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[var(--color-obsidian)]">
+            <div ref={chatScrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-[var(--color-obsidian)]">
               {isLoading && messages.length === 0 ? (
                 <div className="flex justify-center items-center h-full">
                   <Loader2 className="animate-spin text-[var(--color-champagne)]" size={24} />

@@ -60,10 +60,14 @@ export default function AdminChatPanel({ adminToken }) {
     return () => clearInterval(intervalId);
   }, [activeSession, adminToken]);
 
-  // Auto-scroll
+  const chatScrollRef = useRef(null);
+
+  // Auto-scroll uniquement quand le nombre de messages change (pas à chaque polling)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    if (chatScrollRef.current) {
+      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+    }
+  }, [messages.length]);
 
   const handleReply = async (e) => {
     e.preventDefault();
@@ -165,7 +169,7 @@ export default function AdminChatPanel({ adminToken }) {
               )}
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <div ref={chatScrollRef} className="flex-1 overflow-y-auto p-6 space-y-4">
               {messages.map(msg => (
                 <div key={msg.id} className={`flex flex-col ${msg.sender === 'admin' ? 'items-end' : 'items-start'}`}>
                   <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm ${
