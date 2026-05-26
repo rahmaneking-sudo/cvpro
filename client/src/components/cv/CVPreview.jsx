@@ -162,7 +162,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
   const { mutedColor, dividerColor } = colors;
 
   return (
-    <div className="flex min-h-[1123px] max-h-[1123px] overflow-hidden">
+    <div className="flex" style={{ minHeight: '1123px' }}>
       {/* Sidebar */}
       <aside className="w-[30%] p-5 flex flex-col" style={{ background: secondary }}>
         {/* Photo / Initiales avec upload */}
@@ -226,22 +226,18 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
 
         {/* Compétences */}
         {cvData.skills?.length > 0 && (
-          <section className="mb-4">
-            <h3 className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: accent }}>Expertise</h3>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-              {cvData.skills?.map((skill, i) => (
-                <span key={i} style={{
-                  display: 'inline-block',
-                  fontSize: '9px',
-                  padding: '2px 6px',
-                  borderRadius: '3px',
-                  color: accent,
-                  background: `${accent}18`,
-                  border: `1px solid ${accent}30`,
-                  whiteSpace: 'nowrap'
-                }}>{skill}</span>
+          <section className="mb-5">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: accent }}>Expertise</h3>
+            <ul className="space-y-2">
+              {cvData.skills.map((skill, i) => (
+                <li key={i}>
+                  <span className="text-[11px] font-medium block mb-1" style={{ color: mutedColor }}>{skill}</span>
+                  <div className="h-[2px] w-full rounded-full" style={{ background: `${accent}40` }}>
+                    <div className="h-full rounded-full" style={{ width: '75%', background: accent }} />
+                  </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </section>
         )}
 
