@@ -15,7 +15,6 @@ import CoverLetterPreview from './CoverLetterPreview';
 
 const PreviewScaler = ({ children }) => {
   const containerRef = React.useRef(null);
-  const contentRef = React.useRef(null);
   const [scale, setScale] = React.useState(() => {
     if (typeof window !== 'undefined') {
       const w = window.innerWidth;
@@ -24,74 +23,31 @@ const PreviewScaler = ({ children }) => {
     }
     return 1;
   });
-  const [contentHeight, setContentHeight] = React.useState(1123);
 
   React.useEffect(() => {
-    // 1. Observer pour la largeur (responsive scale)
     const observer = new ResizeObserver(() => {
       if (containerRef.current) {
         const availableWidth = containerRef.current.clientWidth;
         setScale(Math.min(1, availableWidth / 794));
       }
-      if (contentRef.current) {
-        setContentHeight(Math.max(1123, contentRef.current.offsetHeight));
-      }
     });
 
     if (containerRef.current) observer.observe(containerRef.current);
-    if (contentRef.current) observer.observe(contentRef.current);
-
-    // 2. Fix absolu pour le bug de "superposition" sur Safari iOS (First Load)
-    // Safari ne recalcule pas correctement les flexbox dans un conteneur "absolu + scale"
-    // lorsque les polices personnalisées ont fini de charger. On force le reflow !
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => {
-        if (contentRef.current) {
-          // Force un recalcul complet du layout CSS
-          contentRef.current.style.display = 'none';
-          void contentRef.current.offsetHeight; // Trigger reflow
-          contentRef.current.style.display = '';
-          setContentHeight(Math.max(1123, contentRef.current.offsetHeight));
-        }
-      });
-    }
-
-    // 3. Fix pour les images qui chargent asynchrone
-    const imgs = document.querySelectorAll('#cv-preview-container img');
-    imgs.forEach(img => {
-      img.addEventListener('load', () => {
-        if (contentRef.current) setContentHeight(Math.max(1123, contentRef.current.offsetHeight));
-      });
-    });
-
     return () => observer.disconnect();
   }, []);
 
   return (
     <div ref={containerRef} className="w-full flex justify-center print:!block print:!w-auto print:!m-0 print:!p-0">
       <div 
-        className="print:!h-auto print:!w-full print:!static"
-        style={{ 
-          width: `${794 * scale}px`, 
-          height: `${contentHeight * scale}px`,
-          position: 'relative'
+        id="cv-preview-container"
+        className="w-[794px] min-h-[1123px] bg-white shadow-cinematic print:shadow-none print:m-0 print:!h-auto"
+        style={{
+          zoom: scale,
+          WebkitTextSizeAdjust: 'none',
+          textSizeAdjust: 'none'
         }}
       >
-        <div 
-          id="cv-preview-container"
-          ref={contentRef}
-          className="w-[794px] min-h-[1123px] bg-white shadow-cinematic print:shadow-none print:m-0 print:!h-auto origin-top-left"
-          style={{
-            transform: `scale(${scale})`,
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            WebkitTextSizeAdjust: 'none',
-            textSizeAdjust: 'none'
-          }}
-        >
-          {children}
-        </div>
+        {children}
       </div>
     </div>
   );
@@ -370,22 +326,14 @@ export default function CVEditor() {
                 clonedDoc.documentElement.style.background = bgVal;
                 clonedDoc.documentElement.style.backgroundColor = bgVal;
 
-                // Reset transform, scaling, and force auto height to allow full vertical render
+                // Reset zoom and force full-size render for PDF capture
+                el.style.zoom = '1';
                 el.style.transform = 'none';
                 el.style.position = 'static';
                 el.style.width = '794px';
                 el.style.height = 'auto';
                 el.style.minHeight = 'auto';
                 el.style.overflow = 'visible';
-
-                if (el.parentElement) {
-                  el.parentElement.style.width = '794px';
-                  el.parentElement.style.transform = 'none';
-                  el.parentElement.style.height = 'auto';
-                  el.parentElement.style.minHeight = 'auto';
-                  el.parentElement.style.position = 'static';
-                  el.parentElement.style.overflow = 'visible';
-                }
 
                 // Copy contents of all canvas elements
                 const originalCanvases = element.querySelectorAll('canvas');

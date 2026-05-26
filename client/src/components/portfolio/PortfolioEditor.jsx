@@ -13,9 +13,7 @@ import { jsPDF } from 'jspdf';
 
 const PreviewScaler = ({ children }) => {
   const containerRef = React.useRef(null);
-  const contentRef = React.useRef(null);
   const [scale, setScale] = React.useState(1);
-  const [contentHeight, setContentHeight] = React.useState(1123);
 
   React.useEffect(() => {
     const observer = new ResizeObserver(() => {
@@ -23,40 +21,22 @@ const PreviewScaler = ({ children }) => {
         const availableWidth = containerRef.current.clientWidth;
         setScale(Math.min(1, availableWidth / 794));
       }
-      if (contentRef.current) {
-        setContentHeight(contentRef.current.offsetHeight);
-      }
     });
     if (containerRef.current) observer.observe(containerRef.current);
-    if (contentRef.current) observer.observe(contentRef.current);
     return () => observer.disconnect();
   }, []);
 
   return (
     <div ref={containerRef} className="w-full flex justify-center print:!block print:!w-auto print:!m-0 print:!p-0">
       <div 
-        className="print:!h-auto print:!w-full print:!static"
+        id="portfolio-preview-container"
+        className="shadow-[var(--shadow-cinematic)] rounded-lg overflow-hidden print:!transform-none print:!w-[210mm] print:!static print:!shadow-none print:!rounded-none"
         style={{ 
-          width: `${794 * scale}px`, 
-          height: `${contentHeight * scale}px`,
-          position: 'relative'
+          width: '794px',
+          zoom: scale
         }}
       >
-        <div 
-          id="portfolio-preview-container"
-          ref={contentRef}
-          className="shadow-[var(--shadow-cinematic)] rounded-lg overflow-hidden print:!transform-none print:!w-[210mm] print:!static print:!shadow-none print:!rounded-none"
-          style={{ 
-            width: '794px', 
-            transform: `scale(${scale})`, 
-            transformOrigin: 'top left',
-            position: 'absolute',
-            top: 0,
-            left: 0
-          }}
-        >
-          {children}
-        </div>
+        {children}
       </div>
     </div>
   );
@@ -333,22 +313,14 @@ export default function PortfolioEditor() {
                 clonedDoc.documentElement.style.background = bgVal;
                 clonedDoc.documentElement.style.backgroundColor = bgVal;
 
-                // Reset transform, scaling, and force auto height to allow full vertical render
+                // Reset zoom and force full-size render for PDF capture
+                el.style.zoom = '1';
                 el.style.transform = 'none';
                 el.style.position = 'static';
                 el.style.width = '794px';
                 el.style.height = 'auto';
                 el.style.minHeight = 'auto';
                 el.style.overflow = 'visible';
-
-                if (el.parentElement) {
-                  el.parentElement.style.width = '794px';
-                  el.parentElement.style.transform = 'none';
-                  el.parentElement.style.height = 'auto';
-                  el.parentElement.style.minHeight = 'auto';
-                  el.parentElement.style.position = 'static';
-                  el.parentElement.style.overflow = 'visible';
-                }
 
                 // Copy contents of all canvas elements (like PDF thumbnails)
                 const originalCanvases = element.querySelectorAll('canvas');
