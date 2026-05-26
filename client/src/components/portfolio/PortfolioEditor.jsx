@@ -302,7 +302,7 @@ export default function PortfolioEditor() {
 
   const handleExport = async () => {
     if (hasPurchased) {
-      const element = document.getElementById('portfolio-preview-container');
+      const element = document.getElementById('portfolio-export-container');
       if (!element) return;
       
       try {
@@ -315,29 +315,13 @@ export default function PortfolioEditor() {
           backgroundColor: null,
           onclone: (clonedDoc) => {
             try {
-              const el = clonedDoc.getElementById('portfolio-preview-container');
+              const el = clonedDoc.getElementById('portfolio-export-container');
               if (el) {
                 const bgVal = template.bg || '#ffffff';
                 clonedDoc.body.style.background = bgVal;
                 clonedDoc.body.style.backgroundColor = bgVal;
                 clonedDoc.documentElement.style.background = bgVal;
                 clonedDoc.documentElement.style.backgroundColor = bgVal;
-
-                el.style.transform = 'none';
-                el.style.position = 'static';
-                el.style.width = '794px';
-                el.style.height = 'auto';
-                el.style.minHeight = 'auto';
-                el.style.overflow = 'visible';
-
-                if (el.parentElement) {
-                  el.parentElement.style.width = '794px';
-                  el.parentElement.style.transform = 'none';
-                  el.parentElement.style.height = 'auto';
-                  el.parentElement.style.minHeight = 'auto';
-                  el.parentElement.style.position = 'static';
-                  el.parentElement.style.overflow = 'visible';
-                }
 
                 const originalCanvases = element.querySelectorAll('canvas');
                 const clonedCanvases = el.querySelectorAll('canvas');
@@ -712,6 +696,14 @@ export default function PortfolioEditor() {
 
         {/* RIGHT — Live Preview */}
         <div className="flex-1 overflow-y-auto bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:relative print:z-10">
+          
+          {/* Hidden Export Container for flawless html2canvas rendering */}
+          <div style={{ position: 'fixed', top: '-9999px', left: '-9999px', zIndex: -1000 }}>
+            <div id="portfolio-export-container" style={{ width: '794px', backgroundColor: '#fff' }}>
+              <PortfolioPreview template={template} data={{ ...data, projects }} />
+            </div>
+          </div>
+
           <div className="w-full max-w-[100%] lg:max-w-[794px] print:max-w-none print:w-full print:mx-auto print:overflow-visible">
             <PreviewScaler>
               <PortfolioPreview template={template} data={{ ...data, projects }} />
