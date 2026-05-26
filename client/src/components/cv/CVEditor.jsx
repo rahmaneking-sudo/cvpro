@@ -336,21 +336,22 @@ export default function CVEditor() {
                 clonedDoc.documentElement.style.background = bgVal;
                 clonedDoc.documentElement.style.backgroundColor = bgVal;
 
-                // Reset transform, scaling, and force auto height to allow full vertical render
                 el.style.transform = 'none';
                 el.style.position = 'static';
                 el.style.width = '794px';
-                el.style.height = 'auto';
-                el.style.minHeight = 'auto';
-                el.style.overflow = 'visible';
+                el.style.height = '1123px';
+                el.style.maxHeight = '1123px';
+                el.style.minHeight = '1123px';
+                el.style.overflow = 'hidden';
 
                 if (el.parentElement) {
                   el.parentElement.style.width = '794px';
                   el.parentElement.style.transform = 'none';
-                  el.parentElement.style.height = 'auto';
-                  el.parentElement.style.minHeight = 'auto';
+                  el.parentElement.style.height = '1123px';
+                  el.parentElement.style.maxHeight = '1123px';
+                  el.parentElement.style.minHeight = '1123px';
                   el.parentElement.style.position = 'static';
-                  el.parentElement.style.overflow = 'visible';
+                  el.parentElement.style.overflow = 'hidden';
                 }
 
                 // Copy contents of all canvas elements
@@ -424,20 +425,8 @@ export default function CVEditor() {
         pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
         pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
 
-        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInPdf);
-        heightLeft -= pdfHeight;
-        
-        while (heightLeft > 15) {
-          position = heightLeft - imgHeightInPdf;
-          pdf.addPage();
-
-          // Fill new page background color first
-          pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
-          pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
-
-          pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInPdf);
-          heightLeft -= pdfHeight;
-        }
+        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+        // Single page only — content is capped at exactly 1 A4 page
         
         // ========================================
         // ATS INVISIBLE TEXT LAYER
