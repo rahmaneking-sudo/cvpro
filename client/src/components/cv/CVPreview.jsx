@@ -170,7 +170,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors }) 
   const { mutedColor, dividerColor } = colors;
 
   return (
-    <div className="flex min-h-[1123px]" style={{ flexDirection: 'row' }}>
+    <div className="flex min-h-[1123px]" style={{ flexDirection: 'row', flexWrap: 'nowrap' }}>
       <aside className="p-8 flex flex-col" style={{ background: secondary, width: '254px', flexShrink: 0 }}>
         <div className="w-24 h-24 rounded-full mb-6 mx-auto flex items-center justify-center text-2xl font-bold shadow-lg overflow-hidden relative"
           style={{ 
@@ -235,7 +235,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors }) 
         )}
       </aside>
 
-      <main className="flex-1 p-8" style={{ minWidth: 0 }}>
+      <main className="p-8" style={{ width: '540px', flexShrink: 0 }}>
         <header className="mb-8">
           <h1 className="text-3xl font-extrabold mb-1" style={{ color: text, fontFamily: "'Inter', sans-serif" }}>
             {cvData.fullName || 'Votre Nom'}
