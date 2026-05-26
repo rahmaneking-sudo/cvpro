@@ -439,6 +439,56 @@ export default function CVEditor() {
           heightLeft -= pdfHeight;
         }
         
+        // ========================================
+        // ATS INVISIBLE TEXT LAYER
+        // Adds all CV text as transparent overlay so ATS software can parse the PDF
+        // ========================================
+        pdf.setPage(1);
+        pdf.setFontSize(1);
+        pdf.setTextColor(255, 255, 255, 0); // Fully transparent
+        
+        const atsLines = [];
+        if (cvData.fullName) atsLines.push(cvData.fullName);
+        if (cvData.jobTitle) atsLines.push(cvData.jobTitle);
+        if (cvData.email) atsLines.push(`Email: ${cvData.email}`);
+        if (cvData.phone) atsLines.push(`Telephone: ${cvData.phone}`);
+        if (cvData.location) atsLines.push(`Localisation: ${cvData.location}`);
+        if (cvData.summary) atsLines.push(`Profil: ${cvData.summary}`);
+        
+        // Experiences
+        (experiences || []).forEach(exp => {
+          if (exp.position) atsLines.push(`Poste: ${exp.position}`);
+          if (exp.company) atsLines.push(`Entreprise: ${exp.company}`);
+          if (exp.startDate) atsLines.push(`Periode: ${exp.startDate} - ${exp.endDate || 'Present'}`);
+          if (exp.description) atsLines.push(exp.description);
+        });
+        
+        // Education
+        (educations || []).forEach(edu => {
+          if (edu.degree) atsLines.push(`Diplome: ${edu.degree}`);
+          if (edu.institution) atsLines.push(`Etablissement: ${edu.institution}`);
+          if (edu.startDate) atsLines.push(`Periode: ${edu.startDate} - ${edu.endDate || 'Present'}`);
+          if (edu.description) atsLines.push(edu.description);
+        });
+        
+        // Skills
+        if (cvData.skills?.length) atsLines.push(`Competences: ${cvData.skills.join(', ')}`);
+        
+        // Languages
+        if (cvData.languages?.length) atsLines.push(`Langues: ${cvData.languages.join(', ')}`);
+        
+        // Write all text at position (0,0) with font size 1 - invisible but parseable
+        let atsY = 1;
+        atsLines.forEach(line => {
+          if (line && atsY < pdfHeight) {
+            try {
+              pdf.text(String(line).substring(0, 500), 0, atsY);
+              atsY += 0.5;
+            } catch(e) { /* skip unparseable characters */ }
+          }
+        });
+        // ========================================
+        
         const pdfBlob = pdf.output('blob');
         const pdfUrl = URL.createObjectURL(pdfBlob);
         
