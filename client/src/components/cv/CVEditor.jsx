@@ -301,20 +301,30 @@ export default function CVEditor() {
           el.parentElement.classList.add('ats-wrapper');
         }
         
-        // Calculate dynamic scale if needed (e.g. 1-page CV fitting)
-        const isOnePage = el.offsetHeight <= 1160;
-        if (isOnePage) {
-          document.body.classList.add('ats-one-page');
-          
-          // Force it to fit on iOS/A4 height
-          const pdfHeight = 1123; // A4 height in px approx
+        // Always force the CV to fit on a single page, as per user requirement
+        document.body.classList.add('ats-one-page');
+        
+        // Force it to fit on iOS/A4 height
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        
+        if (isIOS) {
+          // iOS Safari printable area is smaller due to headers/footers (~1040px max)
+          const iosPdfHeight = 1040;
+          if (el.offsetHeight > iosPdfHeight) {
+            // Ensure we shrink it enough to stay on exactly 1 page
+            const calculatedScale = iosPdfHeight / el.offsetHeight;
+            document.body.style.setProperty('--print-scale', (calculatedScale * 0.98).toString());
+          } else {
+            document.body.style.setProperty('--print-scale', '1');
+          }
+        } else {
+          // Standard A4 height
+          const pdfHeight = 1123; 
           if (el.offsetHeight > pdfHeight) {
              document.body.style.setProperty('--print-scale', (pdfHeight / el.offsetHeight).toString());
           } else {
              document.body.style.setProperty('--print-scale', '1');
           }
-        } else {
-          document.body.style.setProperty('--print-scale', '1');
         }
         
         const originalTitle = document.title;
