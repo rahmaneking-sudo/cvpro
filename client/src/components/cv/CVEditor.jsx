@@ -312,137 +312,144 @@ export default function CVEditor() {
 
     showToast('Préparation du PDF en cours...', 'success');
 
-    // --- Créer un wrapper caché hors-écran à taille A4 exacte ---
-    const wrapper = document.createElement('div');
-    wrapper.style.cssText = `
-      position: fixed;
-      top: -9999px;
-      left: -9999px;
-      width: 794px;
-      height: 1123px;
-      overflow: hidden;
-      background: ${template.bg || '#ffffff'};
-      z-index: -1;
-    `;
-
-    // Cloner le CV dans ce wrapper
-    const clone = element.cloneNode(true);
-    clone.style.cssText = `
-      width: 794px;
-      height: 1123px;
-      min-height: 1123px;
-      max-height: 1123px;
-      overflow: hidden;
-      transform: none;
-      position: static;
-      box-shadow: none;
-      border-radius: 0;
-    `;
-
-    // Supprimer les boutons upload/supprimer photo dans le clone (print:hidden)
-    clone.querySelectorAll('[class*="print:hidden"], button, input[type="file"], label').forEach(el => el.remove());
-
-    // Corriger les images (CORS + pas de grayscale)
-    clone.querySelectorAll('img').forEach(img => {
-      img.setAttribute('crossorigin', 'anonymous');
-      img.style.filter = 'none';
-    });
-
-    wrapper.appendChild(clone);
-    document.body.appendChild(wrapper);
-
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     let newWindow;
     if (isIOS) {
       newWindow = window.open('', '_blank');
-      if (newWindow) newWindow.document.write('<div style="font-family:sans-serif;padding:20px;text-align:center;color:#666;margin-top:50px;">Génération du PDF...<br/>Veuillez patienter.</div>');
+      if (newWindow) newWindow.document.write(
+        '<div style="font-family:sans-serif;padding:20px;text-align:center;color:#555;margin-top:80px;">' +
+        '⏳ Génération du PDF...<br/>Veuillez patienter.</div>'
+      );
     }
 
     try {
-      const canvas = await html2canvas(wrapper, {
+      // ─── html2canvas avec onclone ────────────────────────────────────────
+      // onclone reçoit une COPIE INTERNE du document gérée par html2canvas.
+      // Le DOM original (ce que l'utilisateur voit) n'est JAMAIS modifié.
+      // Aucun wrapper n'est ajouté au body → aucune perturbation du layout.
+      // ─────────────────────────────────────────────────────────────────────
+      const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
+        allowTaint: false,
         logging: false,
         width: 794,
         height: 1123,
+        x: 0,
+        y: 0,
+        scrollX: 0,
+        scrollY: 0,
         windowWidth: 794,
+        windowHeight: 1123,
         backgroundColor: template.bg || '#ffffff',
+        onclone: (clonedDoc, clonedEl) => {
+          try {
+            // clonedEl = copie du #cv-preview-container dans le doc interne html2canvas
+            // Pas de transform, taille A4 exacte, overflow caché → 1 page
+            clonedEl.style.cssText = [
+              'width:794px',
+              'height:1123px',
+              'min-height:1123px',
+              'max-height:1123px',
+              'overflow:hidden',
+              'transform:none',
+              'position:static',
+              'box-shadow:none',
+            ].join(';');
+
+            // Fond de page dans le clone
+            clonedDoc.body.style.cssText = [
+              `background:${template.bg || '#ffffff'}`,
+              'margin:0',
+              'padding:0',
+              'width:794px',
+            ].join(';');
+
+            // Retirer les boutons (upload photo, supprimer) — pas dans le PDF
+            clonedEl.querySelectorAll('button, input[type="file"], label[for], .print\\:hidden')
+              .forEach(el => el.remove());
+
+            // Corriger les images (CORS + pas de filtre grayscale)
+            clonedEl.querySelectorAll('img').forEach(img => {
+              img.crossOrigin = 'anonymous';
+              img.style.filter = 'none';
+              img.style.webkitFilter = 'none';
+            });
+
+          } catch (e) {
+            console.warn('onclone error:', e);
+          }
+        }
       });
 
-      document.body.removeChild(wrapper);
-
+      // ─── Génération PDF ──────────────────────────────────────────────────
       let imgData;
       try {
         imgData = canvas.toDataURL('image/jpeg', 0.95);
       } catch (e) {
-        showToast("Impossible d'exporter : erreur CORS sur une image.", 'error');
+        showToast("Erreur CORS : une image bloque l'export PDF.", 'error');
         if (isIOS && newWindow) newWindow.close();
         return;
       }
 
       const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();   // 210mm
-      const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
+      const pdfW = pdf.internal.pageSize.getWidth();
+      const pdfH = pdf.internal.pageSize.getHeight();
 
-      // Fond de page
-      const hexToRgb = (h) => {
-        const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(h.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (_, r,g,b) => r+r+g+g+b+b));
-        return r ? { r: parseInt(r[1],16), g: parseInt(r[2],16), b: parseInt(r[3],16) } : { r:255, g:255, b:255 };
+      // Fond de couleur
+      const hex2rgb = (h) => {
+        const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(
+          h.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (_, a,b,c) => a+a+b+b+c+c)
+        );
+        return r ? { r:parseInt(r[1],16), g:parseInt(r[2],16), b:parseInt(r[3],16) } : {r:255,g:255,b:255};
       };
-      const bg = hexToRgb(template.bg || '#ffffff');
+      const bg = hex2rgb(template.bg || '#ffffff');
       pdf.setFillColor(bg.r, bg.g, bg.b);
-      pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
+      pdf.rect(0, 0, pdfW, pdfH, 'F');
 
-      // Image du CV — 1 seule page A4
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+      // Image CV — 1 seule page A4
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH);
 
-      // Couche ATS invisible
+      // Couche ATS (texte invisible pour les parseurs)
       try {
         pdf.setFontSize(0.1);
         pdf.setTextColor(255, 255, 255);
-        const lines = [];
-        if (cvData.fullName) lines.push(cvData.fullName);
-        if (cvData.jobTitle) lines.push(cvData.jobTitle);
-        if (cvData.email) lines.push('Email: ' + cvData.email);
-        if (cvData.phone) lines.push('Tel: ' + cvData.phone);
-        if (cvData.location) lines.push('Lieu: ' + cvData.location);
-        if (cvData.summary) lines.push(cvData.summary);
-        (experiences || []).forEach(e => {
-          if (e.position) lines.push(e.position);
-          if (e.company) lines.push(e.company);
-          if (e.description) lines.push(e.description);
-        });
-        (educations || []).forEach(e => {
-          if (e.degree) lines.push(e.degree);
-          if (e.institution) lines.push(e.institution);
-        });
-        if (cvData.skills?.length) lines.push(cvData.skills.join(', '));
-        if (cvData.languages?.length) lines.push(cvData.languages.join(', '));
+        const ats = [
+          cvData.fullName, cvData.jobTitle, cvData.email,
+          cvData.phone, cvData.location, cvData.summary,
+          ...(experiences||[]).flatMap(e => [e.position, e.company, e.description]),
+          ...(educations||[]).flatMap(e => [e.degree, e.institution]),
+          cvData.skills?.join(', '),
+          cvData.languages?.join(', '),
+        ].filter(Boolean);
         let y = 1;
-        lines.forEach(l => { if (l && y < 290) { try { pdf.text(String(l).substring(0,500), 0, y); } catch(e){} y += 0.3; } });
+        ats.forEach(l => { if (y < 290) { try { pdf.text(String(l).slice(0,500), 0, y); } catch(e){} y += 0.3; } });
       } catch(e) { /* ATS optionnel */ }
 
+      // ─── Téléchargement ──────────────────────────────────────────────────
       const blob = pdf.output('blob');
       const url = URL.createObjectURL(blob);
+      showToast('✅ PDF téléchargé avec succès !');
 
-      showToast('PDF téléchargé avec succès !');
       if (isIOS && newWindow) {
         newWindow.location.href = url;
       } else {
         const a = document.createElement('a');
         a.href = url;
         a.download = `${cvData.fullName || 'CV'}_${template.name || 'SamaCVPro'}.pdf`;
+        document.body.appendChild(a);
         a.click();
+        document.body.removeChild(a);
         setTimeout(() => URL.revokeObjectURL(url), 5000);
       }
 
     } catch (err) {
-      if (document.body.contains(wrapper)) document.body.removeChild(wrapper);
-      console.error('PDF error:', err);
+      console.error('PDF generation error:', err);
       showToast('Erreur lors de la génération du PDF.', 'error');
       if (isIOS && newWindow) newWindow.close();
     }
   };
+
 
   const updateField = useCallback((field, value) => {
     setCVData(prev => ({ ...prev, [field]: value }));
