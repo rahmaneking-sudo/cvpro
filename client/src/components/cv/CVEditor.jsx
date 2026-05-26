@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Plus, Trash2, Wand2, Upload, Loader2, Save, Download, Camera, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Wand2, Upload, Loader2, Save, Download, Camera, CheckCircle2, AlertCircle, ChevronDown, FileText, Image as ImageIcon } from 'lucide-react';
 import { getTemplate } from '../../data/templates';
 import CVPreview from './CVPreview';
 import PaymentModal from '../shared/PaymentModal';
@@ -215,6 +215,7 @@ export default function CVEditor() {
   const [isLoadingCV, setIsLoadingCV] = useState(!!cvId);
   const [hasPurchased, setHasPurchased] = useState(false);
   const [isCheckingPurchase, setIsCheckingPurchase] = useState(true);
+  const [showExportMenu, setShowExportMenu] = useState(false);
 
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
@@ -458,6 +459,18 @@ export default function CVEditor() {
     } else {
       setShowPaymentModal(true);
     }
+  };
+
+  const handleATSExport = () => {
+    if (!hasPurchased) {
+      setShowPaymentModal(true);
+      return;
+    }
+    setShowExportMenu(false);
+    showToast("N'oubliez pas de cocher 'Imprimer les arrière-plans' dans la fenêtre qui va s'ouvrir !", 'success');
+    setTimeout(() => {
+      window.print();
+    }, 2000);
   };
 
 
@@ -717,14 +730,48 @@ export default function CVEditor() {
             {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} 
             <span className="hidden sm:inline">{saving ? 'Sauvegarde...' : 'Sauvegarder'}</span>
           </button>
-          <button 
-            onClick={handleExport}
-            disabled={saving || isLoadingCV || isCheckingPurchase}
-            className="btn-primary !py-2 !px-3 lg:!px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50"
-          >
-            {isCheckingPurchase ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} 
-            <span className="hidden sm:inline">Exporter PDF</span>
-          </button>
+          <div className="relative">
+            <button 
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              disabled={saving || isLoadingCV || isCheckingPurchase}
+              className="btn-primary !py-2 !px-3 lg:!px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50"
+            >
+              {isCheckingPurchase ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} 
+              <span className="hidden sm:inline">Exporter PDF</span>
+              <ChevronDown size={14} className={`transition-transform ${showExportMenu ? 'rotate-180' : ''}`} />
+            </button>
+
+            {showExportMenu && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowExportMenu(false)} />
+                <div className="absolute right-0 mt-2 w-[280px] bg-[var(--color-obsidian)] border border-[rgba(255,255,255,0.1)] rounded-xl shadow-2xl z-50 overflow-hidden">
+                  <button 
+                    onClick={() => {
+                      setShowExportMenu(false);
+                      handleExport();
+                    }}
+                    className="w-full flex items-start gap-3 p-4 hover:bg-[rgba(255,255,255,0.05)] transition-colors text-left border-b border-[rgba(255,255,255,0.05)]"
+                  >
+                    <ImageIcon size={18} className="text-[var(--color-champagne)] mt-0.5 shrink-0" />
+                    <div>
+                      <div className="text-sm font-bold text-[var(--color-ivory)] mb-1">PDF Haute Fidélité</div>
+                      <div className="text-[10px] text-[var(--color-white-muted)] leading-relaxed">Design parfait 100% garanti. Idéal pour l'impression et l'envoi par e-mail.</div>
+                    </div>
+                  </button>
+                  <button 
+                    onClick={handleATSExport}
+                    className="w-full flex items-start gap-3 p-4 hover:bg-[rgba(255,255,255,0.05)] transition-colors text-left"
+                  >
+                    <FileText size={18} className="text-[var(--color-champagne)] mt-0.5 shrink-0" />
+                    <div>
+                      <div className="text-sm font-bold text-[var(--color-ivory)] mb-1">PDF pour Recruteur (ATS)</div>
+                      <div className="text-[10px] text-[var(--color-white-muted)] leading-relaxed">Texte sélectionnable. Optimisé pour les logiciels de tri de CV.</div>
+                    </div>
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
