@@ -144,7 +144,6 @@ const PreviewScaler = ({ children }) => {
             className="w-[794px] min-h-[1123px] bg-white shadow-cinematic print:shadow-none print:m-0 print:!h-auto origin-top-left"
             style={{
               transform: `scale(${scale})`,
-              willChange: 'transform',
               position: 'absolute',
               top: 0,
               left: 0,
@@ -311,7 +310,7 @@ export default function CVEditor() {
   const [hasPurchased, setHasPurchased] = useState(false);
   const [isCheckingPurchase, setIsCheckingPurchase] = useState(true);
   const [showExportMenu, setShowExportMenu] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
+  const [previewKey, setPreviewKey] = useState(0);
 
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
@@ -413,41 +412,8 @@ export default function CVEditor() {
       }
       
       showToast('Préparation du PDF en cours...', 'success');
-      setIsExporting(true);
-      
-      // Save original styles BEFORE any modification
-      const parentEl = element.parentElement;
-      const origTransform = element.style.transform;
-      const origPosition = element.style.position;
-      const origTop = element.style.top;
-      const origLeft = element.style.left;
-      const origWillChange = element.style.willChange;
-      const origParentWidth = parentEl ? parentEl.style.width : '';
-      const origParentHeight = parentEl ? parentEl.style.height : '';
-      const origParentPosition = parentEl ? parentEl.style.position : '';
       
       try {
-        // Wait for React to render the overlay that hides the preview
-        await new Promise(r => setTimeout(r, 150));
-        
-        // CRITICAL FIX: Remove the CSS transform from the ORIGINAL element
-        // BEFORE html2canvas starts. html2canvas reads the original element's 
-        // computed layout during cloning. On Safari/iOS, having a scale() transform
-        // on the source element corrupts the GPU compositor, causing the "sursaut".
-        element.style.transform = 'none';
-        element.style.position = 'static';
-        element.style.top = 'auto';
-        element.style.left = 'auto';
-        element.style.willChange = 'auto';
-        if (parentEl) {
-          parentEl.style.width = '794px';
-          parentEl.style.height = 'auto';
-          parentEl.style.position = 'static';
-        }
-        
-        // Force a reflow so Safari acknowledges the layout change
-        void element.offsetHeight;
-        
         const canvas = await html2canvas(element, {
           scale: 2,
           useCORS: true,
@@ -465,6 +431,7 @@ export default function CVEditor() {
                 clonedDoc.documentElement.style.background = bgVal;
                 clonedDoc.documentElement.style.backgroundColor = bgVal;
 
+                // Reset transform, scaling, and force auto height to allow full vertical render
                 el.style.transform = 'none';
                 el.style.position = 'static';
                 el.style.width = '794px';
@@ -591,26 +558,11 @@ export default function CVEditor() {
         showToast('Erreur lors de la génération du PDF.', 'error');
         if (isIOS && newWindow) newWindow.close();
       } finally {
-        // Restore ALL original styles exactly as they were
-        element.style.transform = origTransform;
-        element.style.position = origPosition;
-        element.style.top = origTop;
-        element.style.left = origLeft;
-        element.style.willChange = origWillChange;
-        if (parentEl) {
-          parentEl.style.width = origParentWidth;
-          parentEl.style.height = origParentHeight;
-          parentEl.style.position = origParentPosition;
-        }
-        
-        // Force Safari to fully recomposite after restoring transform
-        void element.offsetHeight;
-        
-        // Remove overlay after layout is restored
-        setIsExporting(false);
-        
-        // Force the observer to recalculate the scale
-        window.dispatchEvent(new Event('resize'));
+        // Force Safari/iOS to completely reset its GPU compositor by
+        // destroying and recreating the PreviewScaler React component.
+        // This is the cleanest fix because it doesn't touch the DOM directly
+        // (which conflicts with React's reconciliation and the ResizeObserver).
+        setPreviewKey(k => k + 1);
       }
     } else {
       setShowPaymentModal(true);
@@ -1420,9 +1372,9 @@ export default function CVEditor() {
         </div>
 
         {/* RIGHT — Live Preview */}
-        <div className="flex-1 lg:overflow-y-auto bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:relative print:z-10 relative">
+        <div className="flex-1 lg:overflow-y-auto bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:relative print:z-10">
           <div className="w-full max-w-[100%] lg:max-w-[794px] print:max-w-none print:w-full print:mx-auto print:overflow-visible">
-            <PreviewScaler>
+            <PreviewScaler key={previewKey}>
               {isCoverLetter ? (
                 <CoverLetterPreview template={template} cvData={cvData} />
               ) : (
@@ -1438,19 +1390,6 @@ export default function CVEditor() {
               )}
             </PreviewScaler>
           </div>
-
-          {/* Export Overlay */}
-          {isExporting && (
-            <div className="absolute inset-0 z-[100] flex items-center justify-center bg-[var(--color-graphite)]/95 backdrop-blur-md print:hidden">
-              <div className="flex flex-col items-center gap-5 text-white p-8 rounded-2xl bg-black/40 shadow-2xl border border-[var(--color-champagne)]/20">
-                <Loader2 className="w-12 h-12 animate-spin text-[var(--color-champagne)]" />
-                <div className="text-center">
-                  <h3 className="text-lg font-bold mb-2 text-[var(--color-ivory)]" style={{ fontFamily: 'var(--font-serif)' }}>Génération de votre CV HD...</h3>
-                  <p className="text-xs text-[var(--color-white-muted)] max-w-[200px] leading-relaxed">Veuillez patienter quelques secondes. Le rendu final sera parfait.</p>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 

@@ -113,7 +113,6 @@ const PreviewScaler = ({ children }) => {
             style={{
               width: '794px',
               transform: `scale(${scale})`,
-              willChange: 'transform',
               transformOrigin: 'top left',
               position: 'absolute',
               top: 0,
@@ -164,7 +163,7 @@ export default function PortfolioEditor() {
   const [isLoading, setIsLoading] = useState(!!portfolioId);
   const [hasPurchased, setHasPurchased] = useState(false);
   const [isCheckingPurchase, setIsCheckingPurchase] = useState(true);
-  const [isExporting, setIsExporting] = useState(false);
+  const [previewKey, setPreviewKey] = useState(0);
 
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
@@ -381,35 +380,8 @@ export default function PortfolioEditor() {
       }
       
       showToast('Préparation du PDF en cours...', 'success');
-      setIsExporting(true);
-      
-      // Save original styles BEFORE any modification
-      const parentEl = element.parentElement;
-      const origTransform = element.style.transform;
-      const origPosition = element.style.position;
-      const origTop = element.style.top;
-      const origLeft = element.style.left;
-      const origWillChange = element.style.willChange;
-      const origParentWidth = parentEl ? parentEl.style.width : '';
-      const origParentHeight = parentEl ? parentEl.style.height : '';
-      const origParentPosition = parentEl ? parentEl.style.position : '';
       
       try {
-        await new Promise(r => setTimeout(r, 150));
-        
-        // Remove transform from original element before html2canvas
-        element.style.transform = 'none';
-        element.style.position = 'static';
-        element.style.top = 'auto';
-        element.style.left = 'auto';
-        element.style.willChange = 'auto';
-        if (parentEl) {
-          parentEl.style.width = '794px';
-          parentEl.style.height = 'auto';
-          parentEl.style.position = 'static';
-        }
-        void element.offsetHeight;
-        
         const canvas = await html2canvas(element, {
           scale: 2,
           useCORS: true,
@@ -427,6 +399,7 @@ export default function PortfolioEditor() {
                 clonedDoc.documentElement.style.background = bgVal;
                 clonedDoc.documentElement.style.backgroundColor = bgVal;
 
+                // Reset transform, scaling, and force auto height to allow full vertical render
                 el.style.transform = 'none';
                 el.style.position = 'static';
                 el.style.width = '794px';
@@ -443,6 +416,7 @@ export default function PortfolioEditor() {
                   el.parentElement.style.overflow = 'visible';
                 }
 
+                // Copy contents of all canvas elements (like PDF thumbnails)
                 const originalCanvases = element.querySelectorAll('canvas');
                 const clonedCanvases = el.querySelectorAll('canvas');
                 originalCanvases.forEach((origCanvas, index) => {
@@ -455,11 +429,19 @@ export default function PortfolioEditor() {
                   }
                 });
 
+                // Force image colors (remove grayscale)
                 const images = el.getElementsByTagName('img');
                 for (let img of images) {
-                  if (img.classList && img.classList.remove) img.classList.remove('grayscale');
-                  if (img.style) { img.style.filter = 'none'; img.style.webkitFilter = 'none'; }
-                  if (img.setAttribute && !img.hasAttribute('crossOrigin')) img.setAttribute('crossOrigin', 'anonymous');
+                  if (img.classList && img.classList.remove) {
+                    img.classList.remove('grayscale');
+                  }
+                  if (img.style) {
+                    img.style.filter = 'none';
+                    img.style.webkitFilter = 'none';
+                  }
+                  if (img.setAttribute && !img.hasAttribute('crossOrigin')) {
+                    img.setAttribute('crossOrigin', 'anonymous');
+                  }
                 }
               }
             } catch (e) {
@@ -482,12 +464,16 @@ export default function PortfolioEditor() {
           const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
           const fullHex = hexStr.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
           const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
-          return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : { r: 255, g: 255, b: 255 };
+          return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+          } : { r: 255, g: 255, b: 255 };
         };
 
         const pdf = new jsPDF('p', 'mm', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
         
         const canvasWidth = canvas.width;
         const canvasHeight = canvas.height;
@@ -496,6 +482,7 @@ export default function PortfolioEditor() {
         let heightLeft = imgHeightInPdf;
         let position = 0;
         
+        // Fill page background color first to guarantee uniform background
         const bgRgb = hexToRgb(template.bg || '#ffffff');
         pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
         pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
@@ -506,8 +493,11 @@ export default function PortfolioEditor() {
         while (heightLeft > 15) {
           position = heightLeft - imgHeightInPdf;
           pdf.addPage();
+          
+          // Fill new page background color first
           pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
           pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
+          
           pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInPdf);
           heightLeft -= pdfHeight;
         }
@@ -530,28 +520,13 @@ export default function PortfolioEditor() {
         showToast('Erreur lors de la génération du PDF.', 'error');
         if (isIOS && newWindow) newWindow.close();
       } finally {
-        // Restore ALL original styles exactly as they were
-        element.style.transform = origTransform;
-        element.style.position = origPosition;
-        element.style.top = origTop;
-        element.style.left = origLeft;
-        element.style.willChange = origWillChange;
-        if (parentEl) {
-          parentEl.style.width = origParentWidth;
-          parentEl.style.height = origParentHeight;
-          parentEl.style.position = origParentPosition;
-        }
-        void element.offsetHeight;
-        setIsExporting(false);
-        window.dispatchEvent(new Event('resize'));
+        // Force Safari/iOS to completely reset its GPU compositor
+        setPreviewKey(k => k + 1);
       }
     } else {
       setShowPaymentModal(true);
     }
   };
-      
-
-
 
   const handleShareLink = async () => {
     const currentId = await ensureSaved();
@@ -829,25 +804,12 @@ export default function PortfolioEditor() {
         </div>
 
         {/* RIGHT — Live Preview */}
-        <div className="flex-1 overflow-y-auto bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:relative print:z-10 relative">
+        <div className="flex-1 overflow-y-auto bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:relative print:z-10">
           <div className="w-full max-w-[100%] lg:max-w-[794px] print:max-w-none print:w-full print:mx-auto print:overflow-visible">
-            <PreviewScaler>
+            <PreviewScaler key={previewKey}>
               <PortfolioPreview template={template} data={{ ...data, projects }} />
             </PreviewScaler>
           </div>
-
-          {/* Export Overlay */}
-          {isExporting && (
-            <div className="absolute inset-0 z-[100] flex items-center justify-center bg-[var(--color-graphite)]/95 backdrop-blur-md print:hidden">
-              <div className="flex flex-col items-center gap-5 text-white p-8 rounded-2xl bg-black/40 shadow-2xl border border-[var(--color-champagne)]/20">
-                <Loader2 className="w-12 h-12 animate-spin text-[var(--color-champagne)]" />
-                <div className="text-center">
-                  <h3 className="text-lg font-bold mb-2 text-[var(--color-ivory)]" style={{ fontFamily: 'var(--font-serif)' }}>Génération de votre Portfolio HD...</h3>
-                  <p className="text-xs text-[var(--color-white-muted)] max-w-[200px] leading-relaxed">Veuillez patienter quelques secondes. Le rendu final sera parfait.</p>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
