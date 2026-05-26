@@ -60,7 +60,7 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
   return (
     <div className="p-6">
       {/* Header compact */}
-      <header className="flex items-center gap-4 mb-3 pb-3 border-b" style={{ borderColor: dividerColor }}>
+      <header className="flex items-center gap-4 mb-4 pb-3 border-b" style={{ borderColor: dividerColor }}>
         <Initials name={cvData.fullName} accent={accent} photo={cvData.photo} />
         <div className="flex-1">
           <h1 className="text-xl font-bold tracking-tight uppercase" style={{ color: text }}>
@@ -79,19 +79,19 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
 
       {/* Profil */}
       {cvData.summary && (
-        <section className="mb-3">
-          <h3 className="text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: text }}>Profil Professionnel</h3>
-          <p className="text-[11px] leading-[1.4] text-justify line-clamp-4" style={{ color: mutedColor }}>{cvData.summary}</p>
+        <section className="mb-4">
+          <h3 className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: text }}>Profil Professionnel</h3>
+          <p className="text-[11px] leading-[1.5] text-justify line-clamp-4" style={{ color: mutedColor }}>{cvData.summary}</p>
         </section>
       )}
 
       {/* Expériences */}
       {experiences?.length > 0 && (
-        <section className="mb-3">
-          <h3 className="text-xs font-bold uppercase tracking-widest mb-2 pb-1 border-b" style={{ color: text, borderColor: dividerColor }}>
+        <section className="mb-4">
+          <h3 className="text-xs font-bold uppercase tracking-widest mb-2.5 pb-1 border-b" style={{ color: text, borderColor: dividerColor }}>
             Expériences
           </h3>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {(experiences || []).filter(e => e.company || e.position).map((exp, i) => (
               <article key={i}>
                 <div className="flex items-baseline justify-between">
@@ -102,7 +102,7 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
                 </div>
                 <div className="text-[11px] font-medium" style={{ color: text, opacity: 0.8 }}>{exp.company}</div>
                 {exp.description && (
-                  <p className="text-[11px] leading-[1.4] line-clamp-3 mt-0.5" style={{ color: mutedColor }}>{exp.description}</p>
+                  <p className="text-[11px] leading-[1.5] line-clamp-3 mt-1" style={{ color: mutedColor }}>{exp.description}</p>
                 )}
               </article>
             ))}
@@ -112,11 +112,11 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
 
       {/* Formation */}
       {educations?.length > 0 && (
-        <section className="mb-3">
-          <h3 className="text-xs font-bold uppercase tracking-widest mb-2 pb-1 border-b" style={{ color: text, borderColor: dividerColor }}>
+        <section className="mb-4">
+          <h3 className="text-xs font-bold uppercase tracking-widest mb-2.5 pb-1 border-b" style={{ color: text, borderColor: dividerColor }}>
             Formation
           </h3>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {(educations || []).filter(e => e.institution || e.degree).map((edu, i) => (
               <article key={i}>
                 <div className="flex items-baseline justify-between">
@@ -127,7 +127,7 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
                 </div>
                 <div className="text-[11px] font-medium" style={{ color: text, opacity: 0.8 }}>{edu.institution}</div>
                 {edu.description && (
-                  <p className="text-[11px] leading-[1.4] line-clamp-2 mt-0.5" style={{ color: mutedColor }}>{edu.description}</p>
+                  <p className="text-[11px] leading-[1.5] line-clamp-2 mt-1" style={{ color: mutedColor }}>{edu.description}</p>
                 )}
               </article>
             ))}
@@ -170,7 +170,7 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
    2. TWO COLUMN (Modern Sidebar Layout)
    - Left sidebar for info/skills, right for content.
    ========================================================= */
-function LayoutTwoColumn({ template, cvData, experiences, educations, colors }) {
+function LayoutTwoColumn({ template, cvData, experiences, educations, colors, onPhotoUpload, onPhotoRemove, isUploadingPhoto }) {
   const { accent, text, secondary } = template;
   const { mutedColor, dividerColor } = colors;
 
@@ -178,32 +178,58 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors }) 
     <div className="flex min-h-[1123px]">
       {/* Sidebar */}
       <aside className="w-[30%] p-5 flex flex-col" style={{ background: secondary }}>
-        {/* Photo / Initiales */}
-        <div className="w-16 h-16 rounded-full mb-4 mx-auto flex items-center justify-center text-lg font-bold shadow-lg overflow-hidden relative"
-          style={{ 
-            background: `linear-gradient(135deg, ${accent}, ${accent}80)`, 
-            color: secondary,
-            width: '64px',
-            height: '64px',
-            minWidth: '64px',
-            minHeight: '64px',
-            borderRadius: '50%'
-          }}>
-          {cvData.photo ? (
-            <img 
-              src={cvData.photo} 
-              crossOrigin="anonymous" 
-              alt={cvData.fullName} 
-              className="w-full h-full object-cover absolute inset-0" 
-              style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover' }}
-            />
-          ) : (
-            cvData.fullName ? cvData.fullName.split(' ').map(n => n[0]).join('').toUpperCase() : '??'
+        {/* Photo / Initiales avec upload */}
+        <div className="relative shrink-0 group mx-auto mb-5">
+          {cvData.photo && !isUploadingPhoto && onPhotoRemove && (
+            <button 
+              onClick={onPhotoRemove}
+              className="absolute -top-1 -right-1 z-20 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600 transition-colors shadow-lg opacity-0 group-hover:opacity-100 print:hidden"
+              title="Supprimer la photo"
+            >
+              <Trash2 size={12} />
+            </button>
           )}
+          <div className="w-20 h-20 rounded-full flex items-center justify-center text-xl font-bold shadow-lg overflow-hidden relative"
+            style={{ 
+              background: `linear-gradient(135deg, ${accent}, ${accent}80)`, 
+              color: secondary,
+              width: '80px',
+              height: '80px',
+              minWidth: '80px',
+              minHeight: '80px',
+              borderRadius: '50%'
+            }}>
+            {isUploadingPhoto ? (
+              <Loader2 size={24} className="animate-spin text-current z-10" />
+            ) : cvData.photo ? (
+              <img 
+                src={cvData.photo} 
+                crossOrigin="anonymous" 
+                alt={cvData.fullName} 
+                className="w-full h-full object-cover absolute inset-0 z-0" 
+                style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover' }}
+              />
+            ) : (
+              <span className="z-0 opacity-60">
+                {cvData.fullName ? cvData.fullName.split(' ').map(n => n[0]).join('').toUpperCase() : '??'}
+              </span>
+            )}
+            {onPhotoUpload && (
+              <label className={`absolute inset-0 cursor-pointer flex flex-col items-center justify-center text-white transition-opacity z-10 print:hidden ${cvData.photo ? 'bg-black/40 opacity-0 group-hover:opacity-100' : 'bg-black/20 hover:bg-black/40 opacity-100'}`}>
+                <input type="file" accept="image/*" onChange={onPhotoUpload} className="hidden" disabled={isUploadingPhoto} />
+                {!isUploadingPhoto && (
+                  <>
+                    <Camera size={18} className="mb-0.5" />
+                    <span className="text-[8px] font-bold uppercase tracking-widest">Photo</span>
+                  </>
+                )}
+              </label>
+            )}
+          </div>
         </div>
 
         {/* Contact */}
-        <section className="space-y-2 mb-4">
+        <section className="space-y-2.5 mb-5">
           <ContactItem icon={Mail} value={cvData.email} color={mutedColor} />
           <ContactItem icon={Phone} value={cvData.phone} color={mutedColor} />
           <ContactItem icon={MapPin} value={cvData.location} color={mutedColor} />
@@ -213,9 +239,9 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors }) 
 
         {/* Compétences */}
         {cvData.skills?.length > 0 && (
-          <section className="mb-4">
-            <h3 className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: accent }}>Expertise</h3>
-            <ul className="space-y-1">
+          <section className="mb-5">
+            <h3 className="text-[11px] font-bold uppercase tracking-widest mb-2.5" style={{ color: accent }}>Expertise</h3>
+            <ul className="space-y-1.5">
               {cvData.skills?.map((skill, i) => (
                 <li key={i} className="text-[11px]" style={{ color: mutedColor }}>• {skill}</li>
               ))}
@@ -226,8 +252,8 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors }) 
         {/* Langues */}
         {cvData.languages?.length > 0 && (
           <section>
-            <h3 className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: accent }}>Langues</h3>
-            <ul className="space-y-1">
+            <h3 className="text-[11px] font-bold uppercase tracking-widest mb-2.5" style={{ color: accent }}>Langues</h3>
+            <ul className="space-y-1.5">
               {cvData.languages?.map((lang, i) => (
                 <li key={i} className="text-[11px]" style={{ color: mutedColor }}>
                   {lang} <span style={{ color: accent }}>•••</span>
@@ -239,10 +265,10 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors }) 
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 p-5">
+      <main className="flex-1 p-6">
         {/* Nom + Titre */}
-        <header className="mb-3">
-          <h1 className="text-xl font-extrabold mb-0.5" style={{ color: text, fontFamily: "'Inter', sans-serif" }}>
+        <header className="mb-4">
+          <h1 className="text-xl font-extrabold mb-1" style={{ color: text, fontFamily: "'Inter', sans-serif" }}>
             {cvData.fullName || 'Votre Nom'}
           </h1>
           <h2 className="text-xs font-medium" style={{ color: accent }}>
@@ -252,31 +278,38 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors }) 
 
         {/* Profil */}
         {cvData.summary && (
-          <section className="mb-3">
+          <section className="mb-4">
             <div className="w-8 h-0.5 mb-2" style={{ background: accent }} />
-            <p className="text-[11px] leading-[1.4] line-clamp-4" style={{ color: mutedColor }}>{cvData.summary}</p>
+            <p className="text-[11px] leading-[1.5] line-clamp-4" style={{ color: mutedColor }}>{cvData.summary}</p>
           </section>
         )}
 
         {/* Expériences */}
         {experiences?.length > 0 && (
-          <section className="mb-3">
-            <h3 className="text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-3" style={{ color: text }}>
+          <section className="mb-4">
+            <h3 className="text-xs font-bold uppercase tracking-widest mb-3 flex items-center gap-3" style={{ color: text }}>
               Expériences
               <div className="flex-1 h-[1px]" style={{ background: dividerColor }} />
             </h3>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {(experiences || []).filter(e => e.company || e.position).map((exp, i) => (
-                <article key={i}>
-                  <h4 className="font-bold text-[12px]" style={{ color: text }}>{exp.position}</h4>
-                  <div className="flex items-center gap-2 text-[10px]" style={{ color: mutedColor }}>
-                    <span className="font-semibold" style={{ color: accent }}>{exp.company}</span>
-                    <span>•</span>
-                    <span>{exp.startDate}{exp.endDate ? ` - ${exp.endDate}` : ''}</span>
-                  </div>
-                  {exp.description && (
-                    <p className="text-[11px] leading-[1.4] line-clamp-3 mt-0.5" style={{ color: mutedColor }}>{exp.description}</p>
+                <article key={i} className="flex gap-3">
+                  {exp.logoUrl ? (
+                    <img src={exp.logoUrl} crossOrigin="anonymous" alt="" className="w-9 h-9 rounded shadow-sm shrink-0 object-cover" />
+                  ) : (
+                    <Initials name={exp.company} accent={accent} />
                   )}
+                  <div className="flex-1">
+                    <h4 className="font-bold text-[12px]" style={{ color: text }}>{exp.position}</h4>
+                    <div className="flex items-center gap-2 text-[10px] mb-1" style={{ color: mutedColor }}>
+                      <span className="font-semibold" style={{ color: accent }}>{exp.company}</span>
+                      <span>•</span>
+                      <span>{exp.startDate}{exp.endDate ? ` - ${exp.endDate}` : ''}</span>
+                    </div>
+                    {exp.description && (
+                      <p className="text-[11px] leading-[1.5] line-clamp-3" style={{ color: mutedColor }}>{exp.description}</p>
+                    )}
+                  </div>
                 </article>
               ))}
             </div>
@@ -286,22 +319,25 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors }) 
         {/* Formation */}
         {educations?.length > 0 && (
           <section>
-            <h3 className="text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-3" style={{ color: text }}>
+            <h3 className="text-xs font-bold uppercase tracking-widest mb-3 flex items-center gap-3" style={{ color: text }}>
               Formation
               <div className="flex-1 h-[1px]" style={{ background: dividerColor }} />
             </h3>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {(educations || []).filter(e => e.institution || e.degree).map((edu, i) => (
-                <article key={i}>
-                  <h4 className="font-bold text-[12px]" style={{ color: text }}>{edu.degree}</h4>
-                  <div className="flex items-center gap-2 text-[10px]" style={{ color: mutedColor }}>
-                    <span className="font-semibold" style={{ color: accent }}>{edu.institution}</span>
-                    <span>•</span>
-                    <span>{edu.startDate}{edu.endDate ? ` - ${edu.endDate}` : ''}</span>
+                <article key={i} className="flex gap-3">
+                  <Initials name={edu.institution} accent={accent} />
+                  <div className="flex-1">
+                    <h4 className="font-bold text-[12px]" style={{ color: text }}>{edu.degree}</h4>
+                    <div className="flex items-center gap-2 text-[10px] mb-1" style={{ color: mutedColor }}>
+                      <span className="font-semibold" style={{ color: accent }}>{edu.institution}</span>
+                      <span>•</span>
+                      <span>{edu.startDate}{edu.endDate ? ` - ${edu.endDate}` : ''}</span>
+                    </div>
+                    {edu.description && (
+                      <p className="text-[11px] leading-[1.5] line-clamp-2" style={{ color: mutedColor }}>{edu.description}</p>
+                    )}
                   </div>
-                  {edu.description && (
-                    <p className="text-[11px] leading-[1.4] line-clamp-2 mt-0.5" style={{ color: mutedColor }}>{edu.description}</p>
-                  )}
                 </article>
               ))}
             </div>
