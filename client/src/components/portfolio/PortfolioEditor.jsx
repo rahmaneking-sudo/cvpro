@@ -702,7 +702,7 @@ export default function PortfolioEditor() {
         <div className="flex-1 overflow-y-auto bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:relative print:z-10">
           
           {/* Hidden Export Container for flawless html2canvas rendering */}
-          <div style={{ position: 'fixed', left: '200vw', top: 0, pointerEvents: 'none' }}>
+          <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
             <div id="portfolio-export-container" style={{ width: '794px', backgroundColor: '#fff' }}>
               <PortfolioPreview template={template} data={{ ...data, projects }} />
             </div>
