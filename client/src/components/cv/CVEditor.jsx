@@ -415,8 +415,39 @@ export default function CVEditor() {
       showToast('Préparation du PDF en cours...', 'success');
       setIsExporting(true);
       
+      // Save original styles BEFORE any modification
+      const parentEl = element.parentElement;
+      const origTransform = element.style.transform;
+      const origPosition = element.style.position;
+      const origTop = element.style.top;
+      const origLeft = element.style.left;
+      const origWillChange = element.style.willChange;
+      const origParentWidth = parentEl ? parentEl.style.width : '';
+      const origParentHeight = parentEl ? parentEl.style.height : '';
+      const origParentPosition = parentEl ? parentEl.style.position : '';
+      
       try {
-        await new Promise(r => setTimeout(r, 100)); // Allow React to render loading overlay
+        // Wait for React to render the overlay that hides the preview
+        await new Promise(r => setTimeout(r, 150));
+        
+        // CRITICAL FIX: Remove the CSS transform from the ORIGINAL element
+        // BEFORE html2canvas starts. html2canvas reads the original element's 
+        // computed layout during cloning. On Safari/iOS, having a scale() transform
+        // on the source element corrupts the GPU compositor, causing the "sursaut".
+        element.style.transform = 'none';
+        element.style.position = 'static';
+        element.style.top = 'auto';
+        element.style.left = 'auto';
+        element.style.willChange = 'auto';
+        if (parentEl) {
+          parentEl.style.width = '794px';
+          parentEl.style.height = 'auto';
+          parentEl.style.position = 'static';
+        }
+        
+        // Force a reflow so Safari acknowledges the layout change
+        void element.offsetHeight;
+        
         const canvas = await html2canvas(element, {
           scale: 2,
           useCORS: true,
@@ -434,7 +465,6 @@ export default function CVEditor() {
                 clonedDoc.documentElement.style.background = bgVal;
                 clonedDoc.documentElement.style.backgroundColor = bgVal;
 
-                // Reset transform, scaling, and force auto height to allow full vertical render
                 el.style.transform = 'none';
                 el.style.position = 'static';
                 el.style.width = '794px';
@@ -561,21 +591,25 @@ export default function CVEditor() {
         showToast('Erreur lors de la génération du PDF.', 'error');
         if (isIOS && newWindow) newWindow.close();
       } finally {
-        setIsExporting(false);
-        // Force un reflow complet pour corriger le bug de superposition/écrasement 
-        // sur iOS/Safari après la génération d'un gros canvas (qui corrompt la mémoire GPU des transform)
-        if (element) {
-          const originalDisplay = element.style.display;
-          const originalTransform = element.style.transform;
-          
-          element.style.display = 'none';
-          element.style.transform = 'none';
-          void element.offsetHeight; // Force reflow
-          
-          element.style.display = originalDisplay;
-          element.style.transform = originalTransform;
+        // Restore ALL original styles exactly as they were
+        element.style.transform = origTransform;
+        element.style.position = origPosition;
+        element.style.top = origTop;
+        element.style.left = origLeft;
+        element.style.willChange = origWillChange;
+        if (parentEl) {
+          parentEl.style.width = origParentWidth;
+          parentEl.style.height = origParentHeight;
+          parentEl.style.position = origParentPosition;
         }
-        // Force l'observer à recalculer l'échelle au cas où
+        
+        // Force Safari to fully recomposite after restoring transform
+        void element.offsetHeight;
+        
+        // Remove overlay after layout is restored
+        setIsExporting(false);
+        
+        // Force the observer to recalculate the scale
         window.dispatchEvent(new Event('resize'));
       }
     } else {

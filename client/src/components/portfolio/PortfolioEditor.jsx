@@ -383,8 +383,33 @@ export default function PortfolioEditor() {
       showToast('Préparation du PDF en cours...', 'success');
       setIsExporting(true);
       
+      // Save original styles BEFORE any modification
+      const parentEl = element.parentElement;
+      const origTransform = element.style.transform;
+      const origPosition = element.style.position;
+      const origTop = element.style.top;
+      const origLeft = element.style.left;
+      const origWillChange = element.style.willChange;
+      const origParentWidth = parentEl ? parentEl.style.width : '';
+      const origParentHeight = parentEl ? parentEl.style.height : '';
+      const origParentPosition = parentEl ? parentEl.style.position : '';
+      
       try {
-        await new Promise(r => setTimeout(r, 100)); // Allow React to render loading overlay
+        await new Promise(r => setTimeout(r, 150));
+        
+        // Remove transform from original element before html2canvas
+        element.style.transform = 'none';
+        element.style.position = 'static';
+        element.style.top = 'auto';
+        element.style.left = 'auto';
+        element.style.willChange = 'auto';
+        if (parentEl) {
+          parentEl.style.width = '794px';
+          parentEl.style.height = 'auto';
+          parentEl.style.position = 'static';
+        }
+        void element.offsetHeight;
+        
         const canvas = await html2canvas(element, {
           scale: 2,
           useCORS: true,
@@ -402,7 +427,6 @@ export default function PortfolioEditor() {
                 clonedDoc.documentElement.style.background = bgVal;
                 clonedDoc.documentElement.style.backgroundColor = bgVal;
 
-                // Reset transform, scaling, and force auto height to allow full vertical render
                 el.style.transform = 'none';
                 el.style.position = 'static';
                 el.style.width = '794px';
@@ -419,7 +443,6 @@ export default function PortfolioEditor() {
                   el.parentElement.style.overflow = 'visible';
                 }
 
-                // Copy contents of all canvas elements (like PDF thumbnails)
                 const originalCanvases = element.querySelectorAll('canvas');
                 const clonedCanvases = el.querySelectorAll('canvas');
                 originalCanvases.forEach((origCanvas, index) => {
@@ -432,19 +455,11 @@ export default function PortfolioEditor() {
                   }
                 });
 
-                // Force image colors (remove grayscale)
                 const images = el.getElementsByTagName('img');
                 for (let img of images) {
-                  if (img.classList && img.classList.remove) {
-                    img.classList.remove('grayscale');
-                  }
-                  if (img.style) {
-                    img.style.filter = 'none';
-                    img.style.webkitFilter = 'none';
-                  }
-                  if (img.setAttribute && !img.hasAttribute('crossOrigin')) {
-                    img.setAttribute('crossOrigin', 'anonymous');
-                  }
+                  if (img.classList && img.classList.remove) img.classList.remove('grayscale');
+                  if (img.style) { img.style.filter = 'none'; img.style.webkitFilter = 'none'; }
+                  if (img.setAttribute && !img.hasAttribute('crossOrigin')) img.setAttribute('crossOrigin', 'anonymous');
                 }
               }
             } catch (e) {
@@ -467,16 +482,12 @@ export default function PortfolioEditor() {
           const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
           const fullHex = hexStr.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
           const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
-          return result ? {
-            r: parseInt(result[1], 16),
-            g: parseInt(result[2], 16),
-            b: parseInt(result[3], 16)
-          } : { r: 255, g: 255, b: 255 };
+          return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : { r: 255, g: 255, b: 255 };
         };
 
         const pdf = new jsPDF('p', 'mm', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
+        const pdfHeight = pdf.internal.pageSize.getHeight();
         
         const canvasWidth = canvas.width;
         const canvasHeight = canvas.height;
@@ -485,7 +496,6 @@ export default function PortfolioEditor() {
         let heightLeft = imgHeightInPdf;
         let position = 0;
         
-        // Fill page background color first to guarantee uniform background
         const bgRgb = hexToRgb(template.bg || '#ffffff');
         pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
         pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
@@ -496,11 +506,8 @@ export default function PortfolioEditor() {
         while (heightLeft > 15) {
           position = heightLeft - imgHeightInPdf;
           pdf.addPage();
-          
-          // Fill new page background color first
           pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
           pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
-          
           pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInPdf);
           heightLeft -= pdfHeight;
         }
@@ -523,24 +530,28 @@ export default function PortfolioEditor() {
         showToast('Erreur lors de la génération du PDF.', 'error');
         if (isIOS && newWindow) newWindow.close();
       } finally {
-        setIsExporting(false);
-        if (element) {
-          const originalDisplay = element.style.display;
-          const originalTransform = element.style.transform;
-          
-          element.style.display = 'none';
-          element.style.transform = 'none';
-          void element.offsetHeight;
-          
-          element.style.display = originalDisplay;
-          element.style.transform = originalTransform;
+        // Restore ALL original styles exactly as they were
+        element.style.transform = origTransform;
+        element.style.position = origPosition;
+        element.style.top = origTop;
+        element.style.left = origLeft;
+        element.style.willChange = origWillChange;
+        if (parentEl) {
+          parentEl.style.width = origParentWidth;
+          parentEl.style.height = origParentHeight;
+          parentEl.style.position = origParentPosition;
         }
+        void element.offsetHeight;
+        setIsExporting(false);
         window.dispatchEvent(new Event('resize'));
       }
     } else {
       setShowPaymentModal(true);
     }
   };
+      
+
+
 
   const handleShareLink = async () => {
     const currentId = await ensureSaved();
