@@ -16,143 +16,49 @@ import CoverLetterPreview from './CoverLetterPreview';
 const PreviewScaler = ({ children }) => {
   const containerRef = React.useRef(null);
   const contentRef = React.useRef(null);
-  const scrollRef = React.useRef(null);
-  const [scale, setScale] = React.useState(() => {
-    if (typeof window !== 'undefined') {
-      const w = window.innerWidth;
-      const available = w > 1024 ? w * 0.55 : w;
-      const raw = (available - 32) / 794;
-      // On mobile, enforce a minimum scale of 0.65 so text remains readable
-      const isMobile = w < 1024;
-      return Math.min(1, isMobile ? Math.max(0.65, raw) : raw);
-    }
-    return 1;
-  });
+  const [scale, setScale] = React.useState(1);
   const [contentHeight, setContentHeight] = React.useState(1123);
-  const [isMobile, setIsMobile] = React.useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
-  const [showScrollHint, setShowScrollHint] = React.useState(true);
 
   React.useEffect(() => {
-    // 1. Observer pour la largeur (responsive scale)
     const observer = new ResizeObserver(() => {
       if (containerRef.current) {
         const availableWidth = containerRef.current.clientWidth;
-        const w = window.innerWidth;
-        const mobile = w < 1024;
-        setIsMobile(mobile);
-        const raw = availableWidth / 794;
-        // Min scale 0.65 on mobile for readability
-        setScale(Math.min(1, mobile ? Math.max(0.65, raw) : raw));
+        // 794px = 210mm at 96dpi. Max scale is 1.
+        setScale(Math.min(1, availableWidth / 794));
       }
       if (contentRef.current) {
-        setContentHeight(Math.max(1123, contentRef.current.offsetHeight));
+        setContentHeight(contentRef.current.offsetHeight);
       }
     });
-
     if (containerRef.current) observer.observe(containerRef.current);
     if (contentRef.current) observer.observe(contentRef.current);
-
-    // 2. Fix absolu pour le bug de "superposition" sur Safari iOS (First Load)
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => {
-        if (contentRef.current) {
-          contentRef.current.style.display = 'none';
-          void contentRef.current.offsetHeight;
-          contentRef.current.style.display = '';
-          setContentHeight(Math.max(1123, contentRef.current.offsetHeight));
-        }
-      });
-    }
-
-    // 3. Fix pour les images qui chargent asynchrone
-    const imgs = document.querySelectorAll('#cv-preview-container img');
-    imgs.forEach(img => {
-      img.addEventListener('load', () => {
-        if (contentRef.current) setContentHeight(Math.max(1123, contentRef.current.offsetHeight));
-      });
-    });
-
     return () => observer.disconnect();
   }, []);
 
-  // Hide scroll hint after user scrolls
-  React.useEffect(() => {
-    const scrollEl = scrollRef.current;
-    if (!scrollEl || !isMobile) return;
-    const handleScroll = () => setShowScrollHint(false);
-    scrollEl.addEventListener('scroll', handleScroll, { once: true });
-    // Also hide after 4 seconds
-    const timer = setTimeout(() => setShowScrollHint(false), 4000);
-    return () => {
-      scrollEl.removeEventListener('scroll', handleScroll);
-      clearTimeout(timer);
-    };
-  }, [isMobile]);
-
-  const scaledWidth = 794 * scale;
-  const scaledHeight = contentHeight * scale;
-
   return (
-    <div ref={containerRef} className="w-full print:!block print:!w-auto print:!m-0 print:!p-0">
-      {/* On mobile, wrap in a horizontally scrollable container */}
-      <div
-        ref={scrollRef}
-        className="print:!overflow-visible"
-        style={{
-          overflowX: isMobile && scaledWidth > (containerRef.current?.clientWidth || window.innerWidth) ? 'auto' : 'visible',
-          overflowY: 'visible',
-          WebkitOverflowScrolling: 'touch',
-          position: 'relative',
+    <div ref={containerRef} className="w-full flex justify-center print:!block print:!w-auto print:!m-0 print:!p-0">
+      <div 
+        className="print:!h-auto print:!w-full print:!static"
+        style={{ 
+          width: '794px', 
+          height: `${contentHeight * scale}px`,
+          position: 'relative'
         }}
       >
-        {/* Scroll hint indicator for mobile */}
-        {isMobile && showScrollHint && scaledWidth > (containerRef.current?.clientWidth || 0) && (
-          <div style={{
+        <div 
+          ref={contentRef}
+          id="cv-preview-container"
+          className="shadow-[var(--shadow-cinematic)] rounded-lg overflow-hidden print:!transform-none print:!w-[210mm] print:!static print:!shadow-none print:!rounded-none bg-white min-h-[1123px]"
+          style={{ 
+            width: '794px', 
+            transform: `scale(${scale})`, 
+            transformOrigin: 'top left',
             position: 'absolute',
-            top: '50%',
-            right: '8px',
-            transform: 'translateY(-50%)',
-            zIndex: 20,
-            background: 'rgba(201, 169, 110, 0.9)',
-            color: '#0A0A0A',
-            padding: '8px 12px',
-            borderRadius: '20px',
-            fontSize: '11px',
-            fontWeight: 700,
-            letterSpacing: '0.05em',
-            pointerEvents: 'none',
-            animation: 'fadeIn 0.5s ease',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-            whiteSpace: 'nowrap',
-          }}>
-            ← Glissez →
-          </div>
-        )}
-
-        <div
-          className="print:!h-auto print:!w-full print:!static"
-          style={{
-            width: `${scaledWidth}px`,
-            height: `${scaledHeight}px`,
-            position: 'relative',
-            margin: isMobile ? '0' : '0 auto',
+            top: 0,
+            left: 0
           }}
         >
-          <div
-            id="cv-preview-container"
-            ref={contentRef}
-            className="w-[794px] min-h-[1123px] bg-white shadow-cinematic print:shadow-none print:m-0 print:!h-auto origin-top-left"
-            style={{
-              transform: `scale(${scale})`,
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              WebkitTextSizeAdjust: 'none',
-              textSizeAdjust: 'none'
-            }}
-          >
-            {children}
-          </div>
+          {children}
         </div>
       </div>
     </div>
@@ -310,7 +216,7 @@ export default function CVEditor() {
   const [hasPurchased, setHasPurchased] = useState(false);
   const [isCheckingPurchase, setIsCheckingPurchase] = useState(true);
   const [showExportMenu, setShowExportMenu] = useState(false);
-  const [previewKey, setPreviewKey] = useState(0);
+
 
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
@@ -524,25 +430,10 @@ export default function CVEditor() {
         link.click();
         document.body.removeChild(link);
         
-        // Reset le preview après un court délai
-        setPreviewKey(k => k + 1);
         setTimeout(() => showToast('PDF généré avec succès !'), 600);
-        
-        // Si l'utilisateur quitte l'onglet (ex: pour voir le PDF), 
-        // on re-reset à son retour
-        const handleVisibility = () => {
-          if (document.visibilityState === 'visible') {
-            setPreviewKey(k => k + 1);
-            document.removeEventListener('visibilitychange', handleVisibility);
-          }
-        };
-        document.addEventListener('visibilitychange', handleVisibility);
-        // Auto-cleanup après 30s
-        setTimeout(() => document.removeEventListener('visibilitychange', handleVisibility), 30000);
         
       } catch (err) {
         console.error('PDF generation error:', err);
-        setPreviewKey(k => k + 1);
         setTimeout(() => showToast('Erreur lors de la génération du PDF.', 'error'), 600);
       }
     } else {
@@ -1355,7 +1246,7 @@ export default function CVEditor() {
         {/* RIGHT — Live Preview */}
         <div className="flex-1 lg:overflow-y-auto bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:relative print:z-10">
           <div className="w-full max-w-[100%] lg:max-w-[794px] print:max-w-none print:w-full print:mx-auto print:overflow-visible">
-            <PreviewScaler key={previewKey}>
+            <PreviewScaler>
               {isCoverLetter ? (
                 <CoverLetterPreview template={template} cvData={cvData} />
               ) : (

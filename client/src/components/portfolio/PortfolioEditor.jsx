@@ -14,30 +14,15 @@ import { jsPDF } from 'jspdf';
 const PreviewScaler = ({ children }) => {
   const containerRef = React.useRef(null);
   const contentRef = React.useRef(null);
-  const scrollRef = React.useRef(null);
-  const [scale, setScale] = React.useState(() => {
-    if (typeof window !== 'undefined') {
-      const w = window.innerWidth;
-      const available = w > 1024 ? w * 0.55 : w;
-      const raw = (available - 32) / 794;
-      const isMobile = w < 1024;
-      return Math.min(1, isMobile ? Math.max(0.65, raw) : raw);
-    }
-    return 1;
-  });
+  const [scale, setScale] = React.useState(1);
   const [contentHeight, setContentHeight] = React.useState(1123);
-  const [isMobile, setIsMobile] = React.useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
-  const [showScrollHint, setShowScrollHint] = React.useState(true);
 
   React.useEffect(() => {
     const observer = new ResizeObserver(() => {
       if (containerRef.current) {
         const availableWidth = containerRef.current.clientWidth;
-        const w = window.innerWidth;
-        const mobile = w < 1024;
-        setIsMobile(mobile);
-        const raw = availableWidth / 794;
-        setScale(Math.min(1, mobile ? Math.max(0.65, raw) : raw));
+        // 794px = 210mm at 96dpi. Max scale is 1.
+        setScale(Math.min(1, availableWidth / 794));
       }
       if (contentRef.current) {
         setContentHeight(contentRef.current.offsetHeight);
@@ -48,79 +33,30 @@ const PreviewScaler = ({ children }) => {
     return () => observer.disconnect();
   }, []);
 
-  React.useEffect(() => {
-    const scrollEl = scrollRef.current;
-    if (!scrollEl || !isMobile) return;
-    const handleScroll = () => setShowScrollHint(false);
-    scrollEl.addEventListener('scroll', handleScroll, { once: true });
-    const timer = setTimeout(() => setShowScrollHint(false), 4000);
-    return () => {
-      scrollEl.removeEventListener('scroll', handleScroll);
-      clearTimeout(timer);
-    };
-  }, [isMobile]);
-
-  const scaledWidth = 794 * scale;
-  const scaledHeight = contentHeight * scale;
-
   return (
-    <div ref={containerRef} className="w-full print:!block print:!w-auto print:!m-0 print:!p-0">
-      <div
-        ref={scrollRef}
-        className="print:!overflow-visible"
-        style={{
-          overflowX: isMobile && scaledWidth > (containerRef.current?.clientWidth || window.innerWidth) ? 'auto' : 'visible',
-          overflowY: 'visible',
-          WebkitOverflowScrolling: 'touch',
-          position: 'relative',
+    <div ref={containerRef} className="w-full flex justify-center print:!block print:!w-auto print:!m-0 print:!p-0">
+      <div 
+        className="print:!h-auto print:!w-full print:!static"
+        style={{ 
+          width: '794px', 
+          height: `${contentHeight * scale}px`,
+          position: 'relative'
         }}
       >
-        {isMobile && showScrollHint && scaledWidth > (containerRef.current?.clientWidth || 0) && (
-          <div style={{
+        <div 
+          ref={contentRef}
+          id="portfolio-preview-container"
+          className="shadow-[var(--shadow-cinematic)] rounded-lg overflow-hidden print:!transform-none print:!w-[210mm] print:!static print:!shadow-none print:!rounded-none bg-white min-h-[1123px]"
+          style={{ 
+            width: '794px', 
+            transform: `scale(${scale})`, 
+            transformOrigin: 'top left',
             position: 'absolute',
-            top: '50%',
-            right: '8px',
-            transform: 'translateY(-50%)',
-            zIndex: 20,
-            background: 'rgba(201, 169, 110, 0.9)',
-            color: '#0A0A0A',
-            padding: '8px 12px',
-            borderRadius: '20px',
-            fontSize: '11px',
-            fontWeight: 700,
-            pointerEvents: 'none',
-            animation: 'fadeIn 0.5s ease',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-            whiteSpace: 'nowrap',
-          }}>
-            ← Glissez →
-          </div>
-        )}
-
-        <div
-          className="print:!h-auto print:!w-full print:!static"
-          style={{
-            width: `${scaledWidth}px`,
-            height: `${scaledHeight}px`,
-            position: 'relative',
-            margin: isMobile ? '0' : '0 auto',
+            top: 0,
+            left: 0
           }}
         >
-          <div
-            id="portfolio-preview-container"
-            ref={contentRef}
-            className="shadow-[var(--shadow-cinematic)] rounded-lg overflow-hidden print:!transform-none print:!w-[210mm] print:!static print:!shadow-none print:!rounded-none"
-            style={{
-              width: '794px',
-              transform: `scale(${scale})`,
-              transformOrigin: 'top left',
-              position: 'absolute',
-              top: 0,
-              left: 0
-            }}
-          >
-            {children}
-          </div>
+          {children}
         </div>
       </div>
     </div>
@@ -163,7 +99,7 @@ export default function PortfolioEditor() {
   const [isLoading, setIsLoading] = useState(!!portfolioId);
   const [hasPurchased, setHasPurchased] = useState(false);
   const [isCheckingPurchase, setIsCheckingPurchase] = useState(true);
-  const [previewKey, setPreviewKey] = useState(0);
+
 
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
@@ -488,22 +424,10 @@ export default function PortfolioEditor() {
         
         ensureSaved().catch(console.error);
         
-        setPreviewKey(k => k + 1);
         setTimeout(() => showToast('PDF généré avec succès !'), 600);
-        
-        // Si l'utilisateur quitte l'onglet, re-reset à son retour
-        const handleVisibility = () => {
-          if (document.visibilityState === 'visible') {
-            setPreviewKey(k => k + 1);
-            document.removeEventListener('visibilitychange', handleVisibility);
-          }
-        };
-        document.addEventListener('visibilitychange', handleVisibility);
-        setTimeout(() => document.removeEventListener('visibilitychange', handleVisibility), 30000);
         
       } catch (err) {
         console.error('PDF generation error:', err);
-        setPreviewKey(k => k + 1);
         setTimeout(() => showToast('Erreur lors de la génération du PDF.', 'error'), 600);
       }
     } else {
@@ -789,7 +713,7 @@ export default function PortfolioEditor() {
         {/* RIGHT — Live Preview */}
         <div className="flex-1 overflow-y-auto bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:relative print:z-10">
           <div className="w-full max-w-[100%] lg:max-w-[794px] print:max-w-none print:w-full print:mx-auto print:overflow-visible">
-            <PreviewScaler key={previewKey}>
+            <PreviewScaler>
               <PortfolioPreview template={template} data={{ ...data, projects }} />
             </PreviewScaler>
           </div>
