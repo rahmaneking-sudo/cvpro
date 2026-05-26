@@ -1,3 +1,4 @@
+import { useGoogleFont } from '../../hooks/useGoogleFont';
 import { Mail, Phone, MapPin, Globe, Link2, Camera, Trash2, Loader2 } from 'lucide-react';
 
 /* =========================================================
@@ -87,7 +88,7 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
                     {exp.startDate}{exp.endDate ? ` — ${exp.endDate}` : ''}
                   </span>
                 </div>
-                <div className="text-[11px] font-medium" style={{ color: text, opacity: 0.8 }}>{exp.company}</div>
+                <div className="text-[11px] font-medium" style={{ color: text, opacity: 1 }}>{exp.company}</div>
                 {exp.description && (
                   <p className="text-[11px] leading-[1.5] line-clamp-3 mt-1" style={{ color: mutedColor }}>{exp.description}</p>
                 )}
@@ -112,7 +113,7 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
                     {edu.startDate}{edu.endDate ? ` — ${edu.endDate}` : ''}
                   </span>
                 </div>
-                <div className="text-[11px] font-medium" style={{ color: text, opacity: 0.8 }}>{edu.institution}</div>
+                <div className="text-[11px] font-medium" style={{ color: text, opacity: 1 }}>{edu.institution}</div>
                 {edu.description && (
                   <p className="text-[11px] leading-[1.5] line-clamp-2 mt-1" style={{ color: mutedColor }}>{edu.description}</p>
                 )}
@@ -257,13 +258,13 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 p-6">
+      <main className="flex-1 p-8">
         {/* Nom + Titre */}
-        <header className="mb-4">
-          <h1 className="text-xl font-extrabold mb-1" style={{ color: text, fontFamily: "'Inter', sans-serif" }}>
+        <header className="mb-6">
+          <h1 className="text-3xl font-bold tracking-tight mb-2" style={{ color: text, fontFamily: template.fontTitle ? `"${template.fontTitle}", serif` : undefined }}>
             {cvData.fullName || 'Votre Nom'}
           </h1>
-          <h2 className="text-xs font-medium" style={{ color: accent }}>
+          <h2 className="text-sm font-semibold tracking-widest uppercase" style={{ color: accent, fontFamily: template.fontTitle ? `"${template.fontTitle}", serif` : undefined }}>
             {cvData.jobTitle || 'Votre Titre'}
           </h2>
         </header>
@@ -278,8 +279,8 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
 
         {/* Expériences */}
         {experiences?.length > 0 && (
-          <section className="mb-4">
-            <h3 className="text-xs font-bold uppercase tracking-widest mb-3 flex items-center gap-3" style={{ color: text }}>
+          <section className="mb-6">
+            <h3 className="text-sm font-bold uppercase tracking-widest mb-4 flex items-center gap-3" style={{ color: text, fontFamily: template.fontTitle ? `"${template.fontTitle}", serif` : undefined }}>
               Expériences
               <div className="flex-1 h-[1px]" style={{ background: dividerColor }} />
             </h3>
@@ -311,7 +312,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
         {/* Formation */}
         {educations?.length > 0 && (
           <section>
-            <h3 className="text-xs font-bold uppercase tracking-widest mb-3 flex items-center gap-3" style={{ color: text }}>
+            <h3 className="text-sm font-bold uppercase tracking-widest mb-4 flex items-center gap-3" style={{ color: text, fontFamily: template.fontTitle ? `"${template.fontTitle}", serif` : undefined }}>
               Formation
               <div className="flex-1 h-[1px]" style={{ background: dividerColor }} />
             </h3>
@@ -388,7 +389,7 @@ function LayoutGrid({ template, cvData, experiences, educations, colors }) {
                 <h4 className="font-bold text-[11px] uppercase" style={{ color: text }}>{exp.position}</h4>
                 <div className="text-[10px]" style={{ color: mutedColor }}>@ {exp.company}</div>
                 {exp.description && (
-                  <p className="text-[11px] font-sans leading-[1.4] line-clamp-2 mt-0.5" style={{ color: text, opacity: 0.8 }}>{exp.description}</p>
+                  <p className="text-[11px] font-sans leading-[1.4] line-clamp-2 mt-0.5" style={{ color: text, opacity: 1 }}>{exp.description}</p>
                 )}
               </article>
             ))}
@@ -409,7 +410,7 @@ function LayoutGrid({ template, cvData, experiences, educations, colors }) {
                   <h4 className="font-bold text-[11px] uppercase" style={{ color: text }}>{edu.degree}</h4>
                   <div className="text-[10px]" style={{ color: mutedColor }}>@ {edu.institution}</div>
                   {edu.description && (
-                    <p className="text-[11px] font-sans leading-[1.4] line-clamp-2 mt-0.5" style={{ color: text, opacity: 0.8 }}>{edu.description}</p>
+                    <p className="text-[11px] font-sans leading-[1.4] line-clamp-2 mt-0.5" style={{ color: text, opacity: 1 }}>{edu.description}</p>
                   )}
                 </article>
               ))}
@@ -799,7 +800,7 @@ function LayoutMediaKit({ template, cvData, colors, onPhotoUpload, onPhotoRemove
             <h3 className="text-[9px] font-bold uppercase mb-3 tracking-widest text-center" style={{ color: mutedColor }}>Ils m'ont fait confiance</h3>
             <div className="flex justify-center flex-wrap gap-4">
               {cvData.collaborations?.map((brand, i) => (
-                <div key={i} className="text-sm font-black uppercase opacity-60 tracking-tighter" style={{ color: text, fontFamily: "'Inter', sans-serif" }}>
+                <div key={i} className="text-sm font-black uppercase opacity-60 tracking-tighter" style={{ color: text, fontFamily: template.fontTitle ? `"${template.fontTitle}", serif` : undefined }}>
                   {brand}
                 </div>
               ))}
@@ -827,12 +828,15 @@ function LayoutMediaKit({ template, cvData, colors, onPhotoUpload, onPhotoRemove
 export default function CVPreview({ template, cvData, experiences, educations, onPhotoUpload, onPhotoRemove, isUploadingPhoto }) {
   if (!template) return null;
 
-  const { bg, text, layout } = template;
+  const { bg, text, layout, fontTitle, fontBody } = template;
+
+  useGoogleFont(fontTitle);
+  useGoogleFont(fontBody);
   const isDark = bg === '#0A0A0A' || bg === '#0D0D0D' || bg === '#0F0F23' || bg === '#1A0F00' || bg === '#1A1A1A' || bg === '#1B2A4A' || bg === '#2C2C2E' || bg === '#000000' || bg === '#050510' || bg === '#020617' || bg === '#0A0A14' || bg === '#0A0505' || bg === '#1A0B13' || bg === '#0D0D12';
   
   const colors = {
-    mutedColor: isDark ? `${text}CC` : `${text}BF`,
-    dividerColor: isDark ? `${text}25` : `${text}20`
+    mutedColor: text,
+    dividerColor: isDark ? '#3F3F46' : '#D1D5DB'
   };
 
   const LayoutComponent = {
@@ -865,3 +869,10 @@ export default function CVPreview({ template, cvData, experiences, educations, o
     </div>
   );
 }
+
+
+
+
+
+
+
