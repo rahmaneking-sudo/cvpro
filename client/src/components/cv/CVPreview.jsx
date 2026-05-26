@@ -131,7 +131,7 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
         </section>
       )}
 
-      <div className="flex gap-6">
+      <div className="flex flex-col md:flex-row print:flex-row gap-6">
         {cvData.skills?.length > 0 && (
           <section className="flex-1">
             <h3 className="text-[11px] font-bold uppercase tracking-widest mb-2 pb-1 border-b" style={{ color: text, borderColor: dividerColor }}>
@@ -143,7 +143,7 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
           </section>
         )}
         {cvData.languages?.length > 0 && (
-          <section className="w-1/3">
+          <section className="w-full md:w-1/3 print:w-1/3">
             <h3 className="text-[11px] font-bold uppercase tracking-widest mb-2 pb-1 border-b" style={{ color: text, borderColor: dividerColor }}>
               Langues
             </h3>
@@ -170,8 +170,8 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors }) 
   const { mutedColor, dividerColor } = colors;
 
   return (
-    <div className="flex min-h-[1123px]" style={{ flexDirection: 'row' }}>
-      <aside className="p-8 flex flex-col" style={{ background: secondary, width: '32%', flexShrink: 0 }}>
+    <div className="flex flex-col md:flex-row print:flex-row min-h-[1123px]">
+      <aside className="p-8 flex flex-col w-full md:w-[32%] print:w-[32%] shrink-0" style={{ background: secondary }}>
         <div className="w-24 h-24 rounded-full mb-6 mx-auto flex items-center justify-center text-2xl font-bold shadow-lg overflow-hidden relative"
           style={{ 
             background: `linear-gradient(135deg, ${accent}, ${accent}80)`, 
@@ -344,7 +344,7 @@ function LayoutGrid({ template, cvData, experiences, educations, colors }) {
         </section>
       )}
 
-      <div className="grid grid-cols-[1fr_250px] gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_250px] print:grid-cols-[1fr_250px] gap-8">
         <section>
           <h3 className="text-xs font-bold uppercase mb-4" style={{ color: text }}>&gt; Expériences</h3>
           <div className="relative border-l ml-2" style={{ borderColor: dividerColor }}>
@@ -414,8 +414,8 @@ function LayoutAsymmetric({ template, cvData, experiences, educations, colors })
 
   return (
     <div className="p-10 flex flex-col min-h-[1123px]">
-      <header className="flex justify-between items-end mb-10 pb-6 border-b-2" style={{ borderColor: text }}>
-        <div className="w-[60%]">
+      <header className="flex flex-col md:flex-row print:flex-row justify-between items-start md:items-end print:items-end gap-6 md:gap-0 print:gap-0 mb-10 pb-6 border-b-2" style={{ borderColor: text }}>
+        <div className="w-full md:w-[60%] print:w-[60%]">
           <h1 className="text-5xl font-black uppercase leading-none tracking-tighter mb-2" style={{ color: text, fontFamily: "'Playfair Display', serif" }}>
             {cvData.fullName || 'VOTRE NOM'}
           </h1>
@@ -423,14 +423,14 @@ function LayoutAsymmetric({ template, cvData, experiences, educations, colors })
             {cvData.jobTitle || 'Votre Titre'}
           </h2>
         </div>
-        <div className="text-right text-[10px] space-y-1 font-medium uppercase tracking-widest" style={{ color: mutedColor }}>
+        <div className="text-left md:text-right print:text-right text-[10px] space-y-1 font-medium uppercase tracking-widest" style={{ color: mutedColor }}>
           <p>{cvData.email}</p>
           <p>{cvData.phone}</p>
           <p>{cvData.location}</p>
         </div>
       </header>
 
-      <div className="flex gap-10 flex-1">
+      <div className="flex flex-col md:flex-row print:flex-row gap-10 flex-1">
         <main className="flex-1">
           {cvData.summary && (
             <section className="mb-10">
@@ -480,7 +480,7 @@ function LayoutAsymmetric({ template, cvData, experiences, educations, colors })
           )}
         </main>
 
-        <aside className="w-[200px] shrink-0 space-y-10">
+        <aside className="w-full md:w-[200px] print:w-[200px] shrink-0 space-y-10">
           <section>
             <h3 className="text-[9px] font-bold uppercase tracking-[0.3em] mb-4" style={{ color: accent }}>Expertise</h3>
             <ul className="space-y-2">
@@ -524,8 +524,8 @@ function LayoutCreative({ template, cvData, experiences, educations, colors }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
-        <div className="col-span-2 space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 print:grid-cols-3 gap-6">
+        <div className="md:col-span-2 print:col-span-2 space-y-6">
           {cvData.summary && (
             <section className="p-6 rounded-2xl border" style={{ borderColor: dividerColor }}>
               <div className="w-8 h-8 rounded-full mb-3 flex items-center justify-center text-white" style={{ background: accent }}>!</div>
@@ -611,7 +611,7 @@ function LayoutMediaKit({ template, cvData, colors, onPhotoUpload, onPhotoRemove
 
   return (
     <div className="flex flex-col min-h-[1123px]" style={{ background: bg, color: text }}>
-      <header className="p-10 pb-6 flex items-center justify-between" style={{ background: secondary }}>
+      <header className="p-6 md:p-10 pb-6 flex flex-col md:flex-row print:flex-row items-center justify-between gap-6 md:gap-0 print:gap-0 text-center md:text-left print:text-left" style={{ background: secondary }}>
         <div className="flex-1">
           <h1 className="text-5xl font-black uppercase tracking-tighter mb-2" style={{ color: text }}>
             {cvData.fullName || 'VOTRE NOM'}
@@ -683,7 +683,7 @@ function LayoutMediaKit({ template, cvData, colors, onPhotoUpload, onPhotoRemove
         </section>
 
         {cvData.socialStats && (
-          <section className="grid grid-cols-4 gap-4">
+          <section className="grid grid-cols-2 md:grid-cols-4 print:grid-cols-4 gap-4">
             <div className="p-4 rounded-xl text-center border" style={{ borderColor: dividerColor, background: secondary }}>
               <div className="text-2xl font-black mb-1" style={{ color: text }}>{cvData.socialStats.instagram}</div>
               <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: accent }}>Instagram</div>
@@ -703,7 +703,7 @@ function LayoutMediaKit({ template, cvData, colors, onPhotoUpload, onPhotoRemove
           </section>
         )}
 
-        <div className="grid grid-cols-2 gap-8 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-8 mt-4">
           <section>
             <h3 className="text-xs font-black uppercase mb-4 tracking-widest border-b pb-2" style={{ color: accent, borderColor: dividerColor }}>
               Ligne Éditoriale & Thèmes
@@ -757,7 +757,7 @@ function LayoutMediaKit({ template, cvData, colors, onPhotoUpload, onPhotoRemove
         )}
       </div>
 
-      <footer className="p-4 text-center text-[10px] font-bold tracking-widest uppercase flex justify-center gap-6" style={{ background: accent, color: bg }}>
+      <footer className="p-4 text-center text-[10px] font-bold tracking-widest uppercase flex flex-col md:flex-row print:flex-row justify-center gap-2 md:gap-6 print:gap-6" style={{ background: accent, color: bg }}>
         <span>{cvData.email}</span>
         <span>{cvData.phone}</span>
         {cvData.linkedin && <span>{cvData.linkedin.replace('linkedin.com/in/', '@')}</span>}
