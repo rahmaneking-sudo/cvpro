@@ -64,7 +64,6 @@
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    -webkit-text-size-adjust: 100%;
   }
 
   body {
@@ -75,7 +74,6 @@
     overflow-x: hidden;
     max-width: 100vw;
     width: 100%;
-    -webkit-text-size-adjust: 100%;
   }
 
   #root {
@@ -386,69 +384,29 @@
    RESPONSIVE
    ======================================== */
 
-@media screen and (max-width: 768px) {
+@media (max-width: 768px) {
   :root {
     --spacing-section: 60px;
     --spacing-card: 20px;
   }
 
-  /* Typography overrides for UI elements */
-  body:not(.printing) header h1, body:not(.printing) .glass-card h1 { font-size: 2.2rem !important; }
-  body:not(.printing) header h2, body:not(.printing) .glass-card h2 { font-size: 1.6rem !important; }
-
-  /* CRITICAL: Reset ALL mobile overrides inside the CV preview container.
-     The CV preview is always rendered at 794px and scaled down via CSS transform.
-     Mobile font overrides break its layout causing text overlap. */
-  #cv-preview-container h1,
-  #cv-preview-container h2,
-  #cv-preview-container h3,
-  #cv-preview-container h4,
-  #cv-preview-container h5,
-  #cv-preview-container h6,
-  #cv-preview-container header h1,
-  #cv-preview-container header h2,
-  #cv-preview-container header h3,
-  #portfolio-preview-container h1,
-  #portfolio-preview-container h2,
-  #portfolio-preview-container h3,
-  #portfolio-preview-container h4,
-  #portfolio-preview-container h5,
-  #portfolio-preview-container h6,
-  #portfolio-preview-container header h1,
-  #portfolio-preview-container header h2,
-  #portfolio-preview-container header h3 {
-    font-size: unset !important;
-  }
-
-  /* Prevent CV preview internals from being affected by mobile padding/sizing */
-  #cv-preview-container .glass-card,
-  #portfolio-preview-container .glass-card {
-    padding: unset !important;
-  }
-
-  #cv-preview-container input,
-  #cv-preview-container select,
-  #cv-preview-container textarea,
-  #portfolio-preview-container input,
-  #portfolio-preview-container select,
-  #portfolio-preview-container textarea {
-    max-width: unset !important;
-    min-width: unset !important;
-    font-size: unset !important;
-  }
+  h1 { font-size: 2.2rem !important; }
+  h2 { font-size: 1.6rem !important; }
 
   .cursor-dot, .cursor-ring {
     display: none;
   }
 
-  /* Prevent any horizontal overflow on mobile - only for UI */
+  /* Prevent any horizontal overflow on mobile */
   .glass-card,
-  form {
+  section,
+  form,
+  [class*="grid"] {
     max-width: 100%;
     overflow-x: hidden;
   }
 
-  /* Force text to wrap and not overflow - UI only */
+  /* Force text to wrap and not overflow */
   input,
   select,
   textarea {
@@ -468,28 +426,18 @@
     padding: 10px 20px;
     font-size: 0.85rem;
   }
+
+  /* Ensure word-break on long text */
+  p, span, div, label, td, th {
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
 }
 
-@media screen and (max-width: 480px) {
-  body:not(.printing) header h1 { font-size: 1.6rem !important; }
-  body:not(.printing) header h2 { font-size: 1.3rem !important; }
-  body:not(.printing) header h3 { font-size: 1.05rem !important; }
-
-  /* Reset inside CV/Portfolio preview */
-  #cv-preview-container h1,
-  #cv-preview-container h2,
-  #cv-preview-container h3,
-  #cv-preview-container header h1,
-  #cv-preview-container header h2,
-  #cv-preview-container header h3,
-  #portfolio-preview-container h1,
-  #portfolio-preview-container h2,
-  #portfolio-preview-container h3,
-  #portfolio-preview-container header h1,
-  #portfolio-preview-container header h2,
-  #portfolio-preview-container header h3 {
-    font-size: unset !important;
-  }
+@media (max-width: 480px) {
+  h1 { font-size: 1.6rem !important; }
+  h2 { font-size: 1.3rem !important; }
+  h3 { font-size: 1.05rem !important; }
 
   .btn-primary,
   .btn-ghost {
@@ -527,10 +475,7 @@
   .cursor-ring,
   nav,
   .app-sidebar,
-  .app-header,
-  #vercel-live-feedback,
-  vercel-live-feedback,
-  .vercel-toolbar {
+  .app-header {
     display: none !important;
   }
 
@@ -542,101 +487,6 @@
 }
 
 @page {
-  margin: 0 !important;
-  size: A4 portrait;
-}
-
-
-/* Force Safari to NEVER auto-resize text (prevents superposition bugs on load) */
-#cv-preview-container, 
-#cv-preview-container * {
-  -webkit-text-size-adjust: none !important;
-  text-size-adjust: none !important;
-}
-
-/* ========================================
-   ATS EXPORT - PURE CSS PRINTING LOGIC
-   ======================================== */
-@media print {
-  @page {
-    margin: 0 !important;
-    size: auto;
-  }
-
-  body.printing-ats {
-    background-color: var(--template-bg, #ffffff) !important;
-  }
-  
-  body.printing-ats header,
-  body.printing-ats footer,
-  body.printing-ats .no-print,
-  body.printing-ats .app-sidebar,
-  body.printing-ats .toast-container {
-    display: none !important;
-  }
-
-  /* Reset the container to take exactly the printable space */
-  body.printing-ats #cv-preview-container,
-  body.printing-ats #portfolio-preview-container {
-    width: 100% !important;
-    max-width: 100% !important;
-    height: auto !important;
-    min-height: 100vh !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    position: relative !important;
-    left: auto !important;
-    top: auto !important;
-    transform: none !important;
-    zoom: 1 !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-  }
-  
-  body.printing-ats .ats-wrapper {
-    width: 100% !important;
-    max-width: 100% !important;
-    height: auto !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    background-color: var(--template-bg, #ffffff) !important;
-  }
-
-  /* Remove all forced height cutoffs to allow natural pagination */
-  body.printing-ats.ats-one-page .ats-wrapper {
-    height: auto !important;
-    overflow: visible !important;
-  }
-}
-
-/* ========================================
-   IMAGE PRINTING LOGIC (NATIVE 1-PAGE HAUTE FIDÉLITÉ)
-   ======================================== */
-@media print {
-  @page {
-    margin: 0 !important;
-    size: A4 portrait;
-  }
-  
-  body.printing-image > * {
-    display: none !important;
-  }
-  
-  body.printing-image #print-image-overlay {
-    display: block !important;
-    width: 100% !important;
-    max-height: 100vh !important;
-    object-fit: contain !important;
-    object-position: top center !important;
-    margin: 0 auto !important;
-  }
-
-  body.printing-image {
-    background-color: white !important;
-  }
-}
-
-/* Base styles for printing-image class on body to hide scrollbars during generation */
-body.printing-image {
-  overflow: hidden !important;
+  margin: 0;
+  size: A4;
 }

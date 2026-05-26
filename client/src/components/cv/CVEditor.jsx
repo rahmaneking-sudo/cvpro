@@ -15,39 +15,51 @@ import CoverLetterPreview from './CoverLetterPreview';
 
 const PreviewScaler = ({ children }) => {
   const containerRef = React.useRef(null);
-  const [scale, setScale] = React.useState(() => {
-    if (typeof window !== 'undefined') {
-      const w = window.innerWidth;
-      const available = w > 1024 ? w * 0.55 : w;
-      return Math.min(1, (available - 32) / 794);
-    }
-    return 1;
-  });
+  const contentRef = React.useRef(null);
+  const [scale, setScale] = React.useState(1);
+  const [contentHeight, setContentHeight] = React.useState(1123);
 
   React.useEffect(() => {
     const observer = new ResizeObserver(() => {
       if (containerRef.current) {
         const availableWidth = containerRef.current.clientWidth;
+        // 794px = 210mm at 96dpi. Max scale is 1.
         setScale(Math.min(1, availableWidth / 794));
       }
+      if (contentRef.current) {
+        setContentHeight(contentRef.current.offsetHeight);
+      }
     });
-
     if (containerRef.current) observer.observe(containerRef.current);
+    if (contentRef.current) observer.observe(contentRef.current);
     return () => observer.disconnect();
   }, []);
 
   return (
     <div ref={containerRef} className="w-full flex justify-center print:!block print:!w-auto print:!m-0 print:!p-0">
       <div 
-        id="cv-preview-container"
-        className="w-[794px] min-h-[1123px] bg-white shadow-cinematic print:shadow-none print:m-0 print:!h-auto"
-        style={{
-          zoom: scale,
-          WebkitTextSizeAdjust: 'none',
-          textSizeAdjust: 'none'
+        className="print:!h-auto print:!w-full print:!static"
+        style={{ 
+          width: `${794 * scale}px`, 
+          height: `${contentHeight * scale}px`,
+          position: 'relative'
         }}
       >
-        {children}
+        <div 
+          id="cv-preview-container"
+          ref={contentRef}
+          className="shadow-[var(--shadow-cinematic)] rounded-lg overflow-hidden print:!transform-none print:!w-[210mm] print:!static print:!shadow-none print:!rounded-none"
+          style={{ 
+            width: '794px', 
+            transform: `scale(${scale})`, 
+            transformOrigin: 'top left',
+            position: 'absolute',
+            top: 0,
+            left: 0
+          }}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -304,13 +316,7 @@ export default function CVEditor() {
         }
       }
       
-      showToast('Préparation du document 1 page...', 'success');
-      
-      document.body.classList.add('printing');
-      
-      const originalZoom = element.style.zoom;
-      element.style.zoom = '1';
-      void element.offsetHeight;
+      showToast('Préparation du PDF en cours...', 'success');
       
       try {
         const canvas = await html2canvas(element, {
@@ -330,14 +336,22 @@ export default function CVEditor() {
                 clonedDoc.documentElement.style.background = bgVal;
                 clonedDoc.documentElement.style.backgroundColor = bgVal;
 
-                // Reset zoom and force full-size render for PDF capture
-                el.style.zoom = '1';
+                // Reset transform, scaling, and force auto height to allow full vertical render
                 el.style.transform = 'none';
                 el.style.position = 'static';
                 el.style.width = '794px';
                 el.style.height = 'auto';
                 el.style.minHeight = 'auto';
                 el.style.overflow = 'visible';
+
+                if (el.parentElement) {
+                  el.parentElement.style.width = '794px';
+                  el.parentElement.style.transform = 'none';
+                  el.parentElement.style.height = 'auto';
+                  el.parentElement.style.minHeight = 'auto';
+                  el.parentElement.style.position = 'static';
+                  el.parentElement.style.overflow = 'visible';
+                }
 
                 // Copy contents of all canvas elements
                 const originalCanvases = element.querySelectorAll('canvas');
@@ -383,48 +397,118 @@ export default function CVEditor() {
           return;
         }
 
-        // --- IMPRESSION IMAGE 1-PAGE NATIVE ---
-        if (isIOS && newWindow) newWindow.close();
+        const hexToRgb = (hexStr) => {
+          const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+          const fullHex = hexStr.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
+          const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
+          return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+          } : { r: 255, g: 255, b: 255 };
+        };
 
-        const printImg = document.createElement('img');
-        printImg.src = imgData;
-        printImg.id = 'print-image-overlay';
-        printImg.style.display = 'none';
-        document.body.appendChild(printImg);
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
         
-        document.body.classList.add('printing-image');
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        let imgWidthInPdf = pdfWidth;
+        let imgHeightInPdf = (canvasHeight * pdfWidth) / canvasWidth;
         
-        const originalTitle = document.title;
-        document.title = cvData.fullName ? `CV_${cvData.fullName.replace(/\s+/g, '_')}` : 'CV';
+        // --- NOUVELLE LOGIQUE : Forcer sur 1 seule page ---
+        // Si le contenu est plus long que la page A4, on le réduit proportionnellement
+        // pour qu'il tienne exactement sur une seule page.
+        if (imgHeightInPdf > pdfHeight) {
+          const scaleFactor = pdfHeight / imgHeightInPdf;
+          imgWidthInPdf = imgWidthInPdf * scaleFactor;
+          imgHeightInPdf = pdfHeight;
+        }
+
+        const xOffset = (pdfWidth - imgWidthInPdf) / 2;
         
-        setTimeout(() => {
-          window.print();
-          
-          const revert = () => {
-            document.title = originalTitle;
-            document.body.classList.remove('printing-image');
-            if (document.body.contains(printImg)) {
-              document.body.removeChild(printImg);
-            }
-            document.body.classList.remove('printing');
-            element.style.zoom = originalZoom;
-            window.removeEventListener('afterprint', revert);
-          };
-          
-          window.addEventListener('afterprint', revert);
-          setTimeout(revert, 300000); // 5 min fallback
-        }, 300);
+        // Remplir le fond de la page
+        const bgRgb = hexToRgb(template.bg || '#ffffff');
+        pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
+        pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
+
+        // Ajouter l'image centrée
+        pdf.addImage(imgData, 'JPEG', xOffset, 0, imgWidthInPdf, imgHeightInPdf);
         
+        const pdfBlob = pdf.output('blob');
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        
+        showToast('PDF généré avec succès !');
+        if (isIOS && newWindow) {
+          newWindow.location.href = pdfUrl;
+        } else {
+          const link = document.createElement('a');
+          link.href = pdfUrl;
+          link.download = `${cvData.fullName || 'CV'}.pdf`;
+          link.click();
+        }
       } catch (err) {
         console.error('PDF generation error:', err);
         showToast('Erreur lors de la génération du PDF.', 'error');
         if (isIOS && newWindow) newWindow.close();
-        document.body.classList.remove('printing');
-        element.style.zoom = originalZoom;
       }
     } else {
       setShowPaymentModal(true);
     }
+  };
+
+  const handleATSExport = () => {
+    if (!hasPurchased) {
+      setShowPaymentModal(true);
+      return;
+    }
+    setShowExportMenu(false);
+    showToast("N'oubliez pas de cocher 'Imprimer les arrière-plans' dans la fenêtre qui va s'ouvrir !", 'success');
+    
+    const el = document.getElementById('cv-preview-container');
+    let originalTransform = '';
+    let wrapperOriginalHeight = '';
+    
+    if (el) {
+      const H = el.offsetHeight;
+      const wrapper = el.parentElement;
+      // 1115px is slightly less than A4 height (297mm) to guarantee no page spill
+      if (H > 1115) {
+        const scale = 1115 / H;
+        originalTransform = el.style.transform;
+        
+        // Override with !important to bypass Tailwind's print:!transform-none
+        el.style.setProperty('transform', `scale(${scale})`, 'important');
+        el.style.setProperty('transform-origin', 'top center', 'important');
+        
+        // Also force the wrapper height and background color so it doesn't trigger a new page and hides side margins
+        if (wrapper) {
+          wrapperOriginalHeight = wrapper.style.height;
+          wrapper.dataset.originalBg = wrapper.style.backgroundColor;
+          
+          wrapper.style.setProperty('height', '1115px', 'important');
+          wrapper.style.setProperty('overflow', 'hidden', 'important');
+          wrapper.style.setProperty('background-color', template.bg || '#ffffff', 'important');
+        }
+      }
+    }
+
+    setTimeout(() => {
+      window.print();
+      
+      // Revert after print dialog closes
+      if (el) {
+        el.style.transform = originalTransform || '';
+        el.style.transformOrigin = 'top left';
+        const wrapper = el.parentElement;
+        if (wrapper) {
+          wrapper.style.height = wrapperOriginalHeight || '';
+          wrapper.style.overflow = 'visible';
+          wrapper.style.backgroundColor = wrapper.dataset.originalBg || '';
+        }
+      }
+    }, 2000);
   };
 
 
@@ -686,21 +770,53 @@ export default function CVEditor() {
           </button>
           <div className="relative">
             <button 
-              onClick={handleExport}
+              onClick={() => setShowExportMenu(!showExportMenu)}
               disabled={saving || isLoadingCV || isCheckingPurchase}
               className="btn-primary !py-2 !px-3 lg:!px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50"
             >
               {isCheckingPurchase ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} 
-              <span className="hidden sm:inline">Télécharger PDF</span>
+              <span className="hidden sm:inline">Exporter PDF</span>
+              <ChevronDown size={14} className={`transition-transform ${showExportMenu ? 'rotate-180' : ''}`} />
             </button>
+
+            {showExportMenu && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowExportMenu(false)} />
+                <div className="absolute right-0 mt-2 w-[280px] bg-[var(--color-obsidian)] border border-[rgba(255,255,255,0.1)] rounded-xl shadow-2xl z-50 overflow-hidden">
+                  <button 
+                    onClick={() => {
+                      setShowExportMenu(false);
+                      handleExport();
+                    }}
+                    className="w-full flex items-start gap-3 p-4 hover:bg-[rgba(255,255,255,0.05)] transition-colors text-left border-b border-[rgba(255,255,255,0.05)]"
+                  >
+                    <ImageIcon size={18} className="text-[var(--color-champagne)] mt-0.5 shrink-0" />
+                    <div>
+                      <div className="text-sm font-bold text-[var(--color-ivory)] mb-1">PDF Haute Fidélité</div>
+                      <div className="text-[10px] text-[var(--color-white-muted)] leading-relaxed">Design parfait 100% garanti. Idéal pour l'impression et l'envoi par e-mail.</div>
+                    </div>
+                  </button>
+                  <button 
+                    onClick={handleATSExport}
+                    className="w-full flex items-start gap-3 p-4 hover:bg-[rgba(255,255,255,0.05)] transition-colors text-left"
+                  >
+                    <FileText size={18} className="text-[var(--color-champagne)] mt-0.5 shrink-0" />
+                    <div>
+                      <div className="text-sm font-bold text-[var(--color-ivory)] mb-1">PDF pour Recruteur (ATS)</div>
+                      <div className="text-[10px] text-[var(--color-white-muted)] leading-relaxed">Texte sélectionnable. Optimisé pour les logiciels de tri de CV.</div>
+                    </div>
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
 
       {/* Editor area */}
-      <div className="flex flex-col lg:flex-row flex-1 lg:overflow-hidden print:overflow-visible print:block print:h-auto">
+      <div className="flex flex-col lg:flex-row flex-1 overflow-hidden print:overflow-visible print:block print:h-auto">
         {/* LEFT — Form */}
-        <div className="w-full lg:w-[45%] lg:overflow-y-auto p-4 lg:p-6 space-y-6 lg:space-y-8 border-b lg:border-b-0 lg:border-r border-[rgba(255,255,255,0.06)] print:hidden">
+        <div className="w-full lg:w-[45%] overflow-y-auto p-4 lg:p-6 space-y-6 lg:space-y-8 border-b lg:border-b-0 lg:border-r border-[rgba(255,255,255,0.06)] print:hidden">
           {/* AI Import Box */}
           <section className="relative overflow-hidden rounded-2xl border border-[rgba(201,169,110,0.3)] bg-gradient-to-br from-[rgba(201,169,110,0.05)] to-transparent p-6 group cursor-pointer transition-colors hover:border-[var(--color-champagne)]">
             <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-champagne)] opacity-5 blur-[60px] rounded-full group-hover:opacity-10 transition-opacity" />
@@ -1230,7 +1346,7 @@ export default function CVEditor() {
         </div>
 
         {/* RIGHT — Live Preview */}
-        <div className="flex-1 lg:overflow-y-auto bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:relative print:z-10">
+        <div className="flex-1 overflow-y-auto bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:relative print:z-10">
           <div className="w-full max-w-[100%] lg:max-w-[794px] print:max-w-none print:w-full print:mx-auto print:overflow-visible">
             <PreviewScaler>
               {isCoverLetter ? (
