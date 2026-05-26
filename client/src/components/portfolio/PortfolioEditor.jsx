@@ -518,6 +518,14 @@ export default function PortfolioEditor() {
         console.error('PDF generation error:', err);
         showToast('Erreur lors de la génération du PDF.', 'error');
         if (isIOS && newWindow) newWindow.close();
+      } finally {
+        if (element) {
+          const originalDisplay = element.style.display;
+          element.style.display = 'none';
+          void element.offsetHeight;
+          element.style.display = originalDisplay;
+        }
+        window.dispatchEvent(new Event('resize'));
       }
     } else {
       setShowPaymentModal(true);

@@ -560,6 +560,16 @@ export default function CVEditor() {
         if (isIOS && newWindow) newWindow.close();
       } finally {
         document.body.classList.remove('printing');
+        // Force un reflow complet pour corriger le bug de superposition/écrasement 
+        // sur iOS/Safari après la génération d'un gros canvas (qui corrompt la mémoire GPU des transform)
+        if (element) {
+          const originalDisplay = element.style.display;
+          element.style.display = 'none';
+          void element.offsetHeight; // Force reflow
+          element.style.display = originalDisplay;
+        }
+        // Force l'observer à recalculer l'échelle au cas où
+        window.dispatchEvent(new Event('resize'));
       }
     } else {
       setShowPaymentModal(true);
