@@ -412,8 +412,6 @@ export default function CVEditor() {
       
       showToast('Préparation du PDF en cours...', 'success');
       
-      document.body.classList.add('printing');
-      
       try {
         const canvas = await html2canvas(element, {
           scale: 2,
@@ -559,7 +557,6 @@ export default function CVEditor() {
         showToast('Erreur lors de la génération du PDF.', 'error');
         if (isIOS && newWindow) newWindow.close();
       } finally {
-        document.body.classList.remove('printing');
         // Force un reflow complet pour corriger le bug de superposition/écrasement 
         // sur iOS/Safari après la génération d'un gros canvas (qui corrompt la mémoire GPU des transform)
         if (element) {
