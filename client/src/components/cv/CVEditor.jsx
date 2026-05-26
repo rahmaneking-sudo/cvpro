@@ -312,22 +312,22 @@ export default function CVEditor() {
 
     showToast('Préparation du PDF en cours...', 'success');
 
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    let newWindow;
-    if (isIOS) {
-      newWindow = window.open('', '_blank');
-      if (newWindow) newWindow.document.write(
-        '<div style="font-family:sans-serif;padding:20px;text-align:center;color:#555;margin-top:80px;">' +
-        '⏳ Génération du PDF...<br/>Veuillez patienter.</div>'
-      );
-    }
-
     try {
       // ─── html2canvas avec onclone ────────────────────────────────────────
       // onclone reçoit une COPIE INTERNE du document gérée par html2canvas.
       // Le DOM original (ce que l'utilisateur voit) n'est JAMAIS modifié.
       // Aucun wrapper n'est ajouté au body → aucune perturbation du layout.
       // ─────────────────────────────────────────────────────────────────────
+      // ─── CORRECTION BUG iOS SAFARI ──────────────────────────────────────────
+      // iOS Safari `html2canvas` utilise getBoundingClientRect() de l'élément original
+      // Si l'élément a `transform: scale(0.4)`, iOS Safari coupe le canvas à 317px !
+      // On retire temporairement le transform pour forcer 794px réels pendant la capture.
+      const originalTransform = element.style.transform;
+      element.style.transform = 'none';
+      
+      // Laisser le navigateur appliquer le changement de taille avant la capture
+      await new Promise(r => setTimeout(r, 50));
+
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
@@ -382,13 +382,15 @@ export default function CVEditor() {
         }
       });
 
+      // Restaurer le transform visuel immédiatement
+      element.style.transform = originalTransform;
+
       // ─── Génération PDF ──────────────────────────────────────────────────
       let imgData;
       try {
         imgData = canvas.toDataURL('image/jpeg', 0.95);
       } catch (e) {
         showToast("Erreur CORS : une image bloque l'export PDF.", 'error');
-        if (isIOS && newWindow) newWindow.close();
         return;
       }
 
@@ -427,39 +429,15 @@ export default function CVEditor() {
       } catch(e) { /* ATS optionnel */ }
 
       // ─── Téléchargement ──────────────────────────────────────────────────
-      // N'utilise PAS de Blob URL externe (bloqué par Chrome cross-partition).
-      // pdf.save() gère tout nativement. iOS utilise data URI dans la nouvelle fenêtre.
       const filename = `${cvData.fullName || 'CV'}_${template.name || 'SamaCVPro'}.pdf`;
+      
+      // Desktop / Android / iOS Moderne : pdf.save() intègre son propre téléchargement (<a> caché)
+      pdf.save(filename);
       showToast('\u2705 PDF téléchargé avec succès !');
-
-      if (isIOS) {
-        // iOS : afficher via data URI dans la fenêtre ouverte (pas de Blob URL)
-        try {
-          const dataUri = pdf.output('datauristring');
-          if (newWindow) {
-            newWindow.document.open();
-            newWindow.document.write(
-              `<!DOCTYPE html><html><head><title>${filename}</title></head>` +
-              `<body style="margin:0;padding:0;background:#000;">` +
-              `<embed style="width:100%;height:100vh;" src="${dataUri}" type="application/pdf"/>` +
-              `</body></html>`
-            );
-            newWindow.document.close();
-          } else {
-            pdf.save(filename); // fallback si popup bloqué
-          }
-        } catch(e) {
-          pdf.save(filename);
-        }
-      } else {
-        // Desktop / Android : pdf.save() intègre son propre téléchargement
-        pdf.save(filename);
-      }
 
     } catch (err) {
       console.error('PDF generation error:', err);
       showToast('Erreur lors de la génération du PDF.', 'error');
-      if (isIOS && newWindow) newWindow.close();
     }
   };
 

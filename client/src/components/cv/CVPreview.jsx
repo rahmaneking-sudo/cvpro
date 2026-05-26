@@ -135,7 +135,7 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
           </section>
         )}
         {cvData.languages?.length > 0 && (
-          <section className="w-[28%] shrink-0">
+          <section className="w-[222px] shrink-0 shrink-0">
             <h3 className="text-xs font-bold uppercase tracking-widest mb-2 pb-1 border-b" style={{ color: text, borderColor: dividerColor }}>
               Langues
             </h3>
@@ -164,7 +164,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
   return (
     <div className="flex" style={{ minHeight: '1123px' }}>
       {/* Sidebar */}
-      <aside className="w-[30%] p-5 flex flex-col" style={{ background: secondary }}>
+      <aside className="w-[238px] shrink-0 p-5 flex flex-col" style={{ background: secondary }}>
         {/* Photo / Initiales avec upload */}
         <div className="relative shrink-0 group mx-auto mb-5">
           {cvData.photo && !isUploadingPhoto && onPhotoRemove && (
@@ -451,7 +451,7 @@ function LayoutAsymmetric({ template, cvData, experiences, educations, colors })
     <div className="p-6 flex flex-col min-h-[1123px]">
       {/* Header compact */}
       <header className="flex justify-between items-end mb-4 pb-3 border-b-2" style={{ borderColor: text }}>
-        <div className="w-[65%]">
+        <div className="w-[516px] shrink-0">
           <h1 className="text-2xl font-black uppercase leading-none tracking-tighter mb-1" style={{ color: text, fontFamily: "'Playfair Display', serif" }}>
             {cvData.fullName || 'VOTRE NOM'}
           </h1>
