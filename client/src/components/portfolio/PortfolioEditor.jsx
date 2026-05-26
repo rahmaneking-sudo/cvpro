@@ -8,6 +8,9 @@ import PortfolioPreview from './PortfolioPreview';
 import PaymentModal from '../shared/PaymentModal';
 import api from '../../services/api';
 import { uploadFile } from '../../services/cloudinaryUpload';
+import html2canvas from 'html2canvas-pro';
+import { jsPDF } from 'jspdf';
+
 const PreviewScaler = ({ children }) => {
   const containerRef = React.useRef(null);
   const [scale, setScale] = React.useState(1);
@@ -275,55 +278,153 @@ export default function PortfolioEditor() {
     }
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
     if (hasPurchased) {
-      showToast("Préparation de l'impression...", 'success');
+      const element = document.getElementById('portfolio-preview-container');
+      if (!element) return;
       
-      const el = document.getElementById('portfolio-preview-container');
-      if (el) {
-        // Prepare DOM for ATS-friendly native printing
-        document.body.style.setProperty('--template-bg', template?.bg || '#ffffff');
-        document.body.classList.add('printing-ats');
-        
-        if (el.parentElement) {
-          el.parentElement.classList.add('ats-wrapper');
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      let newWindow;
+      
+      if (isIOS) {
+        newWindow = window.open('', '_blank');
+        if (newWindow) {
+          newWindow.document.write('<div style="font-family:sans-serif;padding:20px;text-align:center;color:#666;margin-top:50px;">Génération du PDF en cours...<br/>Veuillez patienter.</div>');
         }
-        
-        // Portfolios can be longer than 1 page.
-        const isOnePage = el.offsetHeight <= 1160;
-        if (isOnePage) {
-          document.body.classList.add('ats-one-page');
-          const pdfHeight = 1123;
-          if (el.offsetHeight > pdfHeight) {
-             document.body.style.setProperty('--print-scale', (pdfHeight / el.offsetHeight).toString());
-          } else {
-             document.body.style.setProperty('--print-scale', '1');
-          }
-        } else {
-          document.body.style.setProperty('--print-scale', '1');
-        }
-        
-        const originalTitle = document.title;
-        document.title = data.fullName ? `Portfolio_${data.fullName.replace(/\s+/g, '_')}` : 'Portfolio';
-        
-        setTimeout(() => {
-          window.print();
-          
-          const revert = () => {
-            document.title = originalTitle;
-            document.body.classList.remove('printing-ats', 'ats-one-page');
-            document.body.style.removeProperty('--template-bg');
-            document.body.style.removeProperty('--print-scale');
-            if (el.parentElement) {
-              el.parentElement.classList.remove('ats-wrapper');
-            }
-            window.removeEventListener('afterprint', revert);
-            ensureSaved().catch(console.error);
-          };
+      }
+      
+      showToast('Préparation du PDF en cours...', 'success');
+      
+      try {
+        const canvas = await html2canvas(element, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          width: 794,
+          windowWidth: 794,
+          backgroundColor: null,
+          onclone: (clonedDoc) => {
+            try {
+              const el = clonedDoc.getElementById('portfolio-preview-container');
+              if (el) {
+                const bgVal = template.bg || '#ffffff';
+                clonedDoc.body.style.background = bgVal;
+                clonedDoc.body.style.backgroundColor = bgVal;
+                clonedDoc.documentElement.style.background = bgVal;
+                clonedDoc.documentElement.style.backgroundColor = bgVal;
 
-          window.addEventListener('afterprint', revert);
-          setTimeout(revert, 300000); // 5 minute fallback
-        }, 300);
+                // Reset zoom and force full-size render for PDF capture
+                el.style.zoom = '1';
+                el.style.transform = 'none';
+                el.style.position = 'static';
+                el.style.width = '794px';
+                el.style.height = 'auto';
+                el.style.minHeight = 'auto';
+                el.style.overflow = 'visible';
+
+                // Copy contents of all canvas elements (like PDF thumbnails)
+                const originalCanvases = element.querySelectorAll('canvas');
+                const clonedCanvases = el.querySelectorAll('canvas');
+                originalCanvases.forEach((origCanvas, index) => {
+                  const clonedCanvas = clonedCanvases[index];
+                  if (clonedCanvas) {
+                    const ctx = clonedCanvas.getContext('2d');
+                    clonedCanvas.width = origCanvas.width;
+                    clonedCanvas.height = origCanvas.height;
+                    ctx.drawImage(origCanvas, 0, 0);
+                  }
+                });
+
+                // Force image colors (remove grayscale)
+                const images = el.getElementsByTagName('img');
+                for (let img of images) {
+                  if (img.classList && img.classList.remove) {
+                    img.classList.remove('grayscale');
+                  }
+                  if (img.style) {
+                    img.style.filter = 'none';
+                    img.style.webkitFilter = 'none';
+                  }
+                  if (img.setAttribute && !img.hasAttribute('crossOrigin')) {
+                    img.setAttribute('crossOrigin', 'anonymous');
+                  }
+                }
+              }
+            } catch (e) {
+              console.error('onclone error:', e);
+            }
+          }
+        });
+        
+        let imgData;
+        try {
+          imgData = canvas.toDataURL('image/jpeg', 0.98);
+        } catch (e) {
+          console.error('Canvas tainted or export failed:', e);
+          showToast('Impossible d\'exporter : Certaines images bloquent la génération PDF (Erreur CORS).', 'error');
+          if (isIOS && newWindow) newWindow.close();
+          return;
+        }
+
+        const hexToRgb = (hexStr) => {
+          const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+          const fullHex = hexStr.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
+          const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
+          return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+          } : { r: 255, g: 255, b: 255 };
+        };
+
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
+        
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        const imgHeightInPdf = (canvasHeight * pdfWidth) / canvasWidth;
+        
+        let heightLeft = imgHeightInPdf;
+        let position = 0;
+        
+        // Fill page background color first to guarantee uniform background
+        const bgRgb = hexToRgb(template.bg || '#ffffff');
+        pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
+        pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
+        
+        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInPdf);
+        heightLeft -= pdfHeight;
+        
+        while (heightLeft > 15) {
+          position = heightLeft - imgHeightInPdf;
+          pdf.addPage();
+          
+          // Fill new page background color first
+          pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
+          pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
+          
+          pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInPdf);
+          heightLeft -= pdfHeight;
+        }
+        
+        const pdfBlob = pdf.output('blob');
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        
+        showToast('PDF généré avec succès !');
+        if (isIOS && newWindow) {
+          newWindow.location.href = pdfUrl;
+        } else {
+          const link = document.createElement('a');
+          link.href = pdfUrl;
+          link.download = `${data.fullName || 'Portfolio'}.pdf`;
+          link.click();
+        }
+        ensureSaved().catch(console.error);
+      } catch (err) {
+        console.error('PDF generation error:', err);
+        showToast('Erreur lors de la génération du PDF.', 'error');
+        if (isIOS && newWindow) newWindow.close();
       }
     } else {
       setShowPaymentModal(true);
