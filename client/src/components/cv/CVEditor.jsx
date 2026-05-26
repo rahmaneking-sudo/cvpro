@@ -427,20 +427,33 @@ export default function CVEditor() {
       } catch(e) { /* ATS optionnel */ }
 
       // ─── Téléchargement ──────────────────────────────────────────────────
-      const blob = pdf.output('blob');
-      const url = URL.createObjectURL(blob);
-      showToast('✅ PDF téléchargé avec succès !');
+      // N'utilise PAS de Blob URL externe (bloqué par Chrome cross-partition).
+      // pdf.save() gère tout nativement. iOS utilise data URI dans la nouvelle fenêtre.
+      const filename = `${cvData.fullName || 'CV'}_${template.name || 'SamaCVPro'}.pdf`;
+      showToast('\u2705 PDF téléchargé avec succès !');
 
-      if (isIOS && newWindow) {
-        newWindow.location.href = url;
+      if (isIOS) {
+        // iOS : afficher via data URI dans la fenêtre ouverte (pas de Blob URL)
+        try {
+          const dataUri = pdf.output('datauristring');
+          if (newWindow) {
+            newWindow.document.open();
+            newWindow.document.write(
+              `<!DOCTYPE html><html><head><title>${filename}</title></head>` +
+              `<body style="margin:0;padding:0;background:#000;">` +
+              `<embed style="width:100%;height:100vh;" src="${dataUri}" type="application/pdf"/>` +
+              `</body></html>`
+            );
+            newWindow.document.close();
+          } else {
+            pdf.save(filename); // fallback si popup bloqué
+          }
+        } catch(e) {
+          pdf.save(filename);
+        }
       } else {
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${cvData.fullName || 'CV'}_${template.name || 'SamaCVPro'}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        // Desktop / Android : pdf.save() intègre son propre téléchargement
+        pdf.save(filename);
       }
 
     } catch (err) {
@@ -959,6 +972,8 @@ export default function CVEditor() {
                         <label className="cursor-pointer w-full h-full flex items-center justify-center">
                           <input 
                             type="file" 
+                            id={`exp-logo-${idx}`}
+                            name={`exp-logo-${idx}`}
                             accept="image/*" 
                             onChange={e => handleExperienceLogoUpload(idx, e)} 
                             className="hidden" 
