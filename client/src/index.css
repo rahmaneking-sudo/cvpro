@@ -429,6 +429,15 @@
   }
 }
 
+/* CV Preview mobile scrollable container — must NOT be clipped by parent overflow rules */
+@media screen and (max-width: 1023px) {
+  /* The preview panel itself needs overflow-x: visible to allow its child scroller to work */
+  .lg\:overflow-y-auto:has(#cv-preview-container) {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 @media screen and (max-width: 480px) {
   body:not(.printing) header h1 { font-size: 1.6rem !important; }
   body:not(.printing) header h2 { font-size: 1.3rem !important; }
