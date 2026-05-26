@@ -241,7 +241,7 @@ export default function AdminDashboardPage() {
               <div>
                 <p className="text-xs uppercase tracking-widest text-[var(--color-white-muted)] mb-1">Revenus Totaux</p>
                 <p className="text-2xl font-bold text-[var(--color-ivory)]">
-                  {stats?.totalRevenue?.toLocaleString('fr-FR')} <span className="text-[var(--color-champagne)] text-lg">FCFA</span>
+                  0 <span className="text-[var(--color-champagne)] text-lg">FCFA</span>
                 </p>
               </div>
             </div>
