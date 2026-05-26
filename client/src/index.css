@@ -390,8 +390,9 @@
     --spacing-card: 20px;
   }
 
-  h1:not(#cv-preview-container h1):not(#cv-preview-container *) { font-size: 2.2rem !important; }
-  h2:not(#cv-preview-container h2):not(#cv-preview-container *) { font-size: 1.6rem !important; }
+  /* Titres globaux (hors CV) */
+  h1 { font-size: 2.2rem !important; }
+  h2 { font-size: 1.6rem !important; }
 
   .cursor-dot, .cursor-ring {
     display: none;
@@ -406,7 +407,7 @@
     overflow-x: hidden;
   }
 
-  /* Force text to wrap and not overflow */
+  /* Force text to wrap and not overflow (inputs, labels only) */
   input,
   select,
   textarea {
@@ -427,29 +428,43 @@
     font-size: 0.85rem;
   }
 
-  /* Force text to wrap and not overflow — but NOT inside the CV preview */
-  p:not(#cv-preview-container p):not(#cv-preview-container *),
-  span:not(#cv-preview-container span):not(#cv-preview-container *),
-  div:not(#cv-preview-container):not(#cv-preview-container *),
-  label:not(#cv-preview-container label),
-  td, th {
+  /* Word-break sur texte simple (pas les divs flex) */
+  p, span, label, td, th {
     word-break: break-word;
     overflow-wrap: break-word;
   }
 
-  /* Protect CV preview from ALL mobile CSS overrides */
+  /* ── Protection du CV preview ──────────────────────────────────────────
+     Annuler les font-size !important des h1/h2 sur les titres dans le CV.
+     On utilise inherit pour que les classes Tailwind reprennent le dessus.
+     On ne touche PAS au word-break ni à overflow pour garder le flex layout.
+  ─────────────────────────────────────────────────────────────────────── */
+  #cv-preview-container h1,
+  #cv-preview-container h2,
+  #cv-preview-container h3,
+  #cv-preview-container h4 {
+    font-size: inherit !important;
+  }
+
   #cv-preview-container,
   #cv-preview-container * {
     word-break: normal !important;
     overflow-wrap: normal !important;
-    font-size: revert !important;
   }
 }
 
 @media (max-width: 480px) {
-  h1:not(#cv-preview-container *) { font-size: 1.6rem !important; }
-  h2:not(#cv-preview-container *) { font-size: 1.3rem !important; }
-  h3:not(#cv-preview-container *) { font-size: 1.05rem !important; }
+  h1 { font-size: 1.6rem !important; }
+  h2 { font-size: 1.3rem !important; }
+  h3 { font-size: 1.05rem !important; }
+
+  /* Annuler aussi sur 480px */
+  #cv-preview-container h1,
+  #cv-preview-container h2,
+  #cv-preview-container h3,
+  #cv-preview-container h4 {
+    font-size: inherit !important;
+  }
 
   .btn-primary,
   .btn-ghost {
@@ -457,6 +472,8 @@
     font-size: 0.8rem;
   }
 }
+
+
 
 /* ========================================
    PRINT PDF EXACT STYLES
