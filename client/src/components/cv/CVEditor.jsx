@@ -289,140 +289,39 @@ export default function CVEditor() {
     }
   };
 
-  const handleExport = async () => {
-    if (hasPurchased) {
-      const element = document.getElementById('cv-preview-container');
-      if (!element) return;
-      
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-      let newWindow;
-      
-      if (isIOS) {
-        newWindow = window.open('', '_blank');
-        if (newWindow) {
-          newWindow.document.write('<div style="font-family:sans-serif;padding:20px;text-align:center;color:#666;margin-top:50px;">Génération du PDF en cours...<br/>Veuillez patienter.</div>');
-        }
-      }
-      
-      showToast('Préparation du PDF en cours...', 'success');
-      
-      document.body.classList.add('printing');
-      
-      const originalZoom = element.style.zoom;
-      element.style.zoom = '1';
-      void element.offsetHeight;
-      
-      try {
-        const canvas = await html2canvas(element, {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          width: 794,
-          windowWidth: 794,
-          backgroundColor: null,
-          onclone: (clonedDoc) => {
-            try {
-              const el = clonedDoc.getElementById('cv-preview-container');
-              if (el) {
-                const bgVal = template.bg || '#ffffff';
-                clonedDoc.body.style.background = bgVal;
-                clonedDoc.body.style.backgroundColor = bgVal;
-                clonedDoc.documentElement.style.background = bgVal;
-                clonedDoc.documentElement.style.backgroundColor = bgVal;
-
-                // Reset zoom and force full-size render for PDF capture
-                el.style.zoom = '1';
-                el.style.transform = 'none';
-                el.style.position = 'static';
-                el.style.width = '794px';
-                el.style.height = 'auto';
-                el.style.minHeight = 'auto';
-                el.style.overflow = 'visible';
-
-                // Copy contents of all canvas elements
-                const originalCanvases = element.querySelectorAll('canvas');
-                const clonedCanvases = el.querySelectorAll('canvas');
-                originalCanvases.forEach((origCanvas, index) => {
-                  const clonedCanvas = clonedCanvases[index];
-                  if (clonedCanvas) {
-                    const ctx = clonedCanvas.getContext('2d');
-                    clonedCanvas.width = origCanvas.width;
-                    clonedCanvas.height = origCanvas.height;
-                    ctx.drawImage(origCanvas, 0, 0);
-                  }
-                });
-
-                // Force image colors (remove grayscale)
-                const images = el.getElementsByTagName('img');
-                for (let img of images) {
-                  if (img.classList && img.classList.remove) {
-                    img.classList.remove('grayscale');
-                  }
-                  if (img.style) {
-                    img.style.filter = 'none';
-                    img.style.webkitFilter = 'none';
-                  }
-                  if (img.setAttribute && !img.hasAttribute('crossOrigin')) {
-                    img.setAttribute('crossOrigin', 'anonymous');
-                  }
-                }
-              }
-            } catch (e) {
-              console.error('onclone error:', e);
-            }
-          }
-        });
-        
-        let imgData;
-        try {
-          imgData = canvas.toDataURL('image/jpeg', 0.98);
-        } catch (e) {
-          console.error('Canvas tainted or export failed:', e);
-          showToast('Impossible d\'exporter : Certaines images bloquent la génération PDF (Erreur CORS).', 'error');
-          if (isIOS && newWindow) newWindow.close();
-          return;
-        }
-
-        // --- NOUVELLE LOGIQUE : Imprimer l'image en natif ---
-        // On insère l'image dans le DOM et on demande au navigateur de l'imprimer.
-        // Cela ouvre la boîte de dialogue native ET garantit aucune superposition !
-        if (isIOS && newWindow) newWindow.close(); // Close the temporary tab if we opened one
-
-        const printImg = document.createElement('img');
-        printImg.src = imgData;
-        printImg.id = 'print-image-overlay';
-        printImg.style.display = 'none';
-        document.body.appendChild(printImg);
-        
-        document.body.classList.add('printing-image');
-        
-        setTimeout(() => {
-          window.print();
-          
-          const revert = () => {
-            document.body.classList.remove('printing-image');
-            if (document.body.contains(printImg)) {
-              document.body.removeChild(printImg);
-            }
-            document.body.classList.remove('printing');
-            element.style.zoom = originalZoom;
-            window.removeEventListener('afterprint', revert);
-          };
-          
-          window.addEventListener('afterprint', revert);
-          setTimeout(revert, 300000); // 5 min fallback
-        }, 300);
-        
-      } catch (err) {
-        console.error('PDF generation error:', err);
-        showToast('Erreur lors de la génération du PDF.', 'error');
-        if (isIOS && newWindow) newWindow.close();
-        document.body.classList.remove('printing');
-        element.style.zoom = originalZoom;
-      }
-    } else {
+  const handleExport = () => {
+    if (!hasPurchased) {
       setShowPaymentModal(true);
+      return;
     }
+    
+    // On passe la couleur de fond dynamique au CSS via une variable
+    document.body.style.setProperty('--template-bg', template.bg || '#ffffff');
+    document.body.classList.add('printing-ats');
+    
+    const el = document.getElementById('cv-preview-container');
+    if (el && el.parentElement) {
+      el.parentElement.classList.add('ats-wrapper');
+      
+      // Check if it's a 1-page CV
+      const isOnePage = el.offsetHeight <= 1160;
+      if (isOnePage) {
+        document.body.classList.add('ats-one-page');
+      }
+    }
+    
+    const originalTitle = document.title;
+    document.title = cvData.fullName ? `CV_${cvData.fullName.replace(/\s+/g, '_')}` : 'CV';
+    
+    setTimeout(() => {
+      window.print();
+      
+      document.title = originalTitle;
+      document.body.classList.remove('printing-ats', 'ats-one-page');
+      if (el && el.parentElement) {
+        el.parentElement.classList.remove('ats-wrapper');
+      }
+    }, 300);
   };
 
 

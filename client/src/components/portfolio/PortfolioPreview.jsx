@@ -405,7 +405,7 @@ function LayoutStandard({ template, data }) {
           Projets Sélectionnés
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div className="grid grid-cols-2 gap-10">
           {(projects?.length > 0 ? projects : [{}, {}])?.map((proj, i) => (
             <article key={i} className="group cursor-pointer">
               {proj.link ? (
