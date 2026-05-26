@@ -51,8 +51,8 @@ const PreviewScaler = ({ children }) => {
           className="shadow-[var(--shadow-cinematic)] rounded-lg overflow-hidden print:!transform-none print:!w-[210mm] print:!static print:!shadow-none print:!rounded-none bg-white min-h-[1123px]"
           style={{ 
             width: '794px', 
-            transform: `scale(${scale})`, 
-            transformOrigin: 'top left',
+            zoom: scale,
+            /* Fallback for very old Firefox, though it might double scale on some edge cases if we use both, so we stick to zoom which is now standard */
             position: 'absolute',
             top: 0,
             left: 0
