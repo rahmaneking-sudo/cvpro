@@ -379,7 +379,7 @@ export default function PortfolioEditor() {
         }
       }
       
-      showToast('Préparation du PDF en cours...', 'success');
+      // NOTE: Do NOT show a toast here - backdrop-blur overlay corrupts Safari GPU
       
       try {
         const canvas = await html2canvas(element, {
@@ -473,7 +473,7 @@ export default function PortfolioEditor() {
 
         const pdf = new jsPDF('p', 'mm', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
+        const pdfHeight = pdf.internal.pageSize.getHeight();
         
         const canvasWidth = canvas.width;
         const canvasHeight = canvas.height;
@@ -482,7 +482,6 @@ export default function PortfolioEditor() {
         let heightLeft = imgHeightInPdf;
         let position = 0;
         
-        // Fill page background color first to guarantee uniform background
         const bgRgb = hexToRgb(template.bg || '#ffffff');
         pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
         pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
@@ -493,11 +492,8 @@ export default function PortfolioEditor() {
         while (heightLeft > 15) {
           position = heightLeft - imgHeightInPdf;
           pdf.addPage();
-          
-          // Fill new page background color first
           pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
           pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
-          
           pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInPdf);
           heightLeft -= pdfHeight;
         }
@@ -505,7 +501,6 @@ export default function PortfolioEditor() {
         const pdfBlob = pdf.output('blob');
         const pdfUrl = URL.createObjectURL(pdfBlob);
         
-        showToast('PDF généré avec succès !');
         if (isIOS && newWindow) {
           newWindow.location.href = pdfUrl;
         } else {
@@ -515,13 +510,15 @@ export default function PortfolioEditor() {
           link.click();
         }
         ensureSaved().catch(console.error);
+        
+        // Remount preview first, then show toast after GPU settles
+        setPreviewKey(k => k + 1);
+        setTimeout(() => showToast('PDF généré avec succès !'), 600);
       } catch (err) {
         console.error('PDF generation error:', err);
-        showToast('Erreur lors de la génération du PDF.', 'error');
-        if (isIOS && newWindow) newWindow.close();
-      } finally {
-        // Force Safari/iOS to completely reset its GPU compositor
         setPreviewKey(k => k + 1);
+        setTimeout(() => showToast('Erreur lors de la génération du PDF.', 'error'), 600);
+        if (isIOS && newWindow) newWindow.close();
       }
     } else {
       setShowPaymentModal(true);

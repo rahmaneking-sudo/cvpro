@@ -411,7 +411,9 @@ export default function CVEditor() {
         }
       }
       
-      showToast('Préparation du PDF en cours...', 'success');
+      // NOTE: Do NOT show a toast here. The toast renders a fullscreen backdrop-blur
+      // overlay that corrupts Safari iOS GPU compositing of the scaled preview element.
+      // The success/error toast will be shown AFTER the PDF is fully generated.
       
       try {
         const canvas = await html2canvas(element, {
@@ -544,7 +546,6 @@ export default function CVEditor() {
         const pdfBlob = pdf.output('blob');
         const pdfUrl = URL.createObjectURL(pdfBlob);
         
-        showToast('PDF généré avec succès !');
         if (isIOS && newWindow) {
           newWindow.location.href = pdfUrl;
         } else {
@@ -553,16 +554,16 @@ export default function CVEditor() {
           link.download = `${cvData.fullName || 'CV'}.pdf`;
           link.click();
         }
+        
+        // Success: first remount the preview to reset GPU, then show toast after delay
+        setPreviewKey(k => k + 1);
+        setTimeout(() => showToast('PDF généré avec succès !'), 600);
       } catch (err) {
         console.error('PDF generation error:', err);
-        showToast('Erreur lors de la génération du PDF.', 'error');
-        if (isIOS && newWindow) newWindow.close();
-      } finally {
-        // Force Safari/iOS to completely reset its GPU compositor by
-        // destroying and recreating the PreviewScaler React component.
-        // This is the cleanest fix because it doesn't touch the DOM directly
-        // (which conflicts with React's reconciliation and the ResizeObserver).
+        // Error: remount first, then show error toast
         setPreviewKey(k => k + 1);
+        setTimeout(() => showToast('Erreur lors de la génération du PDF.', 'error'), 600);
+        if (isIOS && newWindow) newWindow.close();
       }
     } else {
       setShowPaymentModal(true);
