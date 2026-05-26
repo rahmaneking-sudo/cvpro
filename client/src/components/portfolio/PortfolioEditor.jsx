@@ -113,6 +113,7 @@ const PreviewScaler = ({ children }) => {
             style={{
               width: '794px',
               transform: `scale(${scale})`,
+              willChange: 'transform',
               transformOrigin: 'top left',
               position: 'absolute',
               top: 0,
@@ -163,6 +164,7 @@ export default function PortfolioEditor() {
   const [isLoading, setIsLoading] = useState(!!portfolioId);
   const [hasPurchased, setHasPurchased] = useState(false);
   const [isCheckingPurchase, setIsCheckingPurchase] = useState(true);
+  const [isExporting, setIsExporting] = useState(false);
 
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
@@ -379,8 +381,10 @@ export default function PortfolioEditor() {
       }
       
       showToast('Préparation du PDF en cours...', 'success');
+      setIsExporting(true);
       
       try {
+        await new Promise(r => setTimeout(r, 100)); // Allow React to render loading overlay
         const canvas = await html2canvas(element, {
           scale: 2,
           useCORS: true,
@@ -519,11 +523,17 @@ export default function PortfolioEditor() {
         showToast('Erreur lors de la génération du PDF.', 'error');
         if (isIOS && newWindow) newWindow.close();
       } finally {
+        setIsExporting(false);
         if (element) {
           const originalDisplay = element.style.display;
+          const originalTransform = element.style.transform;
+          
           element.style.display = 'none';
+          element.style.transform = 'none';
           void element.offsetHeight;
+          
           element.style.display = originalDisplay;
+          element.style.transform = originalTransform;
         }
         window.dispatchEvent(new Event('resize'));
       }
@@ -808,12 +818,25 @@ export default function PortfolioEditor() {
         </div>
 
         {/* RIGHT — Live Preview */}
-        <div className="flex-1 overflow-y-auto bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:relative print:z-10">
+        <div className="flex-1 overflow-y-auto bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:relative print:z-10 relative">
           <div className="w-full max-w-[100%] lg:max-w-[794px] print:max-w-none print:w-full print:mx-auto print:overflow-visible">
             <PreviewScaler>
               <PortfolioPreview template={template} data={{ ...data, projects }} />
             </PreviewScaler>
           </div>
+
+          {/* Export Overlay */}
+          {isExporting && (
+            <div className="absolute inset-0 z-[100] flex items-center justify-center bg-[var(--color-graphite)]/95 backdrop-blur-md print:hidden">
+              <div className="flex flex-col items-center gap-5 text-white p-8 rounded-2xl bg-black/40 shadow-2xl border border-[var(--color-champagne)]/20">
+                <Loader2 className="w-12 h-12 animate-spin text-[var(--color-champagne)]" />
+                <div className="text-center">
+                  <h3 className="text-lg font-bold mb-2 text-[var(--color-ivory)]" style={{ fontFamily: 'var(--font-serif)' }}>Génération de votre Portfolio HD...</h3>
+                  <p className="text-xs text-[var(--color-white-muted)] max-w-[200px] leading-relaxed">Veuillez patienter quelques secondes. Le rendu final sera parfait.</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
