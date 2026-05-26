@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Plus, Trash2, Wand2, Upload, Loader2, Save, Download, Camera, CheckCircle2, AlertCircle, ChevronDown, FileText, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Wand2, Upload, Loader2, Save, Download, Camera, CheckCircle2, AlertCircle } from 'lucide-react';
 import { getTemplate } from '../../data/templates';
 import CVPreview from './CVPreview';
 import PaymentModal from '../shared/PaymentModal';
@@ -215,7 +215,6 @@ export default function CVEditor() {
   const [isLoadingCV, setIsLoadingCV] = useState(!!cvId);
   const [hasPurchased, setHasPurchased] = useState(false);
   const [isCheckingPurchase, setIsCheckingPurchase] = useState(true);
-  const [showExportMenu, setShowExportMenu] = useState(false);
 
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
@@ -414,27 +413,30 @@ export default function CVEditor() {
         
         const canvasWidth = canvas.width;
         const canvasHeight = canvas.height;
-        let imgWidthInPdf = pdfWidth;
-        let imgHeightInPdf = (canvasHeight * pdfWidth) / canvasWidth;
+        const imgHeightInPdf = (canvasHeight * pdfWidth) / canvasWidth;
         
-        // --- NOUVELLE LOGIQUE : Forcer sur 1 seule page ---
-        // Si le contenu est plus long que la page A4, on le réduit proportionnellement
-        // pour qu'il tienne exactement sur une seule page.
-        if (imgHeightInPdf > pdfHeight) {
-          const scaleFactor = pdfHeight / imgHeightInPdf;
-          imgWidthInPdf = imgWidthInPdf * scaleFactor;
-          imgHeightInPdf = pdfHeight;
-        }
-
-        const xOffset = (pdfWidth - imgWidthInPdf) / 2;
+        let heightLeft = imgHeightInPdf;
+        let position = 0;
         
-        // Remplir le fond de la page
+        // Fill page background color first to guarantee uniform background
         const bgRgb = hexToRgb(template.bg || '#ffffff');
         pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
         pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
 
-        // Ajouter l'image centrée
-        pdf.addImage(imgData, 'JPEG', xOffset, 0, imgWidthInPdf, imgHeightInPdf);
+        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInPdf);
+        heightLeft -= pdfHeight;
+        
+        while (heightLeft > 15) {
+          position = heightLeft - imgHeightInPdf;
+          pdf.addPage();
+
+          // Fill new page background color first
+          pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
+          pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
+
+          pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInPdf);
+          heightLeft -= pdfHeight;
+        }
         
         const pdfBlob = pdf.output('blob');
         const pdfUrl = URL.createObjectURL(pdfBlob);
@@ -456,59 +458,6 @@ export default function CVEditor() {
     } else {
       setShowPaymentModal(true);
     }
-  };
-
-  const handleATSExport = () => {
-    if (!hasPurchased) {
-      setShowPaymentModal(true);
-      return;
-    }
-    setShowExportMenu(false);
-    showToast("N'oubliez pas de cocher 'Imprimer les arrière-plans' dans la fenêtre qui va s'ouvrir !", 'success');
-    
-    const el = document.getElementById('cv-preview-container');
-    let originalTransform = '';
-    let wrapperOriginalHeight = '';
-    
-    if (el) {
-      const H = el.offsetHeight;
-      const wrapper = el.parentElement;
-      // 1115px is slightly less than A4 height (297mm) to guarantee no page spill
-      if (H > 1115) {
-        const scale = 1115 / H;
-        originalTransform = el.style.transform;
-        
-        // Override with !important to bypass Tailwind's print:!transform-none
-        el.style.setProperty('transform', `scale(${scale})`, 'important');
-        el.style.setProperty('transform-origin', 'top center', 'important');
-        
-        // Also force the wrapper height and background color so it doesn't trigger a new page and hides side margins
-        if (wrapper) {
-          wrapperOriginalHeight = wrapper.style.height;
-          wrapper.dataset.originalBg = wrapper.style.backgroundColor;
-          
-          wrapper.style.setProperty('height', '1115px', 'important');
-          wrapper.style.setProperty('overflow', 'hidden', 'important');
-          wrapper.style.setProperty('background-color', template.bg || '#ffffff', 'important');
-        }
-      }
-    }
-
-    setTimeout(() => {
-      window.print();
-      
-      // Revert after print dialog closes
-      if (el) {
-        el.style.transform = originalTransform || '';
-        el.style.transformOrigin = 'top left';
-        const wrapper = el.parentElement;
-        if (wrapper) {
-          wrapper.style.height = wrapperOriginalHeight || '';
-          wrapper.style.overflow = 'visible';
-          wrapper.style.backgroundColor = wrapper.dataset.originalBg || '';
-        }
-      }
-    }, 2000);
   };
 
 
@@ -768,48 +717,14 @@ export default function CVEditor() {
             {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} 
             <span className="hidden sm:inline">{saving ? 'Sauvegarde...' : 'Sauvegarder'}</span>
           </button>
-          <div className="relative">
-            <button 
-              onClick={() => setShowExportMenu(!showExportMenu)}
-              disabled={saving || isLoadingCV || isCheckingPurchase}
-              className="btn-primary !py-2 !px-3 lg:!px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50"
-            >
-              {isCheckingPurchase ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} 
-              <span className="hidden sm:inline">Exporter PDF</span>
-              <ChevronDown size={14} className={`transition-transform ${showExportMenu ? 'rotate-180' : ''}`} />
-            </button>
-
-            {showExportMenu && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setShowExportMenu(false)} />
-                <div className="absolute right-0 mt-2 w-[280px] bg-[var(--color-obsidian)] border border-[rgba(255,255,255,0.1)] rounded-xl shadow-2xl z-50 overflow-hidden">
-                  <button 
-                    onClick={() => {
-                      setShowExportMenu(false);
-                      handleExport();
-                    }}
-                    className="w-full flex items-start gap-3 p-4 hover:bg-[rgba(255,255,255,0.05)] transition-colors text-left border-b border-[rgba(255,255,255,0.05)]"
-                  >
-                    <ImageIcon size={18} className="text-[var(--color-champagne)] mt-0.5 shrink-0" />
-                    <div>
-                      <div className="text-sm font-bold text-[var(--color-ivory)] mb-1">PDF Haute Fidélité</div>
-                      <div className="text-[10px] text-[var(--color-white-muted)] leading-relaxed">Design parfait 100% garanti. Idéal pour l'impression et l'envoi par e-mail.</div>
-                    </div>
-                  </button>
-                  <button 
-                    onClick={handleATSExport}
-                    className="w-full flex items-start gap-3 p-4 hover:bg-[rgba(255,255,255,0.05)] transition-colors text-left"
-                  >
-                    <FileText size={18} className="text-[var(--color-champagne)] mt-0.5 shrink-0" />
-                    <div>
-                      <div className="text-sm font-bold text-[var(--color-ivory)] mb-1">PDF pour Recruteur (ATS)</div>
-                      <div className="text-[10px] text-[var(--color-white-muted)] leading-relaxed">Texte sélectionnable. Optimisé pour les logiciels de tri de CV.</div>
-                    </div>
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
+          <button 
+            onClick={handleExport}
+            disabled={saving || isLoadingCV || isCheckingPurchase}
+            className="btn-primary !py-2 !px-3 lg:!px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50"
+          >
+            {isCheckingPurchase ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} 
+            <span className="hidden sm:inline">Exporter PDF</span>
+          </button>
         </div>
       </div>
 
@@ -1375,7 +1290,7 @@ export default function CVEditor() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm print:hidden"
+              className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
               style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
             >
               <motion.div 
@@ -1411,6 +1326,7 @@ export default function CVEditor() {
         </AnimatePresence>,
         document.body
       )}
+
       {/* Payment Modal Simulation */}
       <PaymentModal 
         isOpen={showPaymentModal}
@@ -1422,12 +1338,7 @@ export default function CVEditor() {
         }}
         templateId={templateId}
         templateName={`Modèle: ${template?.name || templateId}`}
-        price={
-          template?.tier === 'premium' ? 5000 :
-          template?.tier === 'media-kit' ? 2000 :
-          1500
-        }
-        productType="cv_template"
+        price={isMediaKit ? "2 000" : "1 500"}
       />
     </div>
   );
