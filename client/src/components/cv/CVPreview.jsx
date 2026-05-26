@@ -135,7 +135,7 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
           </section>
         )}
         {cvData.languages?.length > 0 && (
-          <section className="w-[222px] shrink-0 shrink-0">
+          <section className="w-[222px] shrink-0">
             <h3 className="text-xs font-bold uppercase tracking-widest mb-2 pb-1 border-b" style={{ color: text, borderColor: dividerColor }}>
               Langues
             </h3>

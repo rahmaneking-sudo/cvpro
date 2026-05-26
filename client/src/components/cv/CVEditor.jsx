@@ -328,7 +328,9 @@ export default function CVEditor() {
       // Laisser le navigateur appliquer le changement de taille avant la capture
       await new Promise(r => setTimeout(r, 50));
 
-      const canvas = await html2canvas(element, {
+      let canvas;
+      try {
+        canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
         allowTaint: false,
@@ -381,9 +383,10 @@ export default function CVEditor() {
           }
         }
       });
-
-      // Restaurer le transform visuel immédiatement
-      element.style.transform = originalTransform;
+      } finally {
+        // Restaurer le transform visuel immédiatement
+        if (originalTransform) element.style.transform = originalTransform;
+      }
 
       // ─── Génération PDF ──────────────────────────────────────────────────
       let imgData;
