@@ -553,3 +553,30 @@
   -webkit-text-size-adjust: none !important;
   text-size-adjust: none !important;
 }
+
+/* ========================================
+   IMAGE PRINTING LOGIC (NATIVE 1-PAGE)
+   ======================================== */
+@media print {
+  body.printing-image > * {
+    display: none !important;
+  }
+  
+  body.printing-image #print-image-overlay {
+    display: block !important;
+    width: 100% !important;
+    max-height: 100vh !important;
+    object-fit: contain !important;
+    object-position: top center !important;
+    margin: 0 auto !important;
+  }
+
+  body.printing-image {
+    background-color: white !important;
+  }
+}
+
+/* Base styles for printing-image class on body to hide scrollbars during generation */
+body.printing-image {
+  overflow: hidden !important;
+}

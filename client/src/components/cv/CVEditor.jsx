@@ -308,6 +308,10 @@ export default function CVEditor() {
       
       document.body.classList.add('printing');
       
+      const originalZoom = element.style.zoom;
+      element.style.zoom = '1';
+      void element.offsetHeight;
+      
       try {
         const canvas = await html2canvas(element, {
           scale: 2,
@@ -379,63 +383,42 @@ export default function CVEditor() {
           return;
         }
 
-        const hexToRgb = (hexStr) => {
-          const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-          const fullHex = hexStr.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
-          const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
-          return result ? {
-            r: parseInt(result[1], 16),
-            g: parseInt(result[2], 16),
-            b: parseInt(result[3], 16)
-          } : { r: 255, g: 255, b: 255 };
-        };
+        // --- NOUVELLE LOGIQUE : Imprimer l'image en natif ---
+        // On insère l'image dans le DOM et on demande au navigateur de l'imprimer.
+        // Cela ouvre la boîte de dialogue native ET garantit aucune superposition !
+        if (isIOS && newWindow) newWindow.close(); // Close the temporary tab if we opened one
 
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
+        const printImg = document.createElement('img');
+        printImg.src = imgData;
+        printImg.id = 'print-image-overlay';
+        printImg.style.display = 'none';
+        document.body.appendChild(printImg);
         
-        const canvasWidth = canvas.width;
-        const canvasHeight = canvas.height;
-        let imgWidthInPdf = pdfWidth;
-        let imgHeightInPdf = (canvasHeight * pdfWidth) / canvasWidth;
+        document.body.classList.add('printing-image');
         
-        // --- NOUVELLE LOGIQUE : Forcer sur 1 seule page ---
-        // Si le contenu est plus long que la page A4, on le réduit proportionnellement
-        // pour qu'il tienne exactement sur une seule page.
-        if (imgHeightInPdf > pdfHeight) {
-          const scaleFactor = pdfHeight / imgHeightInPdf;
-          imgWidthInPdf = imgWidthInPdf * scaleFactor;
-          imgHeightInPdf = pdfHeight;
-        }
-
-        const xOffset = (pdfWidth - imgWidthInPdf) / 2;
+        setTimeout(() => {
+          window.print();
+          
+          const revert = () => {
+            document.body.classList.remove('printing-image');
+            if (document.body.contains(printImg)) {
+              document.body.removeChild(printImg);
+            }
+            document.body.classList.remove('printing');
+            element.style.zoom = originalZoom;
+            window.removeEventListener('afterprint', revert);
+          };
+          
+          window.addEventListener('afterprint', revert);
+          setTimeout(revert, 300000); // 5 min fallback
+        }, 300);
         
-        // Remplir le fond de la page
-        const bgRgb = hexToRgb(template.bg || '#ffffff');
-        pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
-        pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
-
-        // Ajouter l'image centrée
-        pdf.addImage(imgData, 'JPEG', xOffset, 0, imgWidthInPdf, imgHeightInPdf);
-        
-        const pdfBlob = pdf.output('blob');
-        const pdfUrl = URL.createObjectURL(pdfBlob);
-        
-        showToast('PDF généré avec succès !');
-        if (isIOS && newWindow) {
-          newWindow.location.href = pdfUrl;
-        } else {
-          const link = document.createElement('a');
-          link.href = pdfUrl;
-          link.download = `${cvData.fullName || 'CV'}.pdf`;
-          link.click();
-        }
       } catch (err) {
         console.error('PDF generation error:', err);
         showToast('Erreur lors de la génération du PDF.', 'error');
         if (isIOS && newWindow) newWindow.close();
-      } finally {
         document.body.classList.remove('printing');
+        element.style.zoom = originalZoom;
       }
     } else {
       setShowPaymentModal(true);

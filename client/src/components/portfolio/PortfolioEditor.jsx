@@ -294,6 +294,11 @@ export default function PortfolioEditor() {
       }
       
       showToast('Préparation du PDF en cours...', 'success');
+      document.body.classList.add('printing');
+      
+      const originalZoom = element.style.zoom;
+      element.style.zoom = '1';
+      void element.offsetHeight;
       
       try {
         const canvas = await html2canvas(element, {
@@ -354,9 +359,7 @@ export default function PortfolioEditor() {
               console.error('onclone error:', e);
             }
           }
-        });
-        
-        let imgData;
+        });        let imgData;
         try {
           imgData = canvas.toDataURL('image/jpeg', 0.98);
         } catch (e) {
@@ -366,65 +369,41 @@ export default function PortfolioEditor() {
           return;
         }
 
-        const hexToRgb = (hexStr) => {
-          const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-          const fullHex = hexStr.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
-          const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
-          return result ? {
-            r: parseInt(result[1], 16),
-            g: parseInt(result[2], 16),
-            b: parseInt(result[3], 16)
-          } : { r: 255, g: 255, b: 255 };
-        };
+        // --- NOUVELLE LOGIQUE : Imprimer l'image en natif ---
+        if (isIOS && newWindow) newWindow.close(); 
 
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
+        const printImg = document.createElement('img');
+        printImg.src = imgData;
+        printImg.id = 'print-image-overlay';
+        printImg.style.display = 'none';
+        document.body.appendChild(printImg);
         
-        const canvasWidth = canvas.width;
-        const canvasHeight = canvas.height;
-        const imgHeightInPdf = (canvasHeight * pdfWidth) / canvasWidth;
+        document.body.classList.add('printing-image');
         
-        let heightLeft = imgHeightInPdf;
-        let position = 0;
-        
-        // Fill page background color first to guarantee uniform background
-        const bgRgb = hexToRgb(template.bg || '#ffffff');
-        pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
-        pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
-        
-        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInPdf);
-        heightLeft -= pdfHeight;
-        
-        while (heightLeft > 15) {
-          position = heightLeft - imgHeightInPdf;
-          pdf.addPage();
+        setTimeout(() => {
+          window.print();
           
-          // Fill new page background color first
-          pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
-          pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
+          const revert = () => {
+            document.body.classList.remove('printing-image');
+            if (document.body.contains(printImg)) {
+              document.body.removeChild(printImg);
+            }
+            document.body.classList.remove('printing');
+            element.style.zoom = originalZoom;
+            window.removeEventListener('afterprint', revert);
+          };
           
-          pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInPdf);
-          heightLeft -= pdfHeight;
-        }
+          window.addEventListener('afterprint', revert);
+          setTimeout(revert, 300000); // 5 min fallback
+        }, 300);
         
-        const pdfBlob = pdf.output('blob');
-        const pdfUrl = URL.createObjectURL(pdfBlob);
-        
-        showToast('PDF généré avec succès !');
-        if (isIOS && newWindow) {
-          newWindow.location.href = pdfUrl;
-        } else {
-          const link = document.createElement('a');
-          link.href = pdfUrl;
-          link.download = `${data.fullName || 'Portfolio'}.pdf`;
-          link.click();
-        }
         ensureSaved().catch(console.error);
       } catch (err) {
         console.error('PDF generation error:', err);
         showToast('Erreur lors de la génération du PDF.', 'error');
         if (isIOS && newWindow) newWindow.close();
+        document.body.classList.remove('printing');
+        element.style.zoom = originalZoom;
       }
     } else {
       setShowPaymentModal(true);
