@@ -776,8 +776,8 @@ export default function CVPreview({ template, cvData, experiences, educations, o
   const isDark = bg === '#0A0A0A' || bg === '#0D0D0D' || bg === '#0F0F23' || bg === '#1A0F00' || bg === '#1A1A1A' || bg === '#1B2A4A' || bg === '#2C2C2E' || bg === '#000000' || bg === '#050510' || bg === '#020617' || bg === '#0A0A14' || bg === '#0A0505' || bg === '#1A0B13' || bg === '#0D0D12';
   
   const colors = {
-    mutedColor: isDark ? `${text}80` : `${text}90`,
-    dividerColor: isDark ? `${text}15` : `${text}12`
+    mutedColor: isDark ? `${text}D9` : `${text}E6`, // D9 = 85%, E6 = 90% opacity for better readability
+    dividerColor: isDark ? `${text}33` : `${text}26` // 33 = 20%, 26 = 15% opacity for visible dividers
   };
 
   const LayoutComponent = {
