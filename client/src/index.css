@@ -568,7 +568,8 @@
   }
 
   /* Force 1-page scaling */
-  body.printing-ats #cv-preview-container {
+  body.printing-ats #cv-preview-container,
+  body.printing-ats #portfolio-preview-container {
     width: 794px !important;
     height: auto !important;
     min-height: 1123px !important;
