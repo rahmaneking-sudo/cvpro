@@ -369,18 +369,6 @@ export default function PortfolioEditor() {
       const element = document.getElementById('portfolio-preview-container');
       if (!element) return;
       
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-      let newWindow;
-      
-      if (isIOS) {
-        newWindow = window.open('', '_blank');
-        if (newWindow) {
-          newWindow.document.write('<div style="font-family:sans-serif;padding:20px;text-align:center;color:#666;margin-top:50px;">Génération du PDF en cours...<br/>Veuillez patienter.</div>');
-        }
-      }
-      
-      // NOTE: Do NOT show a toast here - backdrop-blur overlay corrupts Safari GPU
-      
       try {
         const canvas = await html2canvas(element, {
           scale: 2,
@@ -399,7 +387,6 @@ export default function PortfolioEditor() {
                 clonedDoc.documentElement.style.background = bgVal;
                 clonedDoc.documentElement.style.backgroundColor = bgVal;
 
-                // Reset transform, scaling, and force auto height to allow full vertical render
                 el.style.transform = 'none';
                 el.style.position = 'static';
                 el.style.width = '794px';
@@ -416,7 +403,6 @@ export default function PortfolioEditor() {
                   el.parentElement.style.overflow = 'visible';
                 }
 
-                // Copy contents of all canvas elements (like PDF thumbnails)
                 const originalCanvases = element.querySelectorAll('canvas');
                 const clonedCanvases = el.querySelectorAll('canvas');
                 originalCanvases.forEach((origCanvas, index) => {
@@ -429,19 +415,11 @@ export default function PortfolioEditor() {
                   }
                 });
 
-                // Force image colors (remove grayscale)
                 const images = el.getElementsByTagName('img');
                 for (let img of images) {
-                  if (img.classList && img.classList.remove) {
-                    img.classList.remove('grayscale');
-                  }
-                  if (img.style) {
-                    img.style.filter = 'none';
-                    img.style.webkitFilter = 'none';
-                  }
-                  if (img.setAttribute && !img.hasAttribute('crossOrigin')) {
-                    img.setAttribute('crossOrigin', 'anonymous');
-                  }
+                  if (img.classList && img.classList.remove) img.classList.remove('grayscale');
+                  if (img.style) { img.style.filter = 'none'; img.style.webkitFilter = 'none'; }
+                  if (img.setAttribute && !img.hasAttribute('crossOrigin')) img.setAttribute('crossOrigin', 'anonymous');
                 }
               }
             } catch (e) {
@@ -456,7 +434,6 @@ export default function PortfolioEditor() {
         } catch (e) {
           console.error('Canvas tainted or export failed:', e);
           showToast('Impossible d\'exporter : Certaines images bloquent la génération PDF (Erreur CORS).', 'error');
-          if (isIOS && newWindow) newWindow.close();
           return;
         }
 
@@ -501,24 +478,33 @@ export default function PortfolioEditor() {
         const pdfBlob = pdf.output('blob');
         const pdfUrl = URL.createObjectURL(pdfBlob);
         
-        if (isIOS && newWindow) {
-          newWindow.location.href = pdfUrl;
-        } else {
-          const link = document.createElement('a');
-          link.href = pdfUrl;
-          link.download = `${data.fullName || 'Portfolio'}.pdf`;
-          link.click();
-        }
+        // Téléchargement direct — pas de window.open qui switch d'onglet
+        const link = document.createElement('a');
+        link.href = pdfUrl;
+        link.download = `${data.fullName || 'Portfolio'}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
         ensureSaved().catch(console.error);
         
-        // Remount preview first, then show toast after GPU settles
         setPreviewKey(k => k + 1);
         setTimeout(() => showToast('PDF généré avec succès !'), 600);
+        
+        // Si l'utilisateur quitte l'onglet, re-reset à son retour
+        const handleVisibility = () => {
+          if (document.visibilityState === 'visible') {
+            setPreviewKey(k => k + 1);
+            document.removeEventListener('visibilitychange', handleVisibility);
+          }
+        };
+        document.addEventListener('visibilitychange', handleVisibility);
+        setTimeout(() => document.removeEventListener('visibilitychange', handleVisibility), 30000);
+        
       } catch (err) {
         console.error('PDF generation error:', err);
         setPreviewKey(k => k + 1);
         setTimeout(() => showToast('Erreur lors de la génération du PDF.', 'error'), 600);
-        if (isIOS && newWindow) newWindow.close();
       }
     } else {
       setShowPaymentModal(true);

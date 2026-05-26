@@ -401,20 +401,6 @@ export default function CVEditor() {
       const element = document.getElementById('cv-preview-container');
       if (!element) return;
       
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-      let newWindow;
-      
-      if (isIOS) {
-        newWindow = window.open('', '_blank');
-        if (newWindow) {
-          newWindow.document.write('<div style="font-family:sans-serif;padding:20px;text-align:center;color:#666;margin-top:50px;">Génération du PDF en cours...<br/>Veuillez patienter.</div>');
-        }
-      }
-      
-      // NOTE: Do NOT show a toast here. The toast renders a fullscreen backdrop-blur
-      // overlay that corrupts Safari iOS GPU compositing of the scaled preview element.
-      // The success/error toast will be shown AFTER the PDF is fully generated.
-      
       try {
         const canvas = await html2canvas(element, {
           scale: 2,
@@ -433,7 +419,6 @@ export default function CVEditor() {
                 clonedDoc.documentElement.style.background = bgVal;
                 clonedDoc.documentElement.style.backgroundColor = bgVal;
 
-                // Reset transform, scaling, and force auto height to allow full vertical render
                 el.style.transform = 'none';
                 el.style.position = 'static';
                 el.style.width = '794px';
@@ -450,7 +435,6 @@ export default function CVEditor() {
                   el.parentElement.style.overflow = 'visible';
                 }
 
-                // Copy contents of all canvas elements
                 const originalCanvases = element.querySelectorAll('canvas');
                 const clonedCanvases = el.querySelectorAll('canvas');
                 originalCanvases.forEach((origCanvas, index) => {
@@ -463,19 +447,11 @@ export default function CVEditor() {
                   }
                 });
 
-                // Force image colors (remove grayscale)
                 const images = el.getElementsByTagName('img');
                 for (let img of images) {
-                  if (img.classList && img.classList.remove) {
-                    img.classList.remove('grayscale');
-                  }
-                  if (img.style) {
-                    img.style.filter = 'none';
-                    img.style.webkitFilter = 'none';
-                  }
-                  if (img.setAttribute && !img.hasAttribute('crossOrigin')) {
-                    img.setAttribute('crossOrigin', 'anonymous');
-                  }
+                  if (img.classList && img.classList.remove) img.classList.remove('grayscale');
+                  if (img.style) { img.style.filter = 'none'; img.style.webkitFilter = 'none'; }
+                  if (img.setAttribute && !img.hasAttribute('crossOrigin')) img.setAttribute('crossOrigin', 'anonymous');
                 }
               }
             } catch (e) {
@@ -490,7 +466,6 @@ export default function CVEditor() {
         } catch (e) {
           console.error('Canvas tainted or export failed:', e);
           showToast('Impossible d\'exporter : Certaines images bloquent la génération PDF (Erreur CORS).', 'error');
-          if (isIOS && newWindow) newWindow.close();
           return;
         }
 
@@ -507,16 +482,14 @@ export default function CVEditor() {
 
         const pdf = new jsPDF('p', 'mm', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
+        const pdfHeight = pdf.internal.pageSize.getHeight();
         
         const canvasWidth = canvas.width;
         const canvasHeight = canvas.height;
         let imgWidthInPdf = pdfWidth;
         let imgHeightInPdf = (canvasHeight * pdfWidth) / canvasWidth;
         
-        // --- NOUVELLE LOGIQUE : Forcer sur 1 seule page ---
-        // Si le contenu est plus long que la page A4, on le réduit proportionnellement
-        // pour qu'il tienne exactement sur une seule page.
+        // Forcer sur 1 seule page
         if (imgHeightInPdf > pdfHeight) {
           const scaleFactor = pdfHeight / imgHeightInPdf;
           imgWidthInPdf = imgWidthInPdf * scaleFactor;
@@ -526,44 +499,51 @@ export default function CVEditor() {
         const xOffset = (pdfWidth - imgWidthInPdf) / 2;
         
         // --- TEXTE CACHÉ POUR LES ATS ---
-        // On extrait le texte pur du CV et on l'injecte dans le PDF.
-        // Ce texte sera recouvert par le fond coloré et l'image HD, le rendant invisible à l'œil nu,
-        // mais parfaitement lisible pour les robots de recrutement (ATS).
         const rawText = element.innerText || '';
-        pdf.setTextColor(200, 200, 200); // Couleur claire par sécurité
+        pdf.setTextColor(200, 200, 200);
         pdf.setFontSize(8);
         const splitText = pdf.splitTextToSize(rawText, pdfWidth - 20);
         pdf.text(splitText, 10, 10);
         
-        // Remplir le fond de la page (Ceci va masquer le texte injecté ci-dessus)
+        // Remplir le fond (masque le texte ATS)
         const bgRgb = hexToRgb(template.bg || '#ffffff');
         pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
         pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
 
-        // Ajouter l'image centrée par dessus tout
+        // Image HD par dessus tout
         pdf.addImage(imgData, 'JPEG', xOffset, 0, imgWidthInPdf, imgHeightInPdf);
         
         const pdfBlob = pdf.output('blob');
         const pdfUrl = URL.createObjectURL(pdfBlob);
         
-        if (isIOS && newWindow) {
-          newWindow.location.href = pdfUrl;
-        } else {
-          const link = document.createElement('a');
-          link.href = pdfUrl;
-          link.download = `${cvData.fullName || 'CV'}.pdf`;
-          link.click();
-        }
+        // Téléchargement direct — pas de window.open qui switch d'onglet
+        const link = document.createElement('a');
+        link.href = pdfUrl;
+        link.download = `${cvData.fullName || 'CV'}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
         
-        // Success: first remount the preview to reset GPU, then show toast after delay
+        // Reset le preview après un court délai
         setPreviewKey(k => k + 1);
         setTimeout(() => showToast('PDF généré avec succès !'), 600);
+        
+        // Si l'utilisateur quitte l'onglet (ex: pour voir le PDF), 
+        // on re-reset à son retour
+        const handleVisibility = () => {
+          if (document.visibilityState === 'visible') {
+            setPreviewKey(k => k + 1);
+            document.removeEventListener('visibilitychange', handleVisibility);
+          }
+        };
+        document.addEventListener('visibilitychange', handleVisibility);
+        // Auto-cleanup après 30s
+        setTimeout(() => document.removeEventListener('visibilitychange', handleVisibility), 30000);
+        
       } catch (err) {
         console.error('PDF generation error:', err);
-        // Error: remount first, then show error toast
         setPreviewKey(k => k + 1);
         setTimeout(() => showToast('Erreur lors de la génération du PDF.', 'error'), 600);
-        if (isIOS && newWindow) newWindow.close();
       }
     } else {
       setShowPaymentModal(true);
