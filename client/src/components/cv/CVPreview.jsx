@@ -4,26 +4,13 @@ import { Mail, Phone, MapPin, Globe, Link2, Camera, Trash2, Loader2 } from 'luci
    UTILITIES & COMPONENTS
    ========================================================= */
 
-function Initials({ name, accent, photo }) {
-  if (photo) {
-    return (
-      <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border-2 flex items-center justify-center" style={{ borderColor: accent, width: '48px', height: '48px', minWidth: '48px', minHeight: '48px', borderRadius: '50%' }}>
-        <img 
-          src={photo} 
-          crossOrigin="anonymous" 
-          alt={name} 
-          className="w-full h-full object-cover" 
-          style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }}
-        />
-      </div>
-    );
-  }
-
-  const initials = name ? name.substring(0, 2).toUpperCase() : '??';
+function Initials({ name, accent }) {
+  if (!name || name.trim() === '') return null;
+  const initials = name.substring(0, 2).toUpperCase();
   return (
     <div
-      className="w-12 h-12 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-      style={{ background: `${accent}20`, color: accent, border: `1px solid ${accent}30` }}
+      className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+      style={{ background: `${accent}20`, color: accent, border: `1px solid ${accent}30`, minWidth: '36px', minHeight: '36px' }}
     >
       {initials}
     </div>
@@ -239,11 +226,20 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
 
         {/* Compétences */}
         {cvData.skills?.length > 0 && (
-          <section className="mb-5">
-            <h3 className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: accent }}>Expertise</h3>
-            <div className="flex flex-wrap gap-1">
+          <section className="mb-4">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: accent }}>Expertise</h3>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
               {cvData.skills?.map((skill, i) => (
-                <span key={i} className="text-[9px] px-1.5 py-0.5 rounded" style={{ color: mutedColor, background: `${accent}15` }}>{skill}</span>
+                <span key={i} style={{
+                  display: 'inline-block',
+                  fontSize: '9px',
+                  padding: '2px 6px',
+                  borderRadius: '3px',
+                  color: accent,
+                  background: `${accent}18`,
+                  border: `1px solid ${accent}30`,
+                  whiteSpace: 'nowrap'
+                }}>{skill}</span>
               ))}
             </div>
           </section>
@@ -854,7 +850,7 @@ export default function CVPreview({ template, cvData, experiences, educations, o
 
   return (
     <div
-      className="w-full min-h-[297mm] max-h-[297mm] overflow-hidden relative print:min-h-[297mm] print:max-h-[297mm]"
+      className="w-full min-h-[297mm] relative print:min-h-[297mm]"
       style={{
         background: bg,
         color: text,

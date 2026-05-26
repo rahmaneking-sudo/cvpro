@@ -302,202 +302,147 @@ export default function CVEditor() {
   };
 
   const handleExport = async () => {
-    if (hasPurchased) {
-      const element = document.getElementById('cv-preview-container');
-      if (!element) return;
-      
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-      let newWindow;
-      
-      if (isIOS) {
-        newWindow = window.open('', '_blank');
-        if (newWindow) {
-          newWindow.document.write('<div style="font-family:sans-serif;padding:20px;text-align:center;color:#666;margin-top:50px;">Génération du PDF en cours...<br/>Veuillez patienter.</div>');
-        }
-      }
-      
-      showToast('Préparation du PDF en cours...', 'success');
-      
-      try {
-        const canvas = await html2canvas(element, {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          width: 794,
-          windowWidth: 794,
-          backgroundColor: null,
-          onclone: (clonedDoc) => {
-            try {
-              const el = clonedDoc.getElementById('cv-preview-container');
-              if (el) {
-                const bgVal = template.bg || '#ffffff';
-                clonedDoc.body.style.background = bgVal;
-                clonedDoc.body.style.backgroundColor = bgVal;
-                clonedDoc.documentElement.style.background = bgVal;
-                clonedDoc.documentElement.style.backgroundColor = bgVal;
-
-                el.style.transform = 'none';
-                el.style.position = 'static';
-                el.style.width = '794px';
-                el.style.height = '1123px';
-                el.style.maxHeight = '1123px';
-                el.style.minHeight = '1123px';
-                el.style.overflow = 'hidden';
-
-                if (el.parentElement) {
-                  el.parentElement.style.width = '794px';
-                  el.parentElement.style.transform = 'none';
-                  el.parentElement.style.height = '1123px';
-                  el.parentElement.style.maxHeight = '1123px';
-                  el.parentElement.style.minHeight = '1123px';
-                  el.parentElement.style.position = 'static';
-                  el.parentElement.style.overflow = 'hidden';
-                }
-
-                // Copy contents of all canvas elements
-                const originalCanvases = element.querySelectorAll('canvas');
-                const clonedCanvases = el.querySelectorAll('canvas');
-                originalCanvases.forEach((origCanvas, index) => {
-                  const clonedCanvas = clonedCanvases[index];
-                  if (clonedCanvas) {
-                    const ctx = clonedCanvas.getContext('2d');
-                    clonedCanvas.width = origCanvas.width;
-                    clonedCanvas.height = origCanvas.height;
-                    ctx.drawImage(origCanvas, 0, 0);
-                  }
-                });
-
-                // Force image colors (remove grayscale)
-                const images = el.getElementsByTagName('img');
-                for (let img of images) {
-                  if (img.classList && img.classList.remove) {
-                    img.classList.remove('grayscale');
-                  }
-                  if (img.style) {
-                    img.style.filter = 'none';
-                    img.style.webkitFilter = 'none';
-                  }
-                  if (img.setAttribute && !img.hasAttribute('crossOrigin')) {
-                    img.setAttribute('crossOrigin', 'anonymous');
-                  }
-                }
-              }
-            } catch (e) {
-              console.error('onclone error:', e);
-            }
-          }
-        });
-        
-        let imgData;
-        try {
-          imgData = canvas.toDataURL('image/jpeg', 0.98);
-        } catch (e) {
-          console.error('Canvas tainted or export failed:', e);
-          showToast('Impossible d\'exporter : Certaines images bloquent la génération PDF (Erreur CORS).', 'error');
-          if (isIOS && newWindow) newWindow.close();
-          return;
-        }
-
-        const hexToRgb = (hexStr) => {
-          const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-          const fullHex = hexStr.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
-          const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
-          return result ? {
-            r: parseInt(result[1], 16),
-            g: parseInt(result[2], 16),
-            b: parseInt(result[3], 16)
-          } : { r: 255, g: 255, b: 255 };
-        };
-
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
-        
-        const canvasWidth = canvas.width;
-        const canvasHeight = canvas.height;
-        const imgHeightInPdf = (canvasHeight * pdfWidth) / canvasWidth;
-        
-        let heightLeft = imgHeightInPdf;
-        let position = 0;
-        
-        // Fill page background color first to guarantee uniform background
-        const bgRgb = hexToRgb(template.bg || '#ffffff');
-        pdf.setFillColor(bgRgb.r, bgRgb.g, bgRgb.b);
-        pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
-
-        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-        // Single page only — content is capped at exactly 1 A4 page
-        
-        // ========================================
-        // ATS INVISIBLE TEXT LAYER
-        // Adds all CV text as near-invisible overlay so ATS software can parse the PDF
-        // Uses white text at font-size 0.1 - invisible to human eye but parseable by ATS
-        // ========================================
-        try {
-          pdf.setFontSize(0.1);
-          pdf.setTextColor(255, 255, 255); // White text (invisible on white/any bg at 0.1pt)
-          
-          const atsLines = [];
-          if (cvData.fullName) atsLines.push(cvData.fullName);
-          if (cvData.jobTitle) atsLines.push(cvData.jobTitle);
-          if (cvData.email) atsLines.push('Email: ' + cvData.email);
-          if (cvData.phone) atsLines.push('Telephone: ' + cvData.phone);
-          if (cvData.location) atsLines.push('Localisation: ' + cvData.location);
-          if (cvData.summary) atsLines.push('Profil: ' + cvData.summary);
-          
-          (experiences || []).forEach(exp => {
-            if (exp.position) atsLines.push('Poste: ' + exp.position);
-            if (exp.company) atsLines.push('Entreprise: ' + exp.company);
-            if (exp.startDate) atsLines.push('Periode: ' + exp.startDate + ' - ' + (exp.endDate || 'Present'));
-            if (exp.description) atsLines.push(exp.description);
-          });
-          
-          (educations || []).forEach(edu => {
-            if (edu.degree) atsLines.push('Diplome: ' + edu.degree);
-            if (edu.institution) atsLines.push('Etablissement: ' + edu.institution);
-            if (edu.startDate) atsLines.push('Periode: ' + edu.startDate + ' - ' + (edu.endDate || 'Present'));
-            if (edu.description) atsLines.push(edu.description);
-          });
-          
-          if (cvData.skills?.length) atsLines.push('Competences: ' + cvData.skills.join(', '));
-          if (cvData.languages?.length) atsLines.push('Langues: ' + cvData.languages.join(', '));
-          
-          let atsY = 1;
-          atsLines.forEach(line => {
-            if (line && atsY < pdfHeight) {
-              try { pdf.text(String(line).substring(0, 500), 0, atsY); } catch(e) {}
-              atsY += 0.3;
-            }
-          });
-        } catch(atsErr) {
-          console.warn('ATS layer skipped:', atsErr);
-        }
-        // ========================================
-        
-        const pdfBlob = pdf.output('blob');
-        const pdfUrl = URL.createObjectURL(pdfBlob);
-        
-        showToast('PDF généré avec succès !');
-        if (isIOS && newWindow) {
-          newWindow.location.href = pdfUrl;
-        } else {
-          const link = document.createElement('a');
-          link.href = pdfUrl;
-          link.download = `${cvData.fullName || 'CV'}.pdf`;
-          link.click();
-        }
-      } catch (err) {
-        console.error('PDF generation error:', err);
-        showToast('Erreur lors de la génération du PDF.', 'error');
-        if (isIOS && newWindow) newWindow.close();
-      }
-    } else {
+    if (!hasPurchased) {
       setShowPaymentModal(true);
+      return;
+    }
+
+    const element = document.getElementById('cv-preview-container');
+    if (!element) return;
+
+    showToast('Préparation du PDF en cours...', 'success');
+
+    // --- Créer un wrapper caché hors-écran à taille A4 exacte ---
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = `
+      position: fixed;
+      top: -9999px;
+      left: -9999px;
+      width: 794px;
+      height: 1123px;
+      overflow: hidden;
+      background: ${template.bg || '#ffffff'};
+      z-index: -1;
+    `;
+
+    // Cloner le CV dans ce wrapper
+    const clone = element.cloneNode(true);
+    clone.style.cssText = `
+      width: 794px;
+      height: 1123px;
+      min-height: 1123px;
+      max-height: 1123px;
+      overflow: hidden;
+      transform: none;
+      position: static;
+      box-shadow: none;
+      border-radius: 0;
+    `;
+
+    // Supprimer les boutons upload/supprimer photo dans le clone (print:hidden)
+    clone.querySelectorAll('[class*="print:hidden"], button, input[type="file"], label').forEach(el => el.remove());
+
+    // Corriger les images (CORS + pas de grayscale)
+    clone.querySelectorAll('img').forEach(img => {
+      img.setAttribute('crossorigin', 'anonymous');
+      img.style.filter = 'none';
+    });
+
+    wrapper.appendChild(clone);
+    document.body.appendChild(wrapper);
+
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    let newWindow;
+    if (isIOS) {
+      newWindow = window.open('', '_blank');
+      if (newWindow) newWindow.document.write('<div style="font-family:sans-serif;padding:20px;text-align:center;color:#666;margin-top:50px;">Génération du PDF...<br/>Veuillez patienter.</div>');
+    }
+
+    try {
+      const canvas = await html2canvas(wrapper, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        width: 794,
+        height: 1123,
+        windowWidth: 794,
+        backgroundColor: template.bg || '#ffffff',
+      });
+
+      document.body.removeChild(wrapper);
+
+      let imgData;
+      try {
+        imgData = canvas.toDataURL('image/jpeg', 0.95);
+      } catch (e) {
+        showToast("Impossible d'exporter : erreur CORS sur une image.", 'error');
+        if (isIOS && newWindow) newWindow.close();
+        return;
+      }
+
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();   // 210mm
+      const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
+
+      // Fond de page
+      const hexToRgb = (h) => {
+        const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(h.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (_, r,g,b) => r+r+g+g+b+b));
+        return r ? { r: parseInt(r[1],16), g: parseInt(r[2],16), b: parseInt(r[3],16) } : { r:255, g:255, b:255 };
+      };
+      const bg = hexToRgb(template.bg || '#ffffff');
+      pdf.setFillColor(bg.r, bg.g, bg.b);
+      pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
+
+      // Image du CV — 1 seule page A4
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+
+      // Couche ATS invisible
+      try {
+        pdf.setFontSize(0.1);
+        pdf.setTextColor(255, 255, 255);
+        const lines = [];
+        if (cvData.fullName) lines.push(cvData.fullName);
+        if (cvData.jobTitle) lines.push(cvData.jobTitle);
+        if (cvData.email) lines.push('Email: ' + cvData.email);
+        if (cvData.phone) lines.push('Tel: ' + cvData.phone);
+        if (cvData.location) lines.push('Lieu: ' + cvData.location);
+        if (cvData.summary) lines.push(cvData.summary);
+        (experiences || []).forEach(e => {
+          if (e.position) lines.push(e.position);
+          if (e.company) lines.push(e.company);
+          if (e.description) lines.push(e.description);
+        });
+        (educations || []).forEach(e => {
+          if (e.degree) lines.push(e.degree);
+          if (e.institution) lines.push(e.institution);
+        });
+        if (cvData.skills?.length) lines.push(cvData.skills.join(', '));
+        if (cvData.languages?.length) lines.push(cvData.languages.join(', '));
+        let y = 1;
+        lines.forEach(l => { if (l && y < 290) { try { pdf.text(String(l).substring(0,500), 0, y); } catch(e){} y += 0.3; } });
+      } catch(e) { /* ATS optionnel */ }
+
+      const blob = pdf.output('blob');
+      const url = URL.createObjectURL(blob);
+
+      showToast('PDF téléchargé avec succès !');
+      if (isIOS && newWindow) {
+        newWindow.location.href = url;
+      } else {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${cvData.fullName || 'CV'}_${template.name || 'SamaCVPro'}.pdf`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+      }
+
+    } catch (err) {
+      if (document.body.contains(wrapper)) document.body.removeChild(wrapper);
+      console.error('PDF error:', err);
+      showToast('Erreur lors de la génération du PDF.', 'error');
+      if (isIOS && newWindow) newWindow.close();
     }
   };
-
-
-
 
   const updateField = useCallback((field, value) => {
     setCVData(prev => ({ ...prev, [field]: value }));
