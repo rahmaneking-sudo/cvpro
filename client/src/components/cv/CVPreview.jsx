@@ -791,10 +791,11 @@ export default function CVPreview({ template, cvData, experiences, educations, o
 
   return (
     <div
-      className="w-full min-h-[297mm] relative print:min-h-[297mm]"
+      className="w-[794px] min-w-[794px] max-w-[794px] min-h-[1123px] relative print:min-h-[1123px]"
       style={{
         background: bg,
         color: text,
+        overflow: 'hidden'
       }}
     >
       <LayoutComponent 
