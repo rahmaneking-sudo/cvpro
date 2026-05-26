@@ -143,7 +143,7 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
           </section>
         )}
         {cvData.languages?.length > 0 && (
-          <section className="w-1/3">
+          <section style={{ width: '264px' }}>
             <h3 className="text-[11px] font-bold uppercase tracking-widest mb-2 pb-1 border-b" style={{ color: text, borderColor: dividerColor }}>
               Langues
             </h3>
@@ -171,7 +171,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors }) 
 
   return (
     <div className="flex min-h-[1123px]" style={{ flexDirection: 'row' }}>
-      <aside className="p-8 flex flex-col" style={{ background: secondary, width: '32%', flexShrink: 0 }}>
+      <aside className="p-8 flex flex-col" style={{ background: secondary, width: '254px', flexShrink: 0 }}>
         <div className="w-24 h-24 rounded-full mb-6 mx-auto flex items-center justify-center text-2xl font-bold shadow-lg overflow-hidden relative"
           style={{ 
             background: `linear-gradient(135deg, ${accent}, ${accent}80)`, 
@@ -415,7 +415,7 @@ function LayoutAsymmetric({ template, cvData, experiences, educations, colors })
   return (
     <div className="p-10 flex flex-col min-h-[1123px]">
       <header className="flex justify-between items-end mb-10 pb-6 border-b-2" style={{ borderColor: text }}>
-        <div className="w-[60%]">
+        <div style={{ width: '476px' }}>
           <h1 className="text-5xl font-black uppercase leading-none tracking-tighter mb-2" style={{ color: text, fontFamily: "'Playfair Display', serif" }}>
             {cvData.fullName || 'VOTRE NOM'}
           </h1>
