@@ -390,8 +390,8 @@
     --spacing-card: 20px;
   }
 
-  h1 { font-size: 2.2rem !important; }
-  h2 { font-size: 1.6rem !important; }
+  h1:not(#cv-preview-container h1):not(#cv-preview-container *) { font-size: 2.2rem !important; }
+  h2:not(#cv-preview-container h2):not(#cv-preview-container *) { font-size: 1.6rem !important; }
 
   .cursor-dot, .cursor-ring {
     display: none;
@@ -427,17 +427,29 @@
     font-size: 0.85rem;
   }
 
-  /* Ensure word-break on long text */
-  p, span, div, label, td, th {
+  /* Force text to wrap and not overflow — but NOT inside the CV preview */
+  p:not(#cv-preview-container p):not(#cv-preview-container *),
+  span:not(#cv-preview-container span):not(#cv-preview-container *),
+  div:not(#cv-preview-container):not(#cv-preview-container *),
+  label:not(#cv-preview-container label),
+  td, th {
     word-break: break-word;
     overflow-wrap: break-word;
+  }
+
+  /* Protect CV preview from ALL mobile CSS overrides */
+  #cv-preview-container,
+  #cv-preview-container * {
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    font-size: revert !important;
   }
 }
 
 @media (max-width: 480px) {
-  h1 { font-size: 1.6rem !important; }
-  h2 { font-size: 1.3rem !important; }
-  h3 { font-size: 1.05rem !important; }
+  h1:not(#cv-preview-container *) { font-size: 1.6rem !important; }
+  h2:not(#cv-preview-container *) { font-size: 1.3rem !important; }
+  h3:not(#cv-preview-container *) { font-size: 1.05rem !important; }
 
   .btn-primary,
   .btn-ghost {
