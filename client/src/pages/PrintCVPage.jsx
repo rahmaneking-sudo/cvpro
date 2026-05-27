@@ -28,10 +28,10 @@ function MobileScaler({ children }) {
   return (
     <div ref={containerRef} className="w-full flex justify-center print:block print:w-auto">
       {/* Outer div keeps the scaled height so page doesn't overlap */}
-      <div style={{ width: `${794 * scale}px`, height: `${scaledHeight}px`, position: 'relative' }}>
+      <div className="mobile-scaler-outer" style={{ width: `${794 * scale}px`, height: `${scaledHeight}px`, position: 'relative' }}>
         {/* Inner div is always 794px, scaled down visually */}
         <div
-          className="print:transform-none print:w-full print:static print:shadow-none"
+          className="mobile-scaler-inner"
           style={{
             width: '794px',
             height: '1123px',
@@ -94,7 +94,7 @@ export default function PrintCVPage() {
 
       {/* Le CV est scalé visuellement sur mobile mais reste en 794px pour l'impression */}
       <MobileScaler>
-        <div className="bg-white w-[794px] min-h-[1123px]">
+        <div className="bg-white w-[794px] h-[1123px] overflow-hidden">
           {template?.layout === 'cover-letter' ? (
             <CoverLetterPreview template={template} cvData={cvData} />
           ) : (
@@ -112,7 +112,7 @@ export default function PrintCVPage() {
         @media print {
           @page {
             margin: 0;
-            size: A4;
+            size: A4 portrait;
           }
           body {
             background: white !important;
@@ -120,6 +120,9 @@ export default function PrintCVPage() {
             padding: 0 !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+            width: 794px !important;
+            height: 1123px !important;
+            overflow: hidden !important;
           }
           .no-print {
             display: none !important;
@@ -128,7 +131,20 @@ export default function PrintCVPage() {
             padding: 0 !important;
             margin: 0 !important;
             width: 794px !important;
-            min-height: 1123px !important;
+            height: 1123px !important;
+            max-height: 1123px !important;
+            overflow: hidden !important;
+          }
+          .mobile-scaler-outer {
+            width: 794px !important;
+            height: 1123px !important;
+            position: static !important;
+          }
+          .mobile-scaler-inner {
+            transform: none !important;
+            position: static !important;
+            width: 794px !important;
+            height: 1123px !important;
           }
         }
       `}</style>
