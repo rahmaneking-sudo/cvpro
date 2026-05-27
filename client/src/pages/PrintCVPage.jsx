@@ -147,10 +147,10 @@ export default function PrintCVPage() {
             display: none !important;
           }
           #cv-pdf-pristine-container {
-            transform: scale(0.7) !important;
+            transform: scale(0.90) !important;
             transform-origin: top center !important;
-            width: 143% !important;
-            margin-left: -21% !important;
+            width: 111.11% !important;
+            margin-left: -5.55% !important;
             page-break-after: avoid !important;
             page-break-inside: avoid !important;
           }
