@@ -307,7 +307,8 @@ export default function CVEditor() {
     //   return;
     // }
 
-    const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    // Utiliser la largeur de l'écran car Safari iOS peut se faire passer pour un Mac
+    const isMobileDevice = window.innerWidth <= 1024 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     
     if (isMobileDevice) {
       // Save data for the print page
@@ -319,8 +320,9 @@ export default function CVEditor() {
         colors
       }));
 
-      // Open print page in a new tab
-      window.open('/print-cv', '_blank');
+      // Directement changer la page courante au lieu d'ouvrir un popup 
+      // pour éviter le blocage de popups de Safari iOS
+      window.location.href = '/print-cv';
       
       // We can return early to completely bypass html2canvas on mobile
       return;
