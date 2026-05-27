@@ -86,13 +86,18 @@ export default function PrintCVPage() {
           onClick={async () => {
             const { default: html2canvas } = await import('html2canvas');
             const { default: jsPDF } = await import('jspdf');
-            const cv = document.querySelector('.mobile-scaler-inner > div');
-            const canvas = await html2canvas(cv, {
+            const inner = document.querySelector('.mobile-scaler-inner');
+            const savedTransform = inner.style.transform;
+            inner.style.transform = 'none';
+            const canvas = await html2canvas(inner, {
               scale: 2,
               useCORS: true,
               width: 794,
               height: 1123,
+              windowWidth: 794,
+              windowHeight: 1123,
             });
+            inner.style.transform = savedTransform;
             const pdf = new jsPDF('portrait', 'mm', 'a4');
             pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, 210, 297);
             pdf.save('mon-cv.pdf');
