@@ -151,7 +151,7 @@ export default function PrintCVPage() {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
-          .no-print {
+          header, footer, nav, .navbar, .btn-download, .chat-button, button, .no-print, .print\\:hidden, [class*="print:hidden"] {
             display: none !important;
           }
           #cv-pdf-pristine-container {

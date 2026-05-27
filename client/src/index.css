@@ -484,7 +484,16 @@
   .cursor-ring,
   nav,
   .app-sidebar,
-  .app-header {
+  .app-header,
+  header,
+  footer,
+  .navbar,
+  .btn-download,
+  .chat-button,
+  button,
+  .no-print,
+  .print\:hidden,
+  [class*="print:hidden"] {
     display: none !important;
   }
 
