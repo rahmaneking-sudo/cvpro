@@ -310,16 +310,23 @@ export default function CVEditor() {
     const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     
     if (isMobileDevice) {
-      showToast('Ouverture de l\'impression native. Choisissez "Enregistrer en PDF" ou "Partager -> Imprimer".', 'info');
-      setTimeout(() => {
-        window.print();
-      }, 1000);
+      // Save data for the print page
+      localStorage.setItem('cv-print-data', JSON.stringify({
+        templateId: template.id,
+        cvData,
+        experiences,
+        educations,
+        colors
+      }));
+
+      // Open print page in a new tab
+      window.open('/print-cv', '_blank');
       
-      // On continue silencieusement pour enregistrer l'achat si besoin
-      // Mais on skip la lenteur du html2canvas bloquant l'UI
-    } else {
-      showToast('Préparation du PDF en cours...', 'success');
+      // We can return early to completely bypass html2canvas on mobile
+      return;
     }
+
+    showToast('Préparation du PDF en cours...', 'success');
 
     const element = document.getElementById('cv-pdf-pristine-container');
     if (!element) return;
