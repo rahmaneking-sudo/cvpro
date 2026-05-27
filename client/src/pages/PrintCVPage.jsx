@@ -133,13 +133,21 @@ export default function PrintCVPage() {
             size: A4 portrait;
             margin: 0;
           }
+          html {
+            font-size: 9px !important;
+          }
           html, body {
             margin: 0 !important;
             padding: 0 !important;
+            width: 210mm !important;
+            height: 297mm !important;
+            overflow: hidden !important;
+            background: white !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
           * {
+            line-height: 1.2 !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
@@ -147,10 +155,8 @@ export default function PrintCVPage() {
             display: none !important;
           }
           #cv-pdf-pristine-container {
-            transform: scale(0.85) !important;
-            transform-origin: top center !important;
-            width: 143% !important;
-            margin-left: -21% !important;
+            width: 210mm !important;
+            height: 297mm !important;
             page-break-after: avoid !important;
             page-break-inside: avoid !important;
           }

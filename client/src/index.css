@@ -512,12 +512,15 @@
   
   /* POSITION IT AT THE TOP LEFT CORNER FOR PRINTING */
   #cv-pdf-pristine-container {
-    transform: scale(0.85) !important;
-    transform-origin: top center !important;
-    width: 143% !important;
-    margin-left: -21% !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
     page-break-after: avoid !important;
     page-break-inside: avoid !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
   }
 }
 
