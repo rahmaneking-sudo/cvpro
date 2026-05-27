@@ -85,22 +85,18 @@ export default function PrintCVPage() {
         <button
           onClick={() => {
             const cv = document.querySelector('.mobile-scaler-inner > div');
-            if (!cv) return;
-            
-            const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
-              .map(el => el.outerHTML)
-              .join('\n');
-
+            const allStyles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+              .map(s => s.outerHTML).join('');
             const win = window.open('', '_blank');
             win.document.write(`
               <html>
               <head>
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                ${styles}
+                ${allStyles}
                 <style>
                   @page { size: A4 portrait; margin: 0; }
                   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-                  html, body { margin: 0; padding: 0; width: 210mm; height: 297mm; }
+                  html, body { margin: 0; padding: 0; width: 210mm; height: 297mm; overflow: hidden; }
                 </style>
               </head>
               <body>${cv.outerHTML}</body>
