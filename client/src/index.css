@@ -482,14 +482,9 @@
 
   #root {
     display: block !important;
-    visibility: hidden !important;
+    visibility: visible !important;
     margin: 0 !important;
     padding: 0 !important;
-  }
-
-  #cv-pdf-pristine-container,
-  #cv-pdf-pristine-container * {
-    visibility: visible !important;
   }
 
   #cv-pdf-pristine-container {
@@ -502,5 +497,7 @@
     padding: 0 !important;
     overflow: hidden !important;
     transform: none !important;
+    visibility: visible !important;
+    display: block !important;
   }
 }
