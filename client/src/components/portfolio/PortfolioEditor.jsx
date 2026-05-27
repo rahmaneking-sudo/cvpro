@@ -279,124 +279,38 @@ export default function PortfolioEditor() {
     }
   };
 
-  const handleExport = async () => {
+  const handleExport = () => {
     // if (!hasPurchased) {
     //   setShowPaymentModal(true);
     //   return;
     // }
     
-    try {
-      showToast('Génération du PDF en cours...', 'success');
-      const { default: html2canvas } = await import('html2canvas');
-      const { default: jsPDF } = await import('jspdf');
-
-      document.body.style.setProperty('--template-bg', template.bg || '#ffffff');
-      document.body.classList.add('printing-ats');
+    // On passe la couleur de fond dynamique au CSS via une variable
+    document.body.style.setProperty('--template-bg', template.bg || '#ffffff');
+    document.body.classList.add('printing-ats');
+    
+    const el = document.getElementById('portfolio-preview-container');
+    if (el && el.parentElement) {
+      el.parentElement.classList.add('ats-wrapper');
       
-      const el = document.getElementById('portfolio-preview-container');
-      if (!el) return;
-
-      const previewWrapper = el.closest('.flex-1.overflow-y-auto');
-      const wasHidden = previewWrapper && window.getComputedStyle(previewWrapper).display === 'none';
+      // Portfolios are multi-page naturally, we just remove wrapper height limits
+      document.body.classList.add('ats-one-page'); 
+    }
+    
+    const originalTitle = document.title;
+    document.title = data.fullName ? `Portfolio_${data.fullName.replace(/\s+/g, '_')}` : 'Portfolio';
+    
+    setTimeout(() => {
+      window.print();
       
-      if (wasHidden) {
-        previewWrapper.classList.remove('hidden');
-        previewWrapper.classList.add('block');
-        await new Promise(resolve => setTimeout(resolve, 100)); // allow DOM to update
-      }
-
-      if (el.parentElement) {
-        el.parentElement.classList.add('ats-wrapper');
-        document.body.classList.add('ats-one-page'); 
-      }
-
-      const savedTransform = el.style.transform;
-      const savedZoom = el.style.zoom;
-      el.style.transform = 'none';
-      el.style.zoom = '1';
-
-      await new Promise(resolve => setTimeout(resolve, 300));
-
-      const canvas = await html2canvas(el, {
-        scale: 2,
-        useCORS: true,
-        width: 794,
-        windowWidth: 794,
-        onclone: (clonedDoc) => {
-          // html2canvas ne supporte pas oklab/oklch de Tailwind v4.
-          // On convertit à la volée via un canvas 2D
-          const tempCanvas = document.createElement('canvas');
-          tempCanvas.width = 1;
-          tempCanvas.height = 1;
-          const ctx = tempCanvas.getContext('2d', { willReadFrequently: true });
-          
-          const convertColor = (val) => {
-            if (!val || (!val.includes('oklab') && !val.includes('oklch') && !val.includes('color('))) return val;
-            ctx.clearRect(0,0,1,1);
-            ctx.fillStyle = val;
-            ctx.fillRect(0,0,1,1);
-            const data = ctx.getImageData(0,0,1,1).data;
-            return `rgba(${data[0]}, ${data[1]}, ${data[2]}, ${data[3]/255})`;
-          };
-          
-          const elements = clonedDoc.querySelectorAll('*');
-          for (let i = 0; i < elements.length; i++) {
-            const el = elements[i];
-            const style = clonedDoc.defaultView ? clonedDoc.defaultView.getComputedStyle(el) : window.getComputedStyle(el);
-            const bg = style.backgroundColor;
-            const c = style.color;
-            const bc = style.borderColor;
-            if (bg && (bg.includes('okl') || bg.includes('color('))) el.style.backgroundColor = convertColor(bg);
-            if (c && (c.includes('okl') || c.includes('color('))) el.style.color = convertColor(c);
-            if (bc && (bc.includes('okl') || bc.includes('color('))) el.style.borderColor = convertColor(bc);
-          }
-        }
-      });
-
-      el.style.transform = savedTransform;
-      el.style.zoom = savedZoom;
-
-      if (wasHidden) {
-        previewWrapper.classList.add('hidden');
-        previewWrapper.classList.remove('block');
-      }
-
+      document.title = originalTitle;
       document.body.classList.remove('printing-ats', 'ats-one-page');
-      if (el.parentElement) {
+      if (el && el.parentElement) {
         el.parentElement.classList.remove('ats-wrapper');
       }
-
-      if (!canvas || canvas.width === 0 || canvas.height === 0) {
-        throw new Error("L'aperçu n'a pas pu être généré. Veuillez vérifier qu'il est visible.");
-      }
-
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      const pdf = new jsPDF('portrait', 'mm', 'a4');
       
-      const pdfWidth = 210;
-      const pageHeight = 297;
-      
-      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
-      
-      pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
-      heightLeft -= pageHeight;
-      
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight; // This shifts the image up to show the next chunk
-        pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-      
-      const filename = data.fullName ? `Portfolio_${data.fullName.replace(/\s+/g, '_')}.pdf` : 'Portfolio.pdf';
-      pdf.save(filename);
       ensureSaved().catch(console.error);
-    } catch (e) {
-      console.error('PDF Export Error:', e);
-      showToast('Erreur lors de la génération du PDF', 'error');
-    }
+    }, 300);
   };
 
   const handleShareLink = async () => {
