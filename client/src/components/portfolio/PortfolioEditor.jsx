@@ -296,6 +296,15 @@ export default function PortfolioEditor() {
       const el = document.getElementById('portfolio-preview-container');
       if (!el) return;
 
+      const previewWrapper = el.closest('.flex-1.overflow-y-auto');
+      const wasHidden = previewWrapper && window.getComputedStyle(previewWrapper).display === 'none';
+      
+      if (wasHidden) {
+        previewWrapper.classList.remove('hidden');
+        previewWrapper.classList.add('block');
+        await new Promise(resolve => setTimeout(resolve, 100)); // allow DOM to update
+      }
+
       if (el.parentElement) {
         el.parentElement.classList.add('ats-wrapper');
         document.body.classList.add('ats-one-page'); 
@@ -319,7 +328,7 @@ export default function PortfolioEditor() {
           const tempCanvas = document.createElement('canvas');
           tempCanvas.width = 1;
           tempCanvas.height = 1;
-          const ctx = tempCanvas.getContext('2d');
+          const ctx = tempCanvas.getContext('2d', { willReadFrequently: true });
           
           const convertColor = (val) => {
             if (!val || (!val.includes('oklab') && !val.includes('oklch') && !val.includes('color('))) return val;
@@ -347,9 +356,18 @@ export default function PortfolioEditor() {
       el.style.transform = savedTransform;
       el.style.zoom = savedZoom;
 
+      if (wasHidden) {
+        previewWrapper.classList.add('hidden');
+        previewWrapper.classList.remove('block');
+      }
+
       document.body.classList.remove('printing-ats', 'ats-one-page');
       if (el.parentElement) {
         el.parentElement.classList.remove('ats-wrapper');
+      }
+
+      if (!canvas || canvas.width === 0 || canvas.height === 0) {
+        throw new Error("L'aperçu n'a pas pu être généré. Veuillez vérifier qu'il est visible.");
       }
 
       const imgData = canvas.toDataURL('image/jpeg', 0.95);

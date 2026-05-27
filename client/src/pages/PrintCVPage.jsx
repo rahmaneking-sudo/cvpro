@@ -100,7 +100,7 @@ export default function PrintCVPage() {
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.width = 1;
                 tempCanvas.height = 1;
-                const ctx = tempCanvas.getContext('2d');
+                const ctx = tempCanvas.getContext('2d', { willReadFrequently: true });
                 const convertColor = (val) => {
                   if (!val || (!val.includes('oklab') && !val.includes('oklch') && !val.includes('color('))) return val;
                   ctx.clearRect(0,0,1,1);
