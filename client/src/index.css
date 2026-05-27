@@ -473,18 +473,7 @@
   html, body {
     margin: 0 !important;
     padding: 0 !important;
-  }
-
-  .mobile-scaler-outer,
-  .mobile-scaler-inner {
-    transform: none !important;
-    width: 210mm !important;
-    height: 297mm !important;
-    position: static !important;
-  }
-
-  body > * {
-    display: none !important;
+    overflow: hidden !important;
   }
 
   .no-print,
@@ -492,7 +481,34 @@
     display: none !important;
   }
 
-  #root {
+  #root,
+  #root > div,
+  #root > div > div {
+    background: transparent !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
     display: block !important;
+    overflow: hidden !important;
+  }
+
+  .mobile-scaler-outer {
+    width: 210mm !important;
+    height: 297mm !important;
+    position: static !important;
+    background: transparent !important;
+  }
+
+  .mobile-scaler-inner {
+    transform: none !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    position: static !important;
+    background: transparent !important;
+  }
+
+  .mobile-scaler-inner > div {
+    width: 210mm !important;
+    height: 297mm !important;
   }
 }
