@@ -166,6 +166,11 @@ export default function PrintCVPage() {
             margin: 0 !important;
             padding: 0 !important;
             overflow: hidden !important;
+            page-break-after: avoid !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            transform: scale(0.96) !important;
+            transform-origin: top left !important;
           }
           .mobile-scaler-outer {
             width: 210mm !important;
