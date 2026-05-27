@@ -476,11 +476,6 @@
     overflow: hidden !important;
   }
 
-  .no-print,
-  .print\:hidden {
-    display: none !important;
-  }
-
   #root,
   #root > div,
   #root > div > div {
@@ -489,6 +484,26 @@
     padding: 0 !important;
     margin: 0 !important;
     display: block !important;
+  }
+
+  .no-print,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Pour le portfolio : permettre le multi-page */
+  body.printing-ats,
+  body.printing-ats html,
+  body.printing-ats #root,
+  body.printing-ats #root > div,
+  body.printing-ats #root > div > div {
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  /* Pour le CV : forcer 1 page si nécessaire, sinon laisser libre */
+  html:not(.printing-ats), 
+  body:not(.printing-ats) {
     overflow: hidden !important;
   }
 
