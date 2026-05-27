@@ -282,10 +282,18 @@ export default function PortfolioEditor() {
 
   const handleExport = async () => {
     setIsPrinting(true);
+    setMobileTab('preview');
+
+    // Attendre que React affiche le preview
+    await new Promise(resolve => setTimeout(resolve, 800));
+
     try {
       const el = document.getElementById('portfolio-preview-container');
+      if (!el) throw new Error('Container introuvable');
+
       const savedZoom = el.style.zoom;
       el.style.zoom = '1';
+      await new Promise(resolve => setTimeout(resolve, 200));
 
       const canvas = await html2canvas(el, {
         scale: 2,
@@ -293,6 +301,7 @@ export default function PortfolioEditor() {
         width: 794,
         height: el.scrollHeight,
         windowWidth: 794,
+        backgroundColor: null,
         onclone: (clonedDoc) => {
           // Fix unsupported oklab colors for html2canvas
           const convertColor = (colorStr) => {
@@ -321,8 +330,8 @@ export default function PortfolioEditor() {
       el.style.zoom = savedZoom;
 
       const pdf = new jsPDF('portrait', 'mm', 'a4');
-      const pageHeight = 297;
       const pageWidth = 210;
+      const pageHeight = 297;
       const imgWidth = pageWidth;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       let heightLeft = imgHeight;
@@ -340,7 +349,6 @@ export default function PortfolioEditor() {
 
       const fileName = data.fullName ? `Portfolio_${data.fullName.replace(/\s+/g, '_')}.pdf` : 'Portfolio.pdf';
       pdf.save(fileName);
-
       await ensureSaved();
     } catch (err) {
       console.error('Export error:', err);
