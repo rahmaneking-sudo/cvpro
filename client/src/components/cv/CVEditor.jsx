@@ -307,10 +307,22 @@ export default function CVEditor() {
     //   return;
     // }
 
+    const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (isMobileDevice) {
+      showToast('Ouverture de l\'impression native. Choisissez "Enregistrer en PDF" ou "Partager -> Imprimer".', 'info');
+      setTimeout(() => {
+        window.print();
+      }, 1000);
+      
+      // On continue silencieusement pour enregistrer l'achat si besoin
+      // Mais on skip la lenteur du html2canvas bloquant l'UI
+    } else {
+      showToast('Préparation du PDF en cours...', 'success');
+    }
+
     const element = document.getElementById('cv-pdf-pristine-container');
     if (!element) return;
-
-    showToast('Préparation du PDF en cours...', 'success');
 
     try {
       let canvas;

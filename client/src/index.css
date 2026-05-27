@@ -493,6 +493,35 @@
     filter: none !important;
     -webkit-filter: none !important;
   }
+
+  /* HIDE EVERYTHING IN THE BODY BY DEFAULT */
+  body > * {
+    display: none !important;
+  }
+
+  /* ONLY SHOW THE PRISTINE PDF CONTAINER AND ITS PARENTS */
+  #root, #root > div {
+    display: block !important;
+    visibility: hidden;
+  }
+  
+  #cv-pdf-pristine-container,
+  #cv-pdf-pristine-container * {
+    visibility: visible;
+  }
+  
+  /* POSITION IT AT THE TOP LEFT CORNER FOR PRINTING */
+  #cv-pdf-pristine-container {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 794px !important;
+    height: 1123px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    page-break-after: avoid;
+    transform: none !important;
+  }
 }
 
 @page {
