@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Plus, Trash2, Loader2, Save, Download, Upload, Globe, Camera, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Loader2, Save, Download, Upload, Globe, Camera, CheckCircle2, AlertCircle, Eye, Edit2 } from 'lucide-react';
 import { portfolioTemplates } from '../../data/portfolioTemplates';
 import PortfolioPreview from './PortfolioPreview';
 import PaymentModal from '../shared/PaymentModal';
@@ -68,6 +68,7 @@ export default function PortfolioEditor() {
   const portfolioId = searchParams.get('portfolioId');
   const template = portfolioTemplates.find(t => t.id === templateId) || portfolioTemplates[0];
 
+  const [mobileTab, setMobileTab] = useState('edit'); // 'edit' | 'preview'
   const [data, setData] = useState(emptyPortfolioData);
   const [projects, setProjects] = useState([{ ...emptyProject }]);
   
@@ -385,9 +386,9 @@ export default function PortfolioEditor() {
       </div>
 
       {/* Editor area */}
-      <div className="flex flex-col lg:flex-row flex-1 overflow-hidden print:overflow-visible print:block print:h-auto">
-        {/* LEFT — Form */}
-        <div className="w-full lg:w-[45%] overflow-y-auto p-4 lg:p-6 space-y-6 lg:space-y-8 border-b lg:border-b-0 lg:border-r border-[rgba(255,255,255,0.06)] print:hidden">
+      <div className="flex flex-col lg:flex-row flex-1 overflow-hidden print:overflow-visible print:block print:h-auto pb-16 lg:pb-0">
+        {/* LEFT - Form */}
+        <div className={`w-full lg:w-[45%] overflow-y-auto p-4 lg:p-6 space-y-6 lg:space-y-8 border-b lg:border-b-0 lg:border-r border-[rgba(255,255,255,0.06)] print:hidden ${mobileTab === 'edit' ? 'block' : 'hidden lg:block'}`}>
           
           <section>
             <h3 className="text-lg font-bold text-[var(--color-ivory)] mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-serif)' }}>
@@ -588,7 +589,7 @@ export default function PortfolioEditor() {
         </div>
 
         {/* RIGHT — Live Preview */}
-        <div className="flex-1 overflow-y-auto bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:relative print:z-10">
+        <div className={`flex-1 overflow-y-auto bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:relative print:z-10 ${mobileTab === 'preview' ? 'block' : 'hidden lg:block'}`}>
           <div className="w-full max-w-[100%] lg:max-w-[794px] print:max-w-none print:w-full print:mx-auto print:overflow-visible">
             <PreviewScaler>
               <PortfolioPreview template={template} data={{ ...data, projects }} />
@@ -656,6 +657,25 @@ export default function PortfolioEditor() {
         price={template?.tier === 'premium' ? 5000 : 2000}
         productType="portfolio_premium"
       />
+
+      {/* Mobile Bottom Navigation Bar */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-[var(--color-charcoal)] border-t border-[rgba(255,255,255,0.1)] flex items-center z-[100]">
+        <button 
+          onClick={() => setMobileTab('edit')} 
+          className={`flex-1 h-full flex flex-col items-center justify-center gap-1 transition-colors ${mobileTab === 'edit' ? 'text-[var(--color-champagne)]' : 'text-[var(--color-white-muted)] hover:text-white'}`}
+        >
+          <Edit2 size={20} />
+          <span className="text-[10px] font-medium uppercase tracking-wider">Éditer</span>
+        </button>
+        <button 
+          onClick={() => setMobileTab('preview')} 
+          className={`flex-1 h-full flex flex-col items-center justify-center gap-1 transition-colors ${mobileTab === 'preview' ? 'text-[var(--color-champagne)]' : 'text-[var(--color-white-muted)] hover:text-white'}`}
+        >
+          <Eye size={20} />
+          <span className="text-[10px] font-medium uppercase tracking-wider">Aperçu</span>
+        </button>
+      </div>
+
     </div>
   );
 }

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Executive Blanc - Standard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-page: #ffffff;
+            --bg-sidebar: #f8f9fa;
+            --text-main: #1a1a1a;
+            --text-muted: #6c757d;
+            --border-color: #e9ecef;
+            --accent: #212529;
+            --font-title: 'Playfair Display', serif;
+            --font-body: 'Source Sans Pro', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #e5e5e5;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            font-family: var(--font-body);
+            color: var(--text-main);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .cv-container {
+            width: 210mm;
+            min-height: 297mm;
+            background-color: var(--bg-page);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .sidebar {
+            width: 70mm;
+            background-color: var(--bg-sidebar);
+            padding: 40px 30px;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 50px 40px;
+            background-color: var(--bg-page);
+        }
+
+        /* Profile */
+        .profile-photo-container {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 0 auto 20px;
+            border: 1px solid var(--border-color);
+            background: #fff;
+        }
+
+        .profile-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Typography */
+        h1, h2, h3 {
+            font-family: var(--font-title);
+            color: var(--accent);
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 5px;
+        }
+
+        .job-title {
+            font-size: 16px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        h2 {
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Contact Info */
+        .contact-item {
+            font-size: 13px;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .contact-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+        }
+
+        /* Skills */
+        .skill-item {
+            margin-bottom: 15px;
+        }
+        
+        .skill-name {
+            font-size: 13px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .skill-bar {
+            height: 4px;
+            background-color: var(--border-color);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .skill-progress {
+            height: 100%;
+            background-color: var(--accent);
+        }
+
+        /* Languages */
+        .language-item {
+            font-size: 13px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Experience */
+        .experience-item {
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .company-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--bg-sidebar);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-title);
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .exp-details {
+            flex: 1;
+        }
+
+        .exp-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 2px;
+        }
+
+        .exp-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .exp-desc {
+            font-size: 13px;
+            color: var(--text-main);
+        }
+
+        .exp-desc ul {
+            padding-left: 15px;
+            margin-top: 8px;
+        }
+
+        .exp-desc li {
+            margin-bottom: 5px;
+        }
+
+        /* Education */
+        .edu-item {
+            margin-bottom: 15px;
+        }
+
+        .edu-degree {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .edu-school {
+            font-size: 13px;
+            color: var(--text-main);
+        }
+
+        .edu-date {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .summary {
+            font-size: 14px;
+            color: var(--text-main);
+            margin-bottom: 35px;
+            font-style: italic;
+            font-family: var(--font-title);
+        }
+
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+            }
+            .cv-container {
+                box-shadow: none;
+                width: 210mm;
+                height: 297mm;
+            }
+            @page {
+                size: A4;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cv-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="profile-photo-container">
+                <img src="https://ui-avatars.com/api/?name=Alexandre+Moreau&size=200&background=random" alt="Profile" class="profile-photo">
+            </div>
+
+            <div class="contact-section">
+                <h2>Contact</h2>
+                <div class="contact-item">
+                    <span class="contact-label">Email</span>
+                    <span>alexandre.moreau@email.com</span>
+                </div>
+                <div class="contact-item">
+                    <span class="contact-label">Téléphone</span>
+                    <span>+33 6 12 34 56 78</span>
+                </div>
+                <div class="contact-item">
+                    <span class="contact-label">Ville</span>
+                    <span>Paris, France</span>
+                </div>
+                <div class="contact-item">
+                    <span class="contact-label">LinkedIn</span>
+                    <span>linkedin.com/in/alexandremoreau</span>
+                </div>
+            </div>
+
+            <div class="skills-section">
+                <h2>Compétences</h2>
+                <div class="skill-item">
+                    <div class="skill-name"><span>Stratégie Commerciale</span> <span>Expert</span></div>
+                    <div class="skill-bar"><div class="skill-progress" style="width: 90%;"></div></div>
+                </div>
+                <div class="skill-item">
+                    <div class="skill-name"><span>Management d'Équipe</span> <span>Avancé</span></div>
+                    <div class="skill-bar"><div class="skill-progress" style="width: 85%;"></div></div>
+                </div>
+                <div class="skill-item">
+                    <div class="skill-name"><span>Analyse de Données</span> <span>Intermédiaire</span></div>
+                    <div class="skill-bar"><div class="skill-progress" style="width: 70%;"></div></div>
+                </div>
+                <div class="skill-item">
+                    <div class="skill-name"><span>Gestion de Projet</span> <span>Expert</span></div>
+                    <div class="skill-bar"><div class="skill-progress" style="width: 95%;"></div></div>
+                </div>
+            </div>
+
+            <div class="languages-section">
+                <h2>Langues</h2>
+                <div class="language-item">
+                    <span>Français</span>
+                    <span style="color: var(--text-muted); font-weight: 600;">Natif</span>
+                </div>
+                <div class="language-item">
+                    <span>Anglais</span>
+                    <span style="color: var(--text-muted); font-weight: 600;">Courant (C1)</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header>
+                <h1>Alexandre Moreau</h1>
+                <div class="job-title">Directeur Commercial Senior</div>
+                <div class="summary">
+                    "Fort de 10 ans d'expérience dans le développement stratégique et la direction des ventes. Expert dans l'optimisation des processus commerciaux et la croissance du chiffre d'affaires sur les marchés internationaux."
+                </div>
+            </header>
+
+            <section>
+                <h2>Expériences Professionnelles</h2>
+                
+                <div class="experience-item">
+                    <div class="company-logo">TG</div>
+                    <div class="exp-details">
+                        <div class="exp-title">Directeur des Ventes</div>
+                        <div class="exp-meta">TechGrowth Paris | Jan 2020 - Présent</div>
+                        <div class="exp-desc">
+                            <ul>
+                                <li>Restructuration complète de l'équipe commerciale (25 personnes) et mise en place de nouveaux KPIs.</li>
+                                <li>Augmentation du chiffre d'affaires de 45% sur 3 ans via le développement de partenariats clés.</li>
+                                <li>Déploiement d'un nouveau CRM Salesforce pour optimiser le suivi client.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="experience-item">
+                    <div class="company-logo">IS</div>
+                    <div class="exp-details">
+                        <div class="exp-title">Key Account Manager</div>
+                        <div class="exp-meta">Innovate Solutions | Mar 2016 - Déc 2019</div>
+                        <div class="exp-desc">
+                            <ul>
+                                <li>Gestion d'un portefeuille de 15 comptes stratégiques (CA annuel : 12M€).</li>
+                                <li>Négociation de contrats cadres internationaux et fidélisation des clients B2B majeurs.</li>
+                                <li>Lancement réussi de deux nouvelles offres de services B2B.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="experience-item">
+                    <div class="company-logo">GS</div>
+                    <div class="exp-details">
+                        <div class="exp-title">Business Developer</div>
+                        <div class="exp-meta">Global Systems | Sep 2013 - Fév 2016</div>
+                        <div class="exp-desc">
+                            <ul>
+                                <li>Prospection et acquisition de nouveaux clients sur le marché européen.</li>
+                                <li>Dépassement des objectifs de vente de 120% sur deux années consécutives.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>Formation</h2>
+                <div class="edu-item">
+                    <div class="edu-degree">Master Stratégie d'Entreprise</div>
+                    <div class="edu-school">HEC Paris</div>
+                    <div class="edu-date">2011 - 2013</div>
+                </div>
+                <div class="edu-item">
+                    <div class="edu-degree">Licence Économie et Gestion</div>
+                    <div class="edu-school">Université Paris Dauphine</div>
+                    <div class="edu-date">2008 - 2011</div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
