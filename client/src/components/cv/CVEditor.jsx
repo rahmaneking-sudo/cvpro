@@ -301,34 +301,18 @@ export default function CVEditor() {
       setSaving(false);
     }
   };
-
   const handleExport = async () => {
     // if (!hasPurchased) {
     //   setShowPaymentModal(true);
     //   return;
     // }
 
-    const element = document.getElementById('cv-preview-container');
+    const element = document.getElementById('cv-pdf-pristine-container');
     if (!element) return;
 
     showToast('Préparation du PDF en cours...', 'success');
 
     try {
-      // ─── html2canvas avec onclone ────────────────────────────────────────
-      // onclone reçoit une COPIE INTERNE du document gérée par html2canvas.
-      // Le DOM original (ce que l'utilisateur voit) n'est JAMAIS modifié.
-      // Aucun wrapper n'est ajouté au body → aucune perturbation du layout.
-      // ─────────────────────────────────────────────────────────────────────
-      // ─── CORRECTION BUG iOS SAFARI ──────────────────────────────────────────
-      // iOS Safari `html2canvas` utilise getBoundingClientRect() de l'élément original
-      // Si l'élément a `transform: scale(0.4)`, iOS Safari coupe le canvas à 317px !
-      // On retire temporairement le transform pour forcer 794px réels pendant la capture.
-      const originalTransform = element.style.transform;
-      element.style.transform = 'none';
-      
-      // Laisser le navigateur appliquer le changement de taille avant la capture
-      await new Promise(r => setTimeout(r, 50));
-
       let canvas;
       try {
         canvas = await html2canvas(element, {
@@ -393,10 +377,9 @@ export default function CVEditor() {
             console.warn('onclone error:', e);
           }
         }
-      });
+        });
       } finally {
-        // Restaurer le transform visuel immédiatement
-        if (originalTransform) element.style.transform = originalTransform;
+        // Nothing to restore since we use the hidden container
       }
 
       // ─── Génération PDF ──────────────────────────────────────────────────
@@ -1356,6 +1339,28 @@ export default function CVEditor() {
         </button>
       </div>
 
+      {/* OFF-SCREEN PRISTINE RENDER FOR PDF GENERATION */}
+      {/* This ensures html2canvas captures a perfect desktop-sized CV regardless of device screen size */}
+      <div 
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          zIndex: -9999,
+          visibility: 'visible',
+          width: '794px',
+          height: '1123px',
+          overflow: 'hidden'
+        }}
+      >
+        <div id="cv-pdf-pristine-container" style={{ width: '794px', height: '1123px', position: 'relative' }}>
+          {template.layout === 'cover-letter' ? (
+            <CoverLetterPreview template={template} cvData={cvData} colors={colors} />
+          ) : (
+            <CVPreview template={template} cvData={cvData} experiences={experiences} educations={educations} colors={colors} />
+          )}
+        </div>
+      </div>
     </div>
   );
 }
