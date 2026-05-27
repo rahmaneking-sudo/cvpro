@@ -126,60 +126,6 @@ export default function PrintCVPage() {
           )}
         </div>
       </div>
-
-      <style>{`
-        @media print {
-          @page {
-            size: A4 portrait;
-            margin: 0mm;
-          }
-          html, body {
-            background: white !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-            width: 210mm !important;
-            height: 297mm !important;
-            max-height: 297mm !important;
-            overflow: hidden !important;
-          }
-          * {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-          .no-print {
-            display: none !important;
-          }
-          #root, #root > div {
-            padding: 0 !important;
-            margin: 0 !important;
-            width: 210mm !important;
-            height: 297mm !important;
-            max-height: 297mm !important;
-            overflow: hidden !important;
-          }
-          #cv-pdf-pristine-container {
-            width: 210mm !important;
-            height: 297mm !important;
-            max-height: 297mm !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: hidden !important;
-          }
-          .mobile-scaler-outer {
-            width: 210mm !important;
-            height: 297mm !important;
-            position: static !important;
-          }
-          .mobile-scaler-inner {
-            transform: none !important;
-            position: static !important;
-            width: 210mm !important;
-            height: 297mm !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }
