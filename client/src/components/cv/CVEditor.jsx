@@ -1355,9 +1355,9 @@ export default function CVEditor() {
       >
         <div id="cv-pdf-pristine-container" style={{ width: '794px', height: '1123px', position: 'relative' }}>
           {template.layout === 'cover-letter' ? (
-            <CoverLetterPreview template={template} cvData={cvData} colors={colors} />
+            <CoverLetterPreview template={template} cvData={cvData} />
           ) : (
-            <CVPreview template={template} cvData={cvData} experiences={experiences} educations={educations} colors={colors} />
+            <CVPreview template={template} cvData={cvData} experiences={experiences} educations={cvData.educations} />
           )}
         </div>
       </div>
