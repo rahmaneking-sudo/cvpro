@@ -280,35 +280,74 @@ export default function PortfolioEditor() {
     }
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
     setIsPrinting(true);
-    // On passe la couleur de fond dynamique au CSS via une variable
-    document.body.style.setProperty('--template-bg', template.bg || '#ffffff');
-    document.body.classList.add('printing-ats');
-    
-    const el = document.getElementById('portfolio-preview-container');
-    if (el && el.parentElement) {
-      el.parentElement.classList.add('ats-wrapper');
-      
-      // Portfolios are multi-page naturally, we just remove wrapper height limits
-      document.body.classList.add('ats-one-page'); 
-    }
-    
-    const originalTitle = document.title;
-    document.title = data.fullName ? `Portfolio_${data.fullName.replace(/\s+/g, '_')}` : 'Portfolio';
-    
-    setTimeout(() => {
-      window.print();
-      
-      document.title = originalTitle;
-      document.body.classList.remove('printing-ats', 'ats-one-page');
-      if (el && el.parentElement) {
-        el.parentElement.classList.remove('ats-wrapper');
+    try {
+      const el = document.getElementById('portfolio-preview-container');
+      const savedZoom = el.style.zoom;
+      el.style.zoom = '1';
+
+      const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        width: 794,
+        height: el.scrollHeight,
+        windowWidth: 794,
+        onclone: (clonedDoc) => {
+          // Fix unsupported oklab colors for html2canvas
+          const convertColor = (colorStr) => {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 1; tempCanvas.height = 1;
+            const ctx = tempCanvas.getContext('2d', { willReadFrequently: true });
+            ctx.fillStyle = colorStr;
+            ctx.fillRect(0, 0, 1, 1);
+            const data = ctx.getImageData(0, 0, 1, 1).data;
+            return `rgba(${data[0]}, ${data[1]}, ${data[2]}, ${data[3]/255})`;
+          };
+          const elements = clonedDoc.querySelectorAll('*');
+          for (let i = 0; i < elements.length; i++) {
+            const node = elements[i];
+            const style = clonedDoc.defaultView ? clonedDoc.defaultView.getComputedStyle(node) : window.getComputedStyle(node);
+            const bg = style.backgroundColor;
+            const c = style.color;
+            const bc = style.borderColor;
+            if (bg && (bg.includes('okl') || bg.includes('color('))) node.style.backgroundColor = convertColor(bg);
+            if (c && (c.includes('okl') || c.includes('color('))) node.style.color = convertColor(c);
+            if (bc && (bc.includes('okl') || bc.includes('color('))) node.style.borderColor = convertColor(bc);
+          }
+        }
+      });
+
+      el.style.zoom = savedZoom;
+
+      const pdf = new jsPDF('portrait', 'mm', 'a4');
+      const pageHeight = 297;
+      const pageWidth = 210;
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft > 0) {
+        position -= pageHeight;
+        pdf.addPage();
+        pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
       }
-      
+
+      const fileName = data.fullName ? `Portfolio_${data.fullName.replace(/\s+/g, '_')}.pdf` : 'Portfolio.pdf';
+      pdf.save(fileName);
+
+      await ensureSaved();
+    } catch (err) {
+      console.error('Export error:', err);
+      showToast('Erreur lors de l\'export.', 'error');
+    } finally {
       setIsPrinting(false);
-      ensureSaved().catch(console.error);
-    }, 150);
+    }
   };
 
   const handleShareLink = async () => {
