@@ -92,8 +92,26 @@ export default function PrintCVPage() {
         </button>
       </div>
 
-      {/* Le CV est scalé visuellement sur mobile mais reste en 794px pour l'impression */}
-      <MobileScaler>
+      {/* Affichage Écran : Scalé pour le mobile */}
+      <div className="print:hidden w-full flex justify-center">
+        <MobileScaler>
+          <div className="bg-white w-[794px] h-[1123px] overflow-hidden">
+            {template?.layout === 'cover-letter' ? (
+              <CoverLetterPreview template={template} cvData={cvData} />
+            ) : (
+              <CVPreview
+                template={template}
+                cvData={cvData}
+                experiences={experiences}
+                educations={cvData?.educations}
+              />
+            )}
+          </div>
+        </MobileScaler>
+      </div>
+
+      {/* Affichage Impression : Format A4 strict, pur, sans aucun scale ni position absolue */}
+      <div className="hidden print:block w-[794px] h-[1123px] overflow-hidden bg-white m-0 p-0">
         <div className="bg-white w-[794px] h-[1123px] overflow-hidden">
           {template?.layout === 'cover-letter' ? (
             <CoverLetterPreview template={template} cvData={cvData} />
@@ -106,7 +124,7 @@ export default function PrintCVPage() {
             />
           )}
         </div>
-      </MobileScaler>
+      </div>
 
       <style>{`
         @media print {
