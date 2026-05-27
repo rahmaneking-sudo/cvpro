@@ -131,34 +131,52 @@ export default function PrintCVPage() {
         @media print {
           @page {
             size: A4 portrait;
-            margin: 0;
-          }
-          html {
-            font-size: 9px !important;
+            margin: 0mm;
           }
           html, body {
+            background: white !important;
             margin: 0 !important;
             padding: 0 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
             width: 210mm !important;
             height: 297mm !important;
+            max-height: 297mm !important;
             overflow: hidden !important;
-            background: white !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
           }
           * {
-            line-height: 1.2 !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
-          header, footer, nav, .navbar, .btn-download, .chat-button, button, .no-print, .print\\:hidden, [class*="print:hidden"] {
+          .no-print {
             display: none !important;
+          }
+          #root, #root > div {
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 210mm !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
+            overflow: hidden !important;
           }
           #cv-pdf-pristine-container {
             width: 210mm !important;
             height: 297mm !important;
-            page-break-after: avoid !important;
-            page-break-inside: avoid !important;
+            max-height: 297mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+          }
+          .mobile-scaler-outer {
+            width: 210mm !important;
+            height: 297mm !important;
+            position: static !important;
+          }
+          .mobile-scaler-inner {
+            transform: none !important;
+            position: static !important;
+            width: 210mm !important;
+            height: 297mm !important;
           }
         }
       `}</style>
