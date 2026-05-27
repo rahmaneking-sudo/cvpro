@@ -88,32 +88,22 @@ export default function PrintCVPage() {
             const allStyles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
               .map(s => s.outerHTML).join('');
             const win = window.open('', '_blank');
-            win.document.write(`
-              <html>
-              <head>
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                ${allStyles}
-                <style>
-                  @page { size: A4 portrait; margin: 0; }
-                  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-                  html, body { 
-                    margin: 0 !important; 
-                    padding: 0 !important; 
-                    width: 210mm !important; 
-                    height: 297mm !important; 
-                    overflow: hidden !important;
-                    background: white !important;
-                  }
-                  body > div {
-                    width: 210mm !important;
-                    height: 297mm !important;
-                    overflow: hidden !important;
-                  }
-                </style>
-              </head>
-              <body>${cv.outerHTML}</body>
-              </html>
-            `);
+            win.document.write(`<html><head>
+              <meta name="viewport" content="width=794, initial-scale=0.5">
+              ${allStyles}
+              <style>
+                @page { size: A4 portrait; margin: 0; }
+                * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                html, body {
+                  margin: 0 !important;
+                  padding: 0 !important;
+                  width: 794px !important;
+                  height: 1123px !important;
+                  overflow: hidden !important;
+                  background: white !important;
+                }
+              </style>
+            </head><body>${cv.outerHTML}</body></html>`);
             win.document.close();
             setTimeout(() => win.print(), 500);
           }}
