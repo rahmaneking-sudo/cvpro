@@ -130,20 +130,14 @@ export default function PrintCVPage() {
       <style>{`
         @media print {
           @page {
-            margin: 0;
-            margin: 0mm;
             size: A4 portrait;
+            margin: 0;
           }
           html, body {
-            background: white !important;
             margin: 0 !important;
             padding: 0 !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
-            width: 210mm !important;
-            height: 297mm !important;
-            max-height: 297mm !important;
-            overflow: hidden !important;
           }
           * {
             -webkit-print-color-adjust: exact !important;
@@ -152,37 +146,13 @@ export default function PrintCVPage() {
           .no-print {
             display: none !important;
           }
-          #root, #root > div {
-            padding: 0 !important;
-            margin: 0 !important;
-            width: 210mm !important;
-            height: 297mm !important;
-            max-height: 297mm !important;
-            overflow: hidden !important;
-          }
           #cv-pdf-pristine-container {
-            width: 210mm !important;
-            height: 297mm !important;
-            max-height: 297mm !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: hidden !important;
+            transform: scale(0.7) !important;
+            transform-origin: top center !important;
+            width: 143% !important;
+            margin-left: -21% !important;
             page-break-after: avoid !important;
             page-break-inside: avoid !important;
-            break-inside: avoid !important;
-            transform: scale(0.98) !important;
-            transform-origin: top center !important;
-          }
-          .mobile-scaler-outer {
-            width: 210mm !important;
-            height: 297mm !important;
-            position: static !important;
-          }
-          .mobile-scaler-inner {
-            transform: none !important;
-            position: static !important;
-            width: 210mm !important;
-            height: 297mm !important;
           }
         }
       `}</style>
