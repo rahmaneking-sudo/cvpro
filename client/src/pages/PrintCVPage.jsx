@@ -83,29 +83,19 @@ export default function PrintCVPage() {
           Pour enregistrer ce CV sur votre iPhone, appuyez sur <strong>"Enregistrer en PDF"</strong> ci-dessous, puis choisissez <strong>"Enregistrer dans Fichiers"</strong> ou <strong>"Partager → Imprimer"</strong>.
         </div>
         <button
-          onClick={() => {
+          onClick={async () => {
+            const { default: html2canvas } = await import('html2canvas');
+            const { default: jsPDF } = await import('jspdf');
             const cv = document.querySelector('.mobile-scaler-inner > div');
-            const allStyles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
-              .map(s => s.outerHTML).join('');
-            const win = window.open('', '_blank');
-            win.document.write(`<html><head>
-              <meta name="viewport" content="width=794, initial-scale=0.5">
-              ${allStyles}
-              <style>
-                @page { size: A4 portrait; margin: 0; }
-                * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-                html, body {
-                  margin: 0 !important;
-                  padding: 0 !important;
-                  width: 794px !important;
-                  height: 1123px !important;
-                  overflow: hidden !important;
-                  background: white !important;
-                }
-              </style>
-            </head><body>${cv.outerHTML}</body></html>`);
-            win.document.close();
-            setTimeout(() => win.print(), 500);
+            const canvas = await html2canvas(cv, {
+              scale: 2,
+              useCORS: true,
+              width: 794,
+              height: 1123,
+            });
+            const pdf = new jsPDF('portrait', 'mm', 'a4');
+            pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, 210, 297);
+            pdf.save('mon-cv.pdf');
           }}
           style={{ backgroundColor: '#c9a96e' }}
           className="flex items-center gap-2 text-black px-8 py-3 rounded-xl font-bold shadow-lg active:scale-95 transition-transform text-base"
