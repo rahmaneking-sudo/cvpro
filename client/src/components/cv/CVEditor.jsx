@@ -381,6 +381,34 @@ export default function CVEditor() {
               'width:794px',
             ].join(';');
 
+            // Fix unsupported oklab/oklch colors for html2canvas
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 1;
+            tempCanvas.height = 1;
+            const ctx = tempCanvas.getContext('2d');
+            const convertColor = (val) => {
+              if (!val || (!val.includes('oklab') && !val.includes('oklch') && !val.includes('color('))) return val;
+              ctx.clearRect(0,0,1,1);
+              ctx.fillStyle = val;
+              ctx.fillRect(0,0,1,1);
+              const data = ctx.getImageData(0,0,1,1).data;
+              return `rgba(${data[0]}, ${data[1]}, ${data[2]}, ${data[3]/255})`;
+            };
+            const elements = clonedDoc.querySelectorAll('*');
+            for (let i = 0; i < elements.length; i++) {
+              const el = elements[i];
+              const style = clonedDoc.defaultView ? clonedDoc.defaultView.getComputedStyle(el) : window.getComputedStyle(el);
+              const bg = style.backgroundColor;
+              const c = style.color;
+              const bc = style.borderColor;
+              if (bg && (bg.includes('okl') || bg.includes('color('))) el.style.backgroundColor = convertColor(bg);
+              if (c && (c.includes('okl') || c.includes('color('))) el.style.color = convertColor(c);
+              if (bc && (bc.includes('okl') || bc.includes('color('))) el.style.borderColor = convertColor(bc);
+            }
+
+            // Supprimer le scaler dans le clone pour le rendre brut
+            const scaler = clonedEl.querySelector('.mobile-scaler-inner');
+
             // Retirer les boutons (upload photo, supprimer) — pas dans le PDF
             clonedEl.querySelectorAll('button, input[type="file"], label[for], .print\\:hidden')
               .forEach(el => el.remove());
