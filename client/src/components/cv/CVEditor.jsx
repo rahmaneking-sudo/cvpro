@@ -14,14 +14,21 @@ import { jsPDF } from 'jspdf';
 import CoverLetterPreview from './CoverLetterPreview';
 
 const PreviewScaler = ({ children }) => {
-  const containerRef = React.useRef(null);
-  const contentRef = React.useRef(null);
   const [scale, setScale] = React.useState(1);
   const [contentHeight, setContentHeight] = React.useState(1123);
+  const containerRef = React.useRef(null);
+  const contentRef = React.useRef(null);
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth < 768);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   React.useEffect(() => {
     const observer = new ResizeObserver(() => {
-      if (containerRef.current) {
+      if (containerRef.current && !isMobile) {
         const availableWidth = containerRef.current.clientWidth;
         // 794px = 210mm at 96dpi. Max scale is 1.
         setScale(Math.min(1, availableWidth / 794));
@@ -33,13 +40,13 @@ const PreviewScaler = ({ children }) => {
     if (containerRef.current) observer.observe(containerRef.current);
     if (contentRef.current) observer.observe(contentRef.current);
     return () => observer.disconnect();
-  }, []);
+  }, [isMobile]);
 
   return (
     <div ref={containerRef} className="w-full flex justify-center print:!block print:!w-auto print:!m-0 print:!p-0">
       <div 
-        className="print:!h-auto print:!w-full print:!static"
-        style={{ 
+        className="print:!h-auto print:!w-full print:!static w-full md:w-auto"
+        style={isMobile ? { position: 'relative' } : { 
           width: `${794 * scale}px`, 
           height: `${contentHeight * scale}px`,
           position: 'relative'
@@ -48,8 +55,10 @@ const PreviewScaler = ({ children }) => {
         <div 
           id="cv-preview-container"
           ref={contentRef}
-          className="shadow-[var(--shadow-cinematic)] rounded-lg overflow-hidden print:!transform-none print:!w-[210mm] print:!static print:!shadow-none print:!rounded-none"
-          style={{ 
+          className="shadow-[var(--shadow-cinematic)] rounded-lg overflow-hidden print:!transform-none print:!w-[210mm] print:!static print:!shadow-none print:!rounded-none w-full md:w-[794px]"
+          style={isMobile ? {
+            position: 'relative',
+          } : { 
             width: '794px', 
             transform: `scale(${scale})`, 
             transformOrigin: 'top left',

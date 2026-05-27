@@ -45,8 +45,8 @@ export default function PrintCVPage() {
         </button>
       </div>
 
-      {/* CV Container strictly sized to A4 */}
-      <div className="bg-white shadow-2xl print:shadow-none w-[794px] min-h-[1123px] overflow-hidden" style={{ margin: 0, padding: 0 }}>
+      {/* CV Container strictly sized to A4 for desktop/print, responsive on mobile */}
+      <div className="bg-white shadow-2xl print:shadow-none w-full md:w-[794px] min-h-[1123px] overflow-hidden" style={{ margin: 0, padding: 0 }}>
         {template?.layout === 'cover-letter' ? (
           <CoverLetterPreview template={template} cvData={cvData} />
         ) : (

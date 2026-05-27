@@ -163,9 +163,9 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
   const { mutedColor, dividerColor } = colors;
 
   return (
-    <div className="flex flex-nowrap w-[794px] min-w-[794px] max-w-[794px]" style={{ minHeight: '1123px' }}>
+    <div className="flex flex-col md:flex-row print:flex-row print:flex-nowrap w-full md:w-[794px] print:w-[794px] md:min-w-[794px] print:min-w-[794px] md:max-w-[794px] print:max-w-[794px]" style={{ minHeight: '1123px' }}>
       {/* Sidebar */}
-      <aside className="w-[238px] min-w-[238px] max-w-[238px] shrink-0 p-5 flex flex-col overflow-hidden" style={{ background: secondary }}>
+      <aside className="w-full md:w-[238px] print:w-[238px] md:min-w-[238px] print:min-w-[238px] md:max-w-[238px] print:max-w-[238px] shrink-0 p-5 flex flex-col overflow-hidden" style={{ background: secondary }}>
         {/* Photo / Initiales avec upload */}
         <div className="relative shrink-0 group mx-auto mb-5">
           {cvData.photo && !isUploadingPhoto && onPhotoRemove && (
@@ -258,7 +258,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 w-[556px] min-w-[556px] max-w-[556px] p-6 flex flex-col gap-5 overflow-hidden">
+      <main className="flex-1 w-full md:w-[556px] print:w-[556px] md:min-w-[556px] print:min-w-[556px] md:max-w-[556px] print:max-w-[556px] p-6 flex flex-col gap-5 overflow-hidden">
         {/* Nom + Titre */}
         <header className="mb-6">
           <h1 className="text-3xl font-bold tracking-tight mb-2" style={{ color: text, fontFamily: template.fontTitle ? `"${template.fontTitle}", serif` : undefined }}>
@@ -375,7 +375,7 @@ function LayoutGrid({ template, cvData, experiences, educations, colors }) {
         </section>
       )}
 
-      <div className="grid grid-cols-[1fr_200px] gap-5">
+      <div className="flex flex-col md:grid md:grid-cols-[1fr_200px] print:grid print:grid-cols-[1fr_200px] gap-5">
         {/* Expériences */}
         <section>
           <h3 className="text-xs font-bold uppercase mb-2" style={{ color: text }}>&gt; Expériences</h3>
@@ -467,7 +467,7 @@ function LayoutAsymmetric({ template, cvData, experiences, educations, colors })
         </div>
       </header>
 
-      <div className="flex gap-6 flex-1">
+      <div className="flex flex-col-reverse md:flex-row print:flex-row gap-6 flex-1">
         {/* Main content */}
         <main className="flex-1">
           {/* Profil */}
@@ -524,7 +524,7 @@ function LayoutAsymmetric({ template, cvData, experiences, educations, colors })
         </main>
 
         {/* Sidebar */}
-        <aside className="w-[160px] shrink-0 space-y-5">
+        <aside className="w-full md:w-[160px] print:w-[160px] shrink-0 space-y-5">
           <section>
             <h3 className="text-[9px] font-bold uppercase tracking-[0.3em] mb-2" style={{ color: accent }}>Expertise</h3>
             <ul className="space-y-1">
@@ -570,9 +570,9 @@ function LayoutCreative({ template, cvData, experiences, educations, colors }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="flex flex-col md:grid md:grid-cols-3 print:grid print:grid-cols-3 gap-4">
         {/* Main content (2/3) */}
-        <div className="col-span-2 space-y-3">
+        <div className="md:col-span-2 print:col-span-2 space-y-3">
           {/* Profil */}
           {cvData.summary && (
             <section className="p-4 rounded-xl border" style={{ borderColor: dividerColor }}>
@@ -755,7 +755,7 @@ function LayoutMediaKit({ template, cvData, colors, onPhotoUpload, onPhotoRemove
           </section>
         )}
 
-        <div className="grid grid-cols-2 gap-5">
+        <div className="flex flex-col md:grid md:grid-cols-2 print:grid print:grid-cols-2 gap-5">
           <section>
             <h3 className="text-[11px] font-black uppercase mb-2 tracking-widest border-b pb-1" style={{ color: accent, borderColor: dividerColor }}>
               Ligne Éditoriale & Thèmes
@@ -850,7 +850,7 @@ export default function CVPreview({ template, cvData, experiences, educations, o
 
   return (
     <div
-      className="w-[794px] min-w-[794px] max-w-[794px] min-h-[1123px] relative print:min-w-[210mm] print:w-[210mm] print:min-h-[297mm] print:m-0 print:p-0"
+      className="w-full md:w-[794px] print:w-[210mm] md:min-w-[794px] print:min-w-[210mm] md:max-w-[794px] print:max-w-[210mm] min-h-[1123px] print:min-h-[297mm] relative print:m-0 print:p-0"
       style={{
         background: bg,
         color: text,
