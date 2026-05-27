@@ -112,8 +112,8 @@ export default function PrintCVPage() {
 
       {/* Affichage Impression : Format A4 strict, pur, sans aucun scale ni position absolue */}
       {/* On utilise fixed -left-[9999px] au lieu de hidden pour forcer Safari à pré-rendre le contenu (évite les pages blanches) */}
-      <div id="cv-pdf-pristine-container" className="fixed -left-[9999px] top-0 print:static print:block w-[794px] h-[1123px] overflow-hidden bg-white m-0 p-0">
-        <div className="bg-white w-[794px] h-[1123px] overflow-hidden print:w-[794px] print:h-[1123px]">
+      <div id="cv-pdf-pristine-container" className="fixed -left-[9999px] top-0 print:static print:block w-[210mm] h-[297mm] overflow-hidden bg-white m-0 p-0">
+        <div className="bg-white w-[210mm] h-[297mm] overflow-hidden print:w-[210mm] print:h-[297mm]">
           {template?.layout === 'cover-letter' ? (
             <CoverLetterPreview template={template} cvData={cvData} />
           ) : (
@@ -130,18 +130,18 @@ export default function PrintCVPage() {
       <style>{`
         @media print {
           @page {
-            margin: 0;
             size: A4 portrait;
+            margin: 0mm;
           }
-          body {
+          html, body {
             background: white !important;
             margin: 0 !important;
             padding: 0 !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
-            width: 794px !important;
-            height: 1123px !important;
-            max-height: 1123px !important;
+            width: 210mm !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
             overflow: hidden !important;
           }
           * {
@@ -154,21 +154,29 @@ export default function PrintCVPage() {
           #root, #root > div {
             padding: 0 !important;
             margin: 0 !important;
-            width: 794px !important;
-            height: 1123px !important;
-            max-height: 1123px !important;
+            width: 210mm !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
+            overflow: hidden !important;
+          }
+          #cv-pdf-pristine-container {
+            width: 210mm !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
             overflow: hidden !important;
           }
           .mobile-scaler-outer {
-            width: 794px !important;
-            height: 1123px !important;
+            width: 210mm !important;
+            height: 297mm !important;
             position: static !important;
           }
           .mobile-scaler-inner {
             transform: none !important;
             position: static !important;
-            width: 794px !important;
-            height: 1123px !important;
+            width: 210mm !important;
+            height: 297mm !important;
           }
         }
       `}</style>
