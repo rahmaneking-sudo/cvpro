@@ -279,10 +279,10 @@ export default function PortfolioEditor() {
   };
 
   const handleExport = () => {
-    if (!hasPurchased) {
-      setShowPaymentModal(true);
-      return;
-    }
+    // if (!hasPurchased) {
+    //   setShowPaymentModal(true);
+    //   return;
+    // }
     
     // On passe la couleur de fond dynamique au CSS via une variable
     document.body.style.setProperty('--template-bg', template.bg || '#ffffff');

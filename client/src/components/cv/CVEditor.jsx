@@ -302,10 +302,10 @@ export default function CVEditor() {
   };
 
   const handleExport = async () => {
-      // if (!hasPurchased) {
-      //   setShowPaymentModal(true);
-      //   return;
-      // }
+    // if (!hasPurchased) {
+    //   setShowPaymentModal(true);
+    //   return;
+    // }
 
     const element = document.getElementById('cv-preview-container');
     if (!element) return;
@@ -1329,5 +1329,3 @@ export default function CVEditor() {
     </div>
   );
 }
-
-

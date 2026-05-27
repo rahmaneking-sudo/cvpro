@@ -1,9 +1,9 @@
-// CV Templates – Classés par forfait
-// tier: 'standard' (à l'unité), 'premium' (Pack Pro)
+// CV Templates â€“ ClassÃ©s par forfait
+// tier: 'standard' (Ã  l'unitÃ©), 'premium' (Pack Pro)
 
 export const templates = [
   // ============================
-  // STANDARD – 15 modèles (à l'unité)
+  // STANDARD â€“ 15 modÃ¨les (Ã  l'unitÃ©)
   // ============================
   { id: 'executive-blanc', name: 'Executive Blanc', series: 'executive', tier: 'standard', accent: '#2C2C2E', bg: '#FFFFFF', text: '#1A1A1A', secondary: '#F8F9FA', fontTitle: 'Playfair Display', fontBody: 'Source Sans Pro', layout: 'two-column' },
   { id: 'executive-navy', name: 'Executive Navy', series: 'executive', tier: 'standard', accent: '#C9A96E', bg: '#1B2A4A', text: '#FFFFFF', secondary: '#243B6A', fontTitle: 'Libre Baskerville', fontBody: 'Open Sans', layout: 'two-column' },
@@ -22,7 +22,7 @@ export const templates = [
   { id: 'midnight-executive', name: 'Midnight Executive', series: 'executive', tier: 'standard', accent: '#C9A96E', bg: '#0A0A0A', text: '#F5F0EB', secondary: '#1C1C1E', fontTitle: 'Playfair Display', fontBody: 'Source Sans Pro', layout: 'single-column' },
 
   // ============================
-  // PREMIUM – 15 modèles exclusifs (Pack Pro)
+  // PREMIUM â€“ 15 modÃ¨les exclusifs (Pack Pro)
   // ============================
   { id: 'editorial-magazine', name: 'Editorial Magazine', series: 'creative', tier: 'premium', accent: '#1A1A1A', bg: '#F5F0EB', text: '#1A1A1A', secondary: '#E8E2DA', fontTitle: 'Bodoni Moda', fontBody: 'Inter', layout: 'asymmetric' },
   { id: 'architectural-grid', name: 'Architectural Grid', series: 'tech', tier: 'premium', accent: '#7B8794', bg: '#FFFFFF', text: '#1A1A1A', secondary: '#F0F2F5', fontTitle: 'Oswald', fontBody: 'Roboto', layout: 'grid' },
@@ -42,21 +42,20 @@ export const templates = [
 ];
 
 export const seriesLabels = {
-  executive: { fr: 'Série Executive', en: 'Executive Series' },
-  creative: { fr: 'Série Creative', en: 'Creative Series' },
-  tech: { fr: 'Série Tech', en: 'Tech Series' },
-  african: { fr: 'Série Africaine Premium', en: 'African Premium Series' },
+  executive: { fr: 'SÃ©rie Executive', en: 'Executive Series' },
+  creative: { fr: 'SÃ©rie Creative', en: 'Creative Series' },
+  tech: { fr: 'SÃ©rie Tech', en: 'Tech Series' },
+  african: { fr: 'SÃ©rie Africaine Premium', en: 'African Premium Series' },
 };
 
 export const tierLabels = {
-  standard: { fr: 'CV Standard (1 500 F)', shortFr: 'Standard', en: 'Standard', color: '#43A047', tooltip: 'Forfait 1 500 FCFA : Téléchargement unique d\'un design standard.' },
-  'cover-letter': { fr: 'Lettre de Motivation (1 500 F)', shortFr: 'Lettre de Motivation', en: 'Cover Letter', color: '#3B82F6', tooltip: 'Forfait 1 500 FCFA : Téléchargement unique d\'une Lettre de motivation.' },
-  premium: { fr: 'Pack Premium (5 000 F - CV illimités)', shortFr: 'Premium', en: 'Premium', color: '#C9A96E', tooltip: 'Forfait 5 000 FCFA : Accès illimité à tous les modèles premiums.' },
-  'media-kit': { fr: 'Media Kit Pro (2 000 F)', shortFr: 'Media Kit', en: 'Media Kit', color: '#8B5CF6', tooltip: 'Forfait 2 000 FCFA : Téléchargement d\'un Media Kit professionnel pour influenceurs.' },
+  standard: { fr: 'CV Standard (1 500 F)', shortFr: 'Standard', en: 'Standard', color: '#43A047', tooltip: 'Forfait 1 500 FCFA : TÃ©lÃ©chargement unique d\'un design standard.' },
+  'cover-letter': { fr: 'Lettre de Motivation (1 500 F)', shortFr: 'Lettre de Motivation', en: 'Cover Letter', color: '#3B82F6', tooltip: 'Forfait 1 500 FCFA : TÃ©lÃ©chargement unique d\'une Lettre de motivation.' },
+  premium: { fr: 'Pack Premium (5 000 F - CV illimitÃ©s)', shortFr: 'Premium', en: 'Premium', color: '#C9A96E', tooltip: 'Forfait 5 000 FCFA : AccÃ¨s illimitÃ© Ã  tous les modÃ¨les premiums.' },
+  'media-kit': { fr: 'Media Kit Pro (2 000 F)', shortFr: 'Media Kit', en: 'Media Kit', color: '#8B5CF6', tooltip: 'Forfait 2 000 FCFA : TÃ©lÃ©chargement d\'un Media Kit professionnel pour influenceurs.' },
 };
 
 export function getTemplate(id) {
   const template = templates.find(t => t.id === id);
   return template || templates.find(t => t.id === 'executive-blanc');
 }
-
