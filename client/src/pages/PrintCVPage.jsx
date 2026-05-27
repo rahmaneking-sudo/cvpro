@@ -112,7 +112,7 @@ export default function PrintCVPage() {
 
       {/* Affichage Impression : Format A4 strict, pur, sans aucun scale ni position absolue */}
       {/* On utilise fixed -left-[9999px] au lieu de hidden pour forcer Safari à pré-rendre le contenu (évite les pages blanches) */}
-      <div className="fixed -left-[9999px] top-0 print:static print:block w-[794px] h-[1123px] overflow-hidden bg-white m-0 p-0">
+      <div id="cv-pdf-pristine-container" className="fixed -left-[9999px] top-0 print:static print:block w-[794px] h-[1123px] overflow-hidden bg-white m-0 p-0">
         <div className="bg-white w-[794px] h-[1123px] overflow-hidden print:w-[794px] print:h-[1123px]">
           {template?.layout === 'cover-letter' ? (
             <CoverLetterPreview template={template} cvData={cvData} />
