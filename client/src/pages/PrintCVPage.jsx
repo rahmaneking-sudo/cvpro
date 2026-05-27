@@ -92,8 +92,8 @@ export default function PrintCVPage() {
         </button>
       </div>
 
-      {/* Affichage Écran : Scalé pour le mobile */}
-      <div className="print:hidden w-full flex justify-center">
+      {/* Affichage : Scalé pour le mobile, désactivé à l'impression */}
+      <div className="w-full flex justify-center">
         <MobileScaler>
           <div className="bg-white w-[794px] h-[1123px] overflow-hidden">
             {template?.layout === 'cover-letter' ? (
@@ -108,23 +108,6 @@ export default function PrintCVPage() {
             )}
           </div>
         </MobileScaler>
-      </div>
-
-      {/* Affichage Impression : Format A4 strict, pur, sans aucun scale ni position absolue */}
-      {/* On utilise fixed -left-[9999px] au lieu de hidden pour forcer Safari à pré-rendre le contenu (évite les pages blanches) */}
-      <div id="cv-pdf-pristine-container" className="fixed -left-[9999px] top-0 print:static print:block w-[210mm] h-[297mm] overflow-hidden bg-white m-0 p-0">
-        <div className="bg-white w-[210mm] h-[297mm] overflow-hidden print:w-[210mm] print:h-[297mm]">
-          {template?.layout === 'cover-letter' ? (
-            <CoverLetterPreview template={template} cvData={cvData} />
-          ) : (
-            <CVPreview
-              template={template}
-              cvData={cvData}
-              experiences={experiences}
-              educations={cvData?.educations}
-            />
-          )}
-        </div>
       </div>
     </div>
   );
