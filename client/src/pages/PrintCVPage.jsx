@@ -54,6 +54,7 @@ export default function PrintCVPage() {
   const [data, setData] = useState(null);
 
   useEffect(() => {
+    document.body.classList.add('is-cv-print-page');
     try {
       const storedData = localStorage.getItem('cv-print-data');
       if (storedData) {
@@ -62,6 +63,9 @@ export default function PrintCVPage() {
     } catch (e) {
       console.error('Failed to parse print data', e);
     }
+    return () => {
+      document.body.classList.remove('is-cv-print-page');
+    };
   }, []);
 
   if (!data) {

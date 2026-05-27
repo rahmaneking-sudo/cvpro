@@ -591,8 +591,8 @@ export default function PortfolioEditor() {
         )}
 
         {/* RIGHT - Live Preview */}
-        <div className={`flex-1 overflow-y-auto ${isPrinting ? 'bg-white p-0 m-0 block w-full h-auto overflow-visible relative z-10' : 'bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center'} print:bg-white print:p-0 print:m-0 print:block print:w-full print:h-auto print:overflow-visible print:relative print:z-10 ${!isPrinting && mobileTab === 'preview' ? 'block' : (!isPrinting ? 'hidden lg:block' : '')}`}>
-          <div className={`${isPrinting ? 'w-full max-w-none mx-auto overflow-visible' : 'w-full max-w-[100%] lg:max-w-[794px]'} print:max-w-none print:w-full print:mx-auto print:overflow-visible`}>
+        <div className={`flex-1 overflow-y-auto ${isPrinting ? 'bg-white p-0 m-0 block w-full h-auto overflow-visible relative z-10' : 'bg-[var(--color-graphite)] p-4 lg:p-8 flex items-start justify-center'} print:!bg-white print:!p-0 print:!m-0 print:!block print:!w-full print:!h-auto print:!overflow-visible print:!relative print:!z-10 ${!isPrinting && mobileTab === 'preview' ? 'block' : (!isPrinting ? 'hidden lg:block' : '')}`}>
+          <div className={`${isPrinting ? 'w-full max-w-none mx-auto overflow-visible' : 'w-full max-w-[100%] lg:max-w-[794px]'} print:!max-w-none print:!w-full print:!mx-auto print:!overflow-visible`}>
             <PreviewScaler isPrinting={isPrinting}>
               <PortfolioPreview template={template} data={{ ...data, projects }} />
             </PreviewScaler>
@@ -662,7 +662,7 @@ export default function PortfolioEditor() {
 
       {/* Mobile Bottom Navigation Bar */}
       {!isPrinting && (
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-[var(--color-charcoal)] border-t border-[rgba(255,255,255,0.1)] flex items-center z-[100]">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-[var(--color-charcoal)] border-t border-[rgba(255,255,255,0.1)] flex items-center z-[100] print:hidden">
         <button 
           onClick={() => setMobileTab('edit')} 
           className={`flex-1 h-full flex flex-col items-center justify-center gap-1 transition-colors ${mobileTab === 'edit' ? 'text-[var(--color-champagne)]' : 'text-[var(--color-white-muted)] hover:text-white'}`}

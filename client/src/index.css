@@ -470,43 +470,44 @@
     print-color-adjust: exact !important;
   }
 
+  /* Par défaut pour tout le site (notamment le portfolio) :
+     Permettre à la page de s'étendre sur plusieurs pages A4 */
   html, body {
     margin: 0 !important;
     padding: 0 !important;
+    overflow: visible !important;
+    height: auto !important;
+    background: white !important;
+  }
+
+  /* Spécifique au CV :
+     Empêche l'impression d'une page blanche supplémentaire */
+  body.is-cv-print-page, 
+  body.is-cv-print-page html {
     overflow: hidden !important;
   }
 
-  #root,
-  #root > div,
-  #root > div > div {
-    background: transparent !important;
-    min-height: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    display: block !important;
-  }
-
-  .no-print,
-  .print\:hidden {
+  /* S'assurer que les éléments cachés le soient vraiment (contourne la spécificité Tailwind/React) */
+  body .no-print,
+  body .print\:hidden {
     display: none !important;
   }
 
-  /* Pour le portfolio : permettre le multi-page */
-  body.printing-ats,
-  body.printing-ats html,
-  body.printing-ats #root,
-  body.printing-ats #root > div,
-  body.printing-ats #root > div > div {
-    overflow: visible !important;
-    height: auto !important;
+  /* Corriger le zoom du portfolio sur l'impression native Safari mobile */
+  #portfolio-preview-container {
+    zoom: 1 !important;
+    transform: none !important;
+    width: 210mm !important;
+    margin: 0 auto !important;
+    position: static !important;
   }
 
-  /* Pour le CV : forcer 1 page si nécessaire, sinon laisser libre */
-  html:not(.printing-ats), 
-  body:not(.printing-ats) {
-    overflow: hidden !important;
+  /* S'assurer que le parent du portfolio prend toute la largeur */
+  #portfolio-preview-container > div {
+    width: 210mm !important;
   }
 
+  /* Scaler mobile spécifique au CV */
   .mobile-scaler-outer {
     width: 210mm !important;
     height: 297mm !important;
