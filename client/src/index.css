@@ -400,11 +400,13 @@
 
   /* Prevent any horizontal overflow on mobile */
   .glass-card,
-  section,
+  section:not(#cv-preview-container *),
   form,
-  [class*="grid"] {
+  [class*="grid"]:not(#cv-preview-container *) {
     max-width: 100%;
     overflow-x: hidden;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
   /* Force text to wrap and not overflow (inputs, labels only) */
