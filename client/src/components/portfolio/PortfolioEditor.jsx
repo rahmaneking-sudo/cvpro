@@ -279,38 +279,77 @@ export default function PortfolioEditor() {
     }
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
     // if (!hasPurchased) {
     //   setShowPaymentModal(true);
     //   return;
     // }
     
-    // On passe la couleur de fond dynamique au CSS via une variable
-    document.body.style.setProperty('--template-bg', template.bg || '#ffffff');
-    document.body.classList.add('printing-ats');
-    
-    const el = document.getElementById('portfolio-preview-container');
-    if (el && el.parentElement) {
-      el.parentElement.classList.add('ats-wrapper');
+    try {
+      showToast('Génération du PDF en cours...', 'success');
+      const { default: html2canvas } = await import('html2canvas');
+      const { default: jsPDF } = await import('jspdf');
+
+      document.body.style.setProperty('--template-bg', template.bg || '#ffffff');
+      document.body.classList.add('printing-ats');
       
-      // Portfolios are multi-page naturally, we just remove wrapper height limits
-      document.body.classList.add('ats-one-page'); 
-    }
-    
-    const originalTitle = document.title;
-    document.title = data.fullName ? `Portfolio_${data.fullName.replace(/\s+/g, '_')}` : 'Portfolio';
-    
-    setTimeout(() => {
-      window.print();
-      
-      document.title = originalTitle;
+      const el = document.getElementById('portfolio-preview-container');
+      if (!el) return;
+
+      if (el.parentElement) {
+        el.parentElement.classList.add('ats-wrapper');
+        document.body.classList.add('ats-one-page'); 
+      }
+
+      const savedTransform = el.style.transform;
+      const savedZoom = el.style.zoom;
+      el.style.transform = 'none';
+      el.style.zoom = '1';
+
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        width: 794,
+        windowWidth: 794,
+      });
+
+      el.style.transform = savedTransform;
+      el.style.zoom = savedZoom;
+
       document.body.classList.remove('printing-ats', 'ats-one-page');
-      if (el && el.parentElement) {
+      if (el.parentElement) {
         el.parentElement.classList.remove('ats-wrapper');
       }
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const pdf = new jsPDF('portrait', 'mm', 'a4');
       
+      const pdfWidth = 210;
+      const pageHeight = 297;
+      
+      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+      
+      pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
+      heightLeft -= pageHeight;
+      
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight; // This shifts the image up to show the next chunk
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+      
+      const filename = data.fullName ? `Portfolio_${data.fullName.replace(/\s+/g, '_')}.pdf` : 'Portfolio.pdf';
+      pdf.save(filename);
       ensureSaved().catch(console.error);
-    }, 300);
+    } catch (e) {
+      console.error('PDF Export Error:', e);
+      showToast('Erreur lors de la génération du PDF', 'error');
+    }
   };
 
   const handleShareLink = async () => {
