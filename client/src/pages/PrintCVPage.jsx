@@ -96,7 +96,19 @@ export default function PrintCVPage() {
                 <style>
                   @page { size: A4 portrait; margin: 0; }
                   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-                  html, body { margin: 0; padding: 0; width: 210mm; height: 297mm; overflow: hidden; }
+                  html, body { 
+                    margin: 0 !important; 
+                    padding: 0 !important; 
+                    width: 210mm !important; 
+                    height: 297mm !important; 
+                    overflow: hidden !important;
+                    background: white !important;
+                  }
+                  body > div {
+                    width: 210mm !important;
+                    height: 297mm !important;
+                    overflow: hidden !important;
+                  }
                 </style>
               </head>
               <body>${cv.outerHTML}</body>
