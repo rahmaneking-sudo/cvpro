@@ -130,8 +130,9 @@ export default function PrintCVPage() {
       <style>{`
         @media print {
           @page {
-            size: A4 portrait;
+            margin: 0;
             margin: 0mm;
+            size: A4 portrait;
           }
           html, body {
             background: white !important;
@@ -169,8 +170,8 @@ export default function PrintCVPage() {
             page-break-after: avoid !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
-            transform: scale(0.96) !important;
-            transform-origin: top left !important;
+            transform: scale(0.98) !important;
+            transform-origin: top center !important;
           }
           .mobile-scaler-outer {
             width: 210mm !important;
