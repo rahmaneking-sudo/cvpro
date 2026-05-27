@@ -76,7 +76,7 @@ export default function PrintCVPage() {
   const template = getTemplate(templateId);
 
   return (
-    <div className="min-h-screen bg-[#f3f4f6] flex flex-col items-center p-4 print:p-0 print:bg-white print:items-start">
+    <div className="min-h-screen bg-[#f3f4f6] flex flex-col items-center p-4 print:p-0 print:bg-white print:block print:min-h-0">
       {/* Bouton visible seulement à l'écran, masqué à l'impression */}
       <div className="mb-4 w-full no-print print:hidden flex flex-col items-center gap-3">
         <div className="text-center max-w-sm text-sm text-gray-600 bg-white p-3 rounded-xl shadow-sm border border-gray-200">
@@ -111,8 +111,9 @@ export default function PrintCVPage() {
       </div>
 
       {/* Affichage Impression : Format A4 strict, pur, sans aucun scale ni position absolue */}
-      <div className="hidden print:block w-[794px] h-[1123px] overflow-hidden bg-white m-0 p-0">
-        <div className="bg-white w-[794px] h-[1123px] overflow-hidden">
+      {/* On utilise fixed -left-[9999px] au lieu de hidden pour forcer Safari à pré-rendre le contenu (évite les pages blanches) */}
+      <div className="fixed -left-[9999px] top-0 print:static print:block w-[794px] h-[1123px] overflow-hidden bg-white m-0 p-0">
+        <div className="bg-white w-[794px] h-[1123px] overflow-hidden print:w-[794px] print:h-[1123px]">
           {template?.layout === 'cover-letter' ? (
             <CoverLetterPreview template={template} cvData={cvData} />
           ) : (
@@ -140,7 +141,12 @@ export default function PrintCVPage() {
             print-color-adjust: exact !important;
             width: 794px !important;
             height: 1123px !important;
+            max-height: 1123px !important;
             overflow: hidden !important;
+          }
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
           .no-print {
             display: none !important;
