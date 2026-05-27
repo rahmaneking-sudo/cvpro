@@ -83,7 +83,32 @@ export default function PrintCVPage() {
           Pour enregistrer ce CV sur votre iPhone, appuyez sur <strong>"Enregistrer en PDF"</strong> ci-dessous, puis choisissez <strong>"Enregistrer dans Fichiers"</strong> ou <strong>"Partager → Imprimer"</strong>.
         </div>
         <button
-          onClick={() => window.print()}
+          onClick={() => {
+            const cv = document.querySelector('.mobile-scaler-inner > div');
+            if (!cv) return;
+            
+            const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+              .map(el => el.outerHTML)
+              .join('\n');
+
+            const win = window.open('', '_blank');
+            win.document.write(`
+              <html>
+              <head>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                ${styles}
+                <style>
+                  @page { size: A4 portrait; margin: 0; }
+                  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                  html, body { margin: 0; padding: 0; width: 210mm; height: 297mm; }
+                </style>
+              </head>
+              <body>${cv.outerHTML}</body>
+              </html>
+            `);
+            win.document.close();
+            setTimeout(() => win.print(), 500);
+          }}
           style={{ backgroundColor: '#c9a96e' }}
           className="flex items-center gap-2 text-black px-8 py-3 rounded-xl font-bold shadow-lg active:scale-95 transition-transform text-base"
         >
