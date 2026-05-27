@@ -347,6 +347,16 @@ export default function CVEditor() {
         backgroundColor: template.bg || '#ffffff',
         onclone: (clonedDoc, clonedEl) => {
           try {
+            // Override viewport to force desktop rendering on mobile Safari
+            const metaViewport = clonedDoc.querySelector('meta[name="viewport"]');
+            if (metaViewport) {
+              metaViewport.content = 'width=794';
+            } else {
+              const newMeta = clonedDoc.createElement('meta');
+              newMeta.name = 'viewport';
+              newMeta.content = 'width=794';
+              clonedDoc.head.appendChild(newMeta);
+            }
             // clonedEl = copie du #cv-preview-container dans le doc interne html2canvas
             // Pas de transform, taille A4 exacte, overflow caché → 1 page
             clonedEl.style.cssText = [
