@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, ArrowLeft, Check, Search, X, ArrowRight, Lock, Crown } from 'lucide-react';
@@ -163,6 +163,56 @@ function TemplateMiniCard({ template, isSelected, onClick, onPreview }) {
   );
 }
 
+function ModalPreviewScaler({ children }) {
+  const containerRef = useRef(null);
+  const contentRef = useRef(null);
+  const [scale, setScale] = useState(1);
+  const [contentHeight, setContentHeight] = useState(1123);
+
+  useEffect(() => {
+    const observer = new ResizeObserver(() => {
+      if (containerRef.current) {
+        const availableWidth = containerRef.current.clientWidth;
+        // The CV is 794px wide. Scale it down if availableWidth is smaller.
+        setScale(Math.min(1, availableWidth / 794));
+      }
+      if (contentRef.current) {
+        setContentHeight(contentRef.current.offsetHeight);
+      }
+    });
+    if (containerRef.current) observer.observe(containerRef.current);
+    if (contentRef.current) observer.observe(contentRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={containerRef} className="w-full flex justify-center">
+      <div 
+        style={{ 
+          width: `${794 * scale}px`, 
+          height: `${contentHeight * scale}px`,
+          position: 'relative'
+        }}
+      >
+        <div 
+          ref={contentRef}
+          className="shadow-[0_25px_80px_rgba(0,0,0,0.6)] rounded-lg overflow-hidden"
+          style={{ 
+            width: '794px', 
+            transform: `scale(${scale})`, 
+            transformOrigin: 'top left',
+            position: 'absolute',
+            top: 0,
+            left: 0
+          }}
+        >
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* =====================================================
    PREVIEW MODAL
    ====================================================== */
@@ -181,9 +231,9 @@ function PreviewModal({ template, onClose, onSelect, isLoggedIn }) {
         initial={{ scale: 0.9, opacity: 0, y: 30 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 30 }}
         transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
         onClick={(e) => e.stopPropagation()}
-        className="relative max-w-[680px] w-full max-h-[92vh] overflow-hidden rounded-2xl shadow-[0_0_100px_rgba(201,169,110,0.12)]"
+        className="relative max-w-[850px] w-full max-h-[92vh] overflow-hidden rounded-2xl shadow-[0_0_100px_rgba(201,169,110,0.12)] flex flex-col"
       >
-        <div className="sticky top-0 z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-[var(--color-charcoal)] border-b border-[rgba(255,255,255,0.06)]">
+        <div className="shrink-0 z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-[var(--color-charcoal)] border-b border-[rgba(255,255,255,0.06)]">
           <div className="flex items-center gap-3">
             <div>
               <div className="flex items-center gap-2">
@@ -208,14 +258,16 @@ function PreviewModal({ template, onClose, onSelect, isLoggedIn }) {
           </div>
         </div>
 
-        <div className="overflow-y-auto max-h-[calc(92vh-72px)] bg-[#1a1a1a]">
-          <div className="p-6 flex justify-center">
-            <div className="w-full max-w-[595px] shadow-[0_25px_80px_rgba(0,0,0,0.6)] rounded-lg overflow-hidden">
-              {template.layout === 'cover-letter' ? (
-                <CoverLetterPreview template={template} cvData={sampleCVData} />
-              ) : (
-                <CVPreview template={template} cvData={sampleCVData} experiences={sampleExperiences} educations={sampleEducation} />
-              )}
+        <div className="flex-1 overflow-y-auto bg-[#1a1a1a]">
+          <div className="p-4 sm:p-8 flex justify-center w-full">
+            <div className="w-full max-w-[794px]">
+              <ModalPreviewScaler>
+                {template.layout === 'cover-letter' ? (
+                  <CoverLetterPreview template={template} cvData={sampleCVData} />
+                ) : (
+                  <CVPreview template={template} cvData={sampleCVData} experiences={sampleExperiences} educations={sampleEducation} />
+                )}
+              </ModalPreviewScaler>
             </div>
           </div>
         </div>
