@@ -315,9 +315,7 @@ export default function CVEditor() {
       localStorage.setItem('cv-print-data', JSON.stringify({
         templateId: template.id,
         cvData,
-        experiences,
-        educations,
-        colors
+        experiences
       }));
 
       // Directement changer la page courante au lieu d'ouvrir un popup 

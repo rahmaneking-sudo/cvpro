@@ -26,7 +26,7 @@ export default function PrintCVPage() {
     );
   }
 
-  const { templateId, cvData, experiences, educations, colors } = data;
+  const { templateId, cvData, experiences } = data;
   const template = getTemplate(templateId);
 
   return (
@@ -48,9 +48,9 @@ export default function PrintCVPage() {
       {/* CV Container strictly sized to A4 */}
       <div className="bg-white shadow-2xl print:shadow-none w-[794px] min-h-[1123px] overflow-hidden" style={{ margin: 0, padding: 0 }}>
         {template?.layout === 'cover-letter' ? (
-          <CoverLetterPreview template={template} cvData={cvData} colors={colors} />
+          <CoverLetterPreview template={template} cvData={cvData} />
         ) : (
-          <CVPreview template={template} cvData={cvData} experiences={experiences} educations={educations} colors={colors} />
+          <CVPreview template={template} cvData={cvData} experiences={experiences} educations={cvData?.educations} />
         )}
       </div>
 
