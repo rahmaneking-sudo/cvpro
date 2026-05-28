@@ -659,7 +659,7 @@ function LayoutCreative({ template, cvData, experiences, educations, colors }) {
    6. MEDIA KIT (Influencer Layout)
    - Heavy focus on stats, collaborations, brand identity.
    ========================================================= */
-function LayoutMediaKit({ template, cvData, colors, onPhotoUpload, onPhotoRemove, isUploadingPhoto }) {
+function LayoutMediaKitClassic({ template, cvData, colors, onPhotoUpload, onPhotoRemove, isUploadingPhoto }) {
   const { accent, text, secondary, bg } = template;
   const { mutedColor, dividerColor } = colors;
 
@@ -825,6 +825,244 @@ function LayoutMediaKit({ template, cvData, colors, onPhotoUpload, onPhotoRemove
 
 
 /* =========================================================
+   7. MEDIA KIT SPLIT
+   ========================================================= */
+function LayoutMediaKitSplit({ template, cvData, colors, onPhotoUpload, onPhotoRemove, isUploadingPhoto }) {
+  const { accent, text, secondary, bg, fontTitle, fontBody } = template;
+  const { mutedColor, dividerColor } = colors;
+
+  return (
+    <div className="flex w-full h-full min-h-[1123px]" style={{ background: bg, color: text }}>
+      {/* Left Column */}
+      <div className="w-[300px] shrink-0 p-8 flex flex-col gap-8 relative" style={{ background: secondary }}>
+        {/* Photo */}
+        <div className="relative group mx-auto w-48 h-48 z-10">
+          {cvData.photo && !isUploadingPhoto && onPhotoRemove && (
+            <button onClick={onPhotoRemove} className="absolute -top-2 -right-2 z-20 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white shadow-lg opacity-0 group-hover:opacity-100 print:hidden"><Trash2 size={14} /></button>
+          )}
+          <div className="w-full h-full bg-white shadow-xl flex items-center justify-center text-4xl font-bold overflow-hidden relative" style={{ color: secondary }}>
+            {isUploadingPhoto ? <Loader2 size={32} className="animate-spin text-current z-10" /> : cvData.photo ? <img src={cvData.photo} crossOrigin="anonymous" alt={cvData.fullName} className="w-full h-full object-cover absolute inset-0 z-0" /> : <div className="absolute inset-0 flex items-center justify-center z-0 opacity-50">{cvData.fullName ? cvData.fullName.split(' ').map(n => n[0]).join('').toUpperCase() : '??'}</div>}
+            {onPhotoUpload && <label className={"absolute inset-0 cursor-pointer flex flex-col items-center justify-center text-white transition-opacity z-10 print:hidden " + (cvData.photo ? 'bg-black/40 opacity-0 group-hover:opacity-100' : 'bg-black/20 hover:bg-black/40 opacity-100')}><input type="file" accept="image/*" onChange={onPhotoUpload} className="hidden" disabled={isUploadingPhoto} />{!isUploadingPhoto && <><Camera size={24} className="mb-1" /><span className="text-[10px] font-bold uppercase tracking-widest">Photo</span></>}</label>}
+          </div>
+        </div>
+
+        {cvData.mediaKitDetails?.primaryNetwork && (
+          <div className="text-center font-bold text-lg tracking-wider relative z-10" style={{ color: bg }}>
+            @{cvData.mediaKitDetails.primaryNetwork}
+          </div>
+        )}
+
+        {/* SOCIALS */}
+        <div className="mt-4 relative z-10">
+          <div className="bg-[#1A1A1A] text-white py-2 px-4 mb-4 font-bold tracking-widest text-sm inline-block transform -rotate-90 origin-bottom-left absolute -left-12 mt-32" style={{ letterSpacing: '0.3em' }}>
+            SOCIALS
+          </div>
+          <div className="grid grid-cols-2 gap-4 pl-8">
+            <div className="text-center">
+              <div className="text-xl font-bold mb-1" style={{ color: bg }}>{cvData.socialStats?.instagram || '10K+'}</div>
+              <div className="text-[10px] font-bold uppercase" style={{ color: text }}>Instagram</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xl font-bold mb-1" style={{ color: bg }}>{cvData.socialStats?.tiktok || '15K+'}</div>
+              <div className="text-[10px] font-bold uppercase" style={{ color: text }}>TikTok</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xl font-bold mb-1" style={{ color: bg }}>{cvData.socialStats?.youtube || '5K+'}</div>
+              <div className="text-[10px] font-bold uppercase" style={{ color: text }}>YouTube</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xl font-bold mb-1" style={{ color: bg }}>{cvData.socialStats?.engagement || '3%'}</div>
+              <div className="text-[10px] font-bold uppercase" style={{ color: text }}>Engagement</div>
+            </div>
+          </div>
+        </div>
+
+        {/* STATS BLOCKS */}
+        <div className="grid grid-cols-3 gap-2 mt-8 relative z-10">
+          <div className="bg-[#1A1A1A] text-white p-2 text-center rounded">
+            <div className="font-bold text-sm">20K</div>
+            <div className="text-[8px] opacity-70">Abonnés Email</div>
+          </div>
+          <div className="bg-[#1A1A1A] text-white p-2 text-center rounded">
+            <div className="font-bold text-sm">30K</div>
+            <div className="text-[8px] opacity-70">Visiteurs / Mois</div>
+          </div>
+          <div className="bg-[#1A1A1A] text-white p-2 text-center rounded">
+            <div className="font-bold text-sm">17K</div>
+            <div className="text-[8px] opacity-70">Vues / Mois</div>
+          </div>
+        </div>
+
+        {/* SAY HELLO */}
+        <div className="mt-auto text-center relative z-10 pt-10">
+          <h3 className="text-5xl mb-4" style={{ fontFamily: '"Playfair Display", serif', color: bg, fontStyle: 'italic', fontWeight: 700 }}>Say Hello!</h3>
+          <p className="text-sm font-bold mb-1" style={{ color: text }}>{cvData.website || 'www.votre-site.com'}</p>
+          <p className="text-sm font-bold" style={{ color: text }}>{cvData.email || 'hello@votre-site.com'}</p>
+        </div>
+      </div>
+
+      {/* Right Column */}
+      <div className="flex-1 p-12 flex flex-col gap-10">
+        <header className="text-center border-b pb-6" style={{ borderColor: dividerColor }}>
+          <h1 className="text-5xl font-bold tracking-[0.2em] uppercase mb-4" style={{ fontFamily: \`"\${fontTitle}", sans-serif\` }}>
+            {cvData.fullName || 'VOTRE NOM'}
+          </h1>
+          <h2 className="text-sm font-medium tracking-wide" style={{ color: mutedColor }}>
+            {cvData.jobTitle || 'Votre Titre de Créateur'}
+          </h2>
+        </header>
+
+        <section>
+          <h3 className="text-center text-sm font-bold tracking-[0.2em] uppercase mb-6" style={{ color: secondary }}>
+            A PROPOS DE MOI
+          </h3>
+          <p className="text-[13px] leading-relaxed text-justify font-medium" style={{ color: mutedColor }}>
+            {cvData.summary || "Votre bio apparaitra ici..."}
+          </p>
+        </section>
+
+        <section>
+          <h3 className="text-center text-sm font-bold tracking-[0.2em] uppercase mb-8" style={{ color: secondary }}>
+            AUDIENCE
+            <div className="flex justify-center mt-4">
+              <div className="h-[1px] w-32" style={{ background: dividerColor }} />
+            </div>
+          </h3>
+          <div className="flex items-center justify-around">
+            <div className="space-y-4 font-bold text-sm">
+              {(cvData.mediaKitDetails?.demographics || []).map((demo, i) => (
+                <div key={i} className="flex gap-4">
+                  <span>{demo.percentage}%</span>
+                  <span className="font-normal" style={{ color: mutedColor }}>{demo.location}</span>
+                </div>
+              ))}
+            </div>
+            <div className="w-48 h-32 opacity-20 bg-gray-300 rounded-xl flex items-center justify-center">
+               (Carte du Monde)
+            </div>
+          </div>
+        </section>
+
+        {cvData.collaborations && (
+          <section className="mt-auto">
+             <h3 className="text-center text-sm font-bold tracking-[0.2em] uppercase mb-8" style={{ color: secondary }}>
+              PRESS & PARTNERSHIPS
+              <div className="flex justify-center mt-4">
+                <div className="h-[1px] w-32" style={{ background: dividerColor }} />
+              </div>
+            </h3>
+            <div className="grid grid-cols-3 gap-6 text-center">
+              {cvData.collaborations?.map((brand, i) => (
+                <div key={i} className="font-bold uppercase tracking-wider text-sm" style={{ color: text }}>
+                  {brand}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   8. MEDIA KIT DARK
+   ========================================================= */
+function LayoutMediaKitDark({ template, cvData, colors, onPhotoUpload, onPhotoRemove, isUploadingPhoto }) {
+  const { accent, text, secondary, bg, fontTitle } = template;
+  const { mutedColor, dividerColor } = colors;
+
+  return (
+    <div className="flex flex-col min-h-[1123px] p-8" style={{ background: bg, color: text }}>
+      <header className="flex gap-8 mb-8 items-center border-b pb-8" style={{ borderColor: dividerColor }}>
+         <div className="relative shrink-0 group">
+          {cvData.photo && !isUploadingPhoto && onPhotoRemove && (
+            <button onClick={onPhotoRemove} className="absolute -top-2 -right-2 z-20 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white shadow-lg opacity-0 group-hover:opacity-100 print:hidden"><Trash2 size={12} /></button>
+          )}
+          <div className="w-32 h-32 rounded-2xl flex items-center justify-center text-2xl font-bold overflow-hidden relative" style={{ background: secondary, color: text }}>
+            {isUploadingPhoto ? <Loader2 size={24} className="animate-spin text-current z-10" /> : cvData.photo ? <img src={cvData.photo} crossOrigin="anonymous" className="w-full h-full object-cover absolute inset-0 z-0" /> : <div className="opacity-50">??</div>}
+            {onPhotoUpload && <label className={"absolute inset-0 cursor-pointer flex flex-col items-center justify-center text-white transition-opacity z-10 print:hidden " + (cvData.photo ? 'bg-black/40 opacity-0 group-hover:opacity-100' : 'bg-black/20 hover:bg-black/40 opacity-100')}><input type="file" accept="image/*" onChange={onPhotoUpload} className="hidden" disabled={isUploadingPhoto} />{!isUploadingPhoto && <><Camera size={18} className="mb-0.5" /><span className="text-[8px] uppercase tracking-widest">Photo</span></>}</label>}
+          </div>
+        </div>
+        <div className="flex-1">
+          <h1 className="text-4xl font-black uppercase tracking-tighter mb-2" style={{ fontFamily: fontTitle }}>{cvData.fullName || 'VOTRE NOM'}</h1>
+          <h2 className="text-xl font-bold" style={{ color: accent }}>{cvData.jobTitle || 'Votre Titre'}</h2>
+          <div className="flex gap-4 mt-4 text-xs font-mono uppercase tracking-widest" style={{ color: mutedColor }}>
+            <span>{cvData.email}</span>
+            <span>{cvData.phone}</span>
+          </div>
+        </div>
+      </header>
+
+      <div className="grid grid-cols-3 gap-8 flex-1">
+        <div className="col-span-2 space-y-8">
+          <section>
+            <h3 className="text-sm font-bold uppercase tracking-widest mb-4 flex items-center gap-4">
+              <span className="w-2 h-2 rounded-full" style={{ background: accent }}></span> A PROPOS
+            </h3>
+            <p className="text-[13px] leading-relaxed" style={{ color: mutedColor }}>{cvData.summary}</p>
+          </section>
+
+          <section>
+            <h3 className="text-sm font-bold uppercase tracking-widest mb-4 flex items-center gap-4">
+               <span className="w-2 h-2 rounded-full" style={{ background: accent }}></span> COLLABORATIONS
+            </h3>
+            <div className="flex flex-wrap gap-3">
+              {cvData.collaborations?.map((c, i) => (
+                <div key={i} className="px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider" style={{ background: secondary, border: \`1px solid \${dividerColor}\` }}>
+                  {c}
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section>
+             <h3 className="text-sm font-bold uppercase tracking-widest mb-4 flex items-center gap-4">
+               <span className="w-2 h-2 rounded-full" style={{ background: accent }}></span> AUDIENCE GEO
+            </h3>
+            <div className="space-y-4">
+              {(cvData.mediaKitDetails?.demographics || []).map((demo, i) => (
+                <div key={i} className="flex items-center gap-4">
+                  <div className="w-24 text-xs font-bold uppercase">{demo.location}</div>
+                  <div className="flex-1 h-2 rounded-full bg-black/20" style={{ background: secondary }}>
+                     <div className="h-full rounded-full" style={{ width: \`\${demo.percentage}%\`, background: accent }}></div>
+                  </div>
+                  <div className="w-10 text-right text-xs font-bold" style={{ color: accent }}>{demo.percentage}%</div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        <div className="space-y-6">
+           <div className="p-6 rounded-2xl" style={{ background: secondary, border: \`1px solid \${dividerColor}\` }}>
+              <h3 className="text-xs font-bold uppercase tracking-widest mb-6 text-center" style={{ color: mutedColor }}>Statistiques Sociales</h3>
+              <div className="space-y-6">
+                <div className="text-center">
+                  <div className="text-3xl font-black mb-1" style={{ color: accent }}>{cvData.socialStats?.instagram || '0'}</div>
+                  <div className="text-[10px] uppercase tracking-widest">Instagram</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-black mb-1" style={{ color: accent }}>{cvData.socialStats?.tiktok || '0'}</div>
+                  <div className="text-[10px] uppercase tracking-widest">TikTok</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-black mb-1" style={{ color: accent }}>{cvData.socialStats?.youtube || '0'}</div>
+                  <div className="text-[10px] uppercase tracking-widest">YouTube</div>
+                </div>
+                <div className="text-center pt-6 border-t" style={{ borderColor: dividerColor }}>
+                  <div className="text-2xl font-black mb-1 text-white">{cvData.socialStats?.engagement || '0%'}</div>
+                  <div className="text-[10px] uppercase tracking-widest" style={{ color: mutedColor }}>Engagement</div>
+                </div>
+              </div>
+           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
    MAIN EXPORT
    ========================================================= */
 export default function CVPreview({ template, cvData, experiences, educations, onPhotoUpload, onPhotoRemove, isUploadingPhoto }) {
@@ -847,7 +1085,9 @@ export default function CVPreview({ template, cvData, experiences, educations, o
     'grid': LayoutGrid,
     'asymmetric': LayoutAsymmetric,
     'creative': LayoutCreative,
-    'media-kit': LayoutMediaKit
+    'media-kit-classic': LayoutMediaKitClassic,
+    'media-kit-split': LayoutMediaKitSplit,
+    'media-kit-dark': LayoutMediaKitDark
   }[layout] || LayoutSingleColumn;
 
   return (

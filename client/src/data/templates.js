@@ -43,7 +43,14 @@ export const templates = [
   { id: 'cyber-neon', name: 'Cyber Neon', series: 'tech', tier: 'premium', accent: '#F472B6', bg: '#0A0A14', text: '#E0E0F0', secondary: '#14142A', fontTitle: 'Rajdhani', fontBody: 'Space Grotesk', layout: 'grid' },
   { id: 'african-royalty', name: 'African Royalty', series: 'african', tier: 'premium', accent: '#B8860B', bg: '#0A0505', text: '#FFF8E7', secondary: '#1A0F08', fontTitle: 'Abril Fatface', fontBody: 'Lato', layout: 'asymmetric' },
   { id: 'le-parisien', name: 'Le Parisien', series: 'executive', tier: 'premium', accent: '#1A1A1A', bg: '#FFFDF5', text: '#1A1A1A', secondary: '#F5F0E5', fontTitle: 'Didot', fontBody: 'Inter', layout: 'asymmetric' },
-  { id: 'matrix-dev', name: 'Matrix Dev', series: 'tech', tier: 'premium', accent: '#22C55E', bg: '#000000', text: '#00FF41', secondary: '#0A0A0A', fontTitle: 'Share Tech Mono', fontBody: 'Fira Code', layout: 'two-column' }
+  { id: 'matrix-dev', name: 'Matrix Dev', series: 'tech', tier: 'premium', accent: '#22C55E', bg: '#000000', text: '#00FF41', secondary: '#0A0A0A', fontTitle: 'Share Tech Mono', fontBody: 'Fira Code', layout: 'two-column' },
+
+  // ============================
+  // MEDIA KIT (3 modèles)
+  // ============================
+  { id: 'mk-split-modern', name: 'Split Modern', series: 'creative', tier: 'media-kit', accent: '#FFFFFF', bg: '#FFFFFF', text: '#1A1A1A', secondary: '#C9A07E', fontTitle: 'Montserrat', fontBody: 'Open Sans', layout: 'media-kit-split' },
+  { id: 'mk-classic-pro', name: 'Classic Pro', series: 'executive', tier: 'media-kit', accent: '#3B82F6', bg: '#FAFAFA', text: '#2C2C2E', secondary: '#FFFFFF', fontTitle: 'Inter', fontBody: 'Inter', layout: 'media-kit-classic' },
+  { id: 'mk-dark-creator', name: 'Dark Creator', series: 'tech', tier: 'media-kit', accent: '#8B5CF6', bg: '#0F0F1A', text: '#F8FAFC', secondary: '#1E1E2E', fontTitle: 'Space Grotesk', fontBody: 'Inter', layout: 'media-kit-dark' }
 ];
 
 export const seriesLabels = {
