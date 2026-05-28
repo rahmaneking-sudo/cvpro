@@ -98,8 +98,19 @@ export default function PrintPortfolioPage() {
             const { default: jsPDF } = await import('jspdf');
             const inner = document.querySelector('.mobile-scaler-inner');
             const savedTransform = inner.style.transform;
+            const savedPosition = inner.style.position;
+            
+            // Fix html2canvas cutoff bug: scroll to top
+            window.scrollTo(0, 0);
+            
+            // Temporarily remove transform and absolute position to ensure accurate DOM dimensions
             inner.style.transform = 'none';
-            const totalHeight = inner.scrollHeight;
+            inner.style.position = 'static';
+            
+            // Allow the browser to repaint and calculate layout
+            await new Promise(r => setTimeout(r, 100));
+            
+            const totalHeight = inner.offsetHeight;
 
             const canvas = await html2canvas(inner, {
               scale: 2,
@@ -135,7 +146,10 @@ export default function PrintPortfolioPage() {
                 }
               }
             });
+            
+            // Restore original styles
             inner.style.transform = savedTransform;
+            inner.style.position = savedPosition;
             
             const pdf = new jsPDF('portrait', 'mm', 'a4');
             const imgWidth = 210;
@@ -147,7 +161,8 @@ export default function PrintPortfolioPage() {
             pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, position, imgWidth, imgHeight);
             heightLeft -= pageHeight;
 
-            while (heightLeft > 0) {
+            // Only add a new page if there's more than 1mm of content left
+            while (heightLeft > 1) {
               position -= pageHeight;
               pdf.addPage();
               pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, position, imgWidth, imgHeight);

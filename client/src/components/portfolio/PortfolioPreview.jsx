@@ -339,7 +339,7 @@ function LayoutStandard({ template, data }) {
   const [selectedMedia, setSelectedMedia] = useState(null);
 
   return (
-    <div className="min-h-screen relative" style={{ background: bg, color: text }}>
+    <div className="relative" style={{ background: bg, color: text }}>
       {/* Hero Section */}
       <header className="px-4 sm:px-10 py-10 sm:py-20 flex flex-col items-center justify-center text-center border-b" style={{ borderColor: `${text}15` }}>
         {data.photo && (
@@ -540,7 +540,7 @@ function LayoutStandard({ template, data }) {
                   </>
                 )}
               </div>
-              <p className="text-xs leading-relaxed opacity-70 mb-4 line-clamp-3">
+              <p className="text-xs leading-relaxed opacity-70 mb-4">
                 {proj.description || 'Une description détaillée de ce projet, les défis rencontrés et les solutions apportées.'}
               </p>
               
@@ -614,7 +614,7 @@ export default function PortfolioPreview({ template, data }) {
 
   return (
     <div
-      className="w-full min-h-[297mm] relative print:min-h-[297mm]"
+      className="w-full relative"
       style={{ background: bg, color: text }}
     >
       <LayoutStandard template={template} data={data || {}} />
