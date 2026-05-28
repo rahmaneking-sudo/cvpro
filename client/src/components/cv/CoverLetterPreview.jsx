@@ -51,7 +51,7 @@ export default function CoverLetterPreview({ cvData, template }) {
       </div>
 
       {/* BODY TEXT */}
-      <div style={{ fontSize: '13.5px', textAlign: 'justify', flexGrow: 1, whiteSpace: 'pre-wrap', lineHeight: 1.75 }}>
+      <div style={{ fontSize: '13.5px', textAlign: 'justify', flexGrow: 1, whiteSpace: 'pre-wrap', lineHeight: 1.75, fontWeight: 600 }}>
         <div style={{ marginBottom: '24px' }}>
           {cvData.body || "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras efficitur tincidunt velit. Etiam rhoncus lacinia mauris, non feugiat mauris. Phasellus porttitor quis lectus quis interdum. Nunc in laoreet velit. Donec vitae mi facilisis, luctus odio eget, consequat elit. Sed tempor sed dui id congue. Praesent eget consequat ex.\n\nProin vel dolor neque. Aenean nunc ante, bibendum a dolor vel, suscipit facilisis libero. Pellentesque congue rhoncus justo eget laoreet. Suspendisse potenti. Fusce id lectus velit. Curabitur pharetra, lorem eu egestas rhoncus, metus lorem pellentesque urna, non gravida lacus felis eu diam.\n\nSed at felis magna. Curabitur mi purus, porttitor eu dui sed, maximus imperdiet mauris. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vivamus blandit vestibulum purus eget lobortis. Morbi sed venenatis elit. Nunc gravida sed turpis at pharetra."}
         </div>
