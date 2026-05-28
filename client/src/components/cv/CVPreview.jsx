@@ -69,7 +69,7 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
       {cvData.summary && (
         <section className="mb-4">
           <h3 className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: text }}>Profil Professionnel</h3>
-          <p className="text-[11px] leading-[1.5] text-justify line-clamp-4" style={{ color: mutedColor }}>{cvData.summary}</p>
+          <p className="text-[11px] leading-[1.5] text-justify" style={{ color: mutedColor }}>{cvData.summary}</p>
         </section>
       )}
 
@@ -90,7 +90,7 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
                 </div>
                 <div className="text-[11px] font-medium" style={{ color: text, opacity: 1 }}>{exp.company}</div>
                 {exp.description && (
-                  <p className="text-[11px] leading-[1.5] line-clamp-3 mt-1" style={{ color: mutedColor }}>{exp.description}</p>
+                  <p className="text-[11px] leading-[1.5] mt-1" style={{ color: mutedColor }}>{exp.description}</p>
                 )}
               </article>
             ))}
@@ -115,7 +115,7 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
                 </div>
                 <div className="text-[11px] font-medium" style={{ color: text, opacity: 1 }}>{edu.institution}</div>
                 {edu.description && (
-                  <p className="text-[11px] leading-[1.5] line-clamp-2 mt-1" style={{ color: mutedColor }}>{edu.description}</p>
+                  <p className="text-[11px] leading-[1.5] mt-1" style={{ color: mutedColor }}>{edu.description}</p>
                 )}
               </article>
             ))}
@@ -273,7 +273,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
         {cvData.summary && (
           <section className="mb-4">
             <div className="w-8 h-0.5 mb-2" style={{ background: accent }} />
-            <p className="text-[11px] leading-[1.5] line-clamp-3" style={{ color: mutedColor }}>{cvData.summary}</p>
+            <p className="text-[11px] leading-[1.5]" style={{ color: mutedColor }}>{cvData.summary}</p>
           </section>
         )}
 
@@ -300,7 +300,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
                       <span>{exp.startDate}{exp.endDate ? ` - ${exp.endDate}` : ''}</span>
                     </div>
                     {exp.description && (
-                      <p className="text-[11px] leading-[1.5] line-clamp-2" style={{ color: mutedColor }}>{exp.description}</p>
+                      <p className="text-[11px] leading-[1.5]" style={{ color: mutedColor }}>{exp.description}</p>
                     )}
                   </div>
                 </article>
@@ -328,7 +328,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
                       <span>{edu.startDate}{edu.endDate ? ` - ${edu.endDate}` : ''}</span>
                     </div>
                     {edu.description && (
-                      <p className="text-[11px] leading-[1.5] line-clamp-2" style={{ color: mutedColor }}>{edu.description}</p>
+                      <p className="text-[11px] leading-[1.5]" style={{ color: mutedColor }}>{edu.description}</p>
                     )}
                   </div>
                 </article>
@@ -371,7 +371,7 @@ function LayoutGrid({ template, cvData, experiences, educations, colors }) {
       {/* Profil */}
       {cvData.summary && (
         <section className="mb-3 p-3 rounded-sm border-l-2" style={{ background: secondary, borderColor: accent }}>
-          <p className="text-[11px] leading-[1.4] font-sans line-clamp-3" style={{ color: text }}>{cvData.summary}</p>
+          <p className="text-[11px] leading-[1.4] font-sans" style={{ color: text }}>{cvData.summary}</p>
         </section>
       )}
 
@@ -389,7 +389,7 @@ function LayoutGrid({ template, cvData, experiences, educations, colors }) {
                 <h4 className="font-bold text-[11px] uppercase" style={{ color: text }}>{exp.position}</h4>
                 <div className="text-[10px]" style={{ color: mutedColor }}>@ {exp.company}</div>
                 {exp.description && (
-                  <p className="text-[11px] font-sans leading-[1.4] line-clamp-2 mt-0.5" style={{ color: text, opacity: 1 }}>{exp.description}</p>
+                  <p className="text-[11px] font-sans leading-[1.4] mt-0.5" style={{ color: text, opacity: 1 }}>{exp.description}</p>
                 )}
               </article>
             ))}
@@ -410,7 +410,7 @@ function LayoutGrid({ template, cvData, experiences, educations, colors }) {
                   <h4 className="font-bold text-[11px] uppercase" style={{ color: text }}>{edu.degree}</h4>
                   <div className="text-[10px]" style={{ color: mutedColor }}>@ {edu.institution}</div>
                   {edu.description && (
-                    <p className="text-[11px] font-sans leading-[1.4] line-clamp-2 mt-0.5" style={{ color: text, opacity: 1 }}>{edu.description}</p>
+                    <p className="text-[11px] font-sans leading-[1.4] mt-0.5" style={{ color: text, opacity: 1 }}>{edu.description}</p>
                   )}
                 </article>
               ))}
@@ -474,7 +474,7 @@ function LayoutAsymmetric({ template, cvData, experiences, educations, colors })
           {cvData.summary && (
             <section className="mb-4">
               <h3 className="text-[9px] font-bold uppercase tracking-[0.3em] mb-2" style={{ color: accent }}>A propos</h3>
-              <p className="text-[11px] leading-[1.4] font-serif line-clamp-4" style={{ color: text }}>{cvData.summary}</p>
+              <p className="text-[11px] leading-[1.4] font-serif" style={{ color: text }}>{cvData.summary}</p>
             </section>
           )}
 
@@ -491,7 +491,7 @@ function LayoutAsymmetric({ template, cvData, experiences, educations, colors })
                     <h4 className="text-[12px] font-bold uppercase tracking-wide" style={{ color: text }}>{exp.position}</h4>
                     <p className="text-[11px] font-serif italic" style={{ color: accent }}>{exp.company}</p>
                     {exp.description && (
-                      <p className="text-[11px] leading-[1.4] line-clamp-3 mt-0.5" style={{ color: mutedColor }}>{exp.description}</p>
+                      <p className="text-[11px] leading-[1.4] mt-0.5" style={{ color: mutedColor }}>{exp.description}</p>
                     )}
                   </div>
                 </article>
@@ -513,7 +513,7 @@ function LayoutAsymmetric({ template, cvData, experiences, educations, colors })
                       <h4 className="text-[12px] font-bold uppercase tracking-wide" style={{ color: text }}>{edu.degree}</h4>
                       <p className="text-[11px] font-serif italic" style={{ color: accent }}>{edu.institution}</p>
                       {edu.description && (
-                        <p className="text-[11px] leading-[1.4] line-clamp-2 mt-0.5" style={{ color: mutedColor }}>{edu.description}</p>
+                        <p className="text-[11px] leading-[1.4] mt-0.5" style={{ color: mutedColor }}>{edu.description}</p>
                       )}
                     </div>
                   </article>
@@ -576,7 +576,7 @@ function LayoutCreative({ template, cvData, experiences, educations, colors }) {
           {/* Profil */}
           {cvData.summary && (
             <section className="p-4 rounded-xl border" style={{ borderColor: dividerColor }}>
-              <p className="text-[11px] leading-[1.4] font-medium line-clamp-4" style={{ color: mutedColor }}>{cvData.summary}</p>
+              <p className="text-[11px] leading-[1.4] font-medium" style={{ color: mutedColor }}>{cvData.summary}</p>
             </section>
           )}
 
@@ -594,7 +594,7 @@ function LayoutCreative({ template, cvData, experiences, educations, colors }) {
                     <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-black/5 shrink-0 ml-2" style={{ color: mutedColor }}>{exp.startDate} - {exp.endDate}</span>
                   </div>
                   {exp.description && (
-                    <p className="text-[11px] leading-[1.4] line-clamp-3 mt-1" style={{ color: mutedColor }}>{exp.description}</p>
+                    <p className="text-[11px] leading-[1.4] mt-1" style={{ color: mutedColor }}>{exp.description}</p>
                   )}
                 </article>
               ))}
@@ -616,7 +616,7 @@ function LayoutCreative({ template, cvData, experiences, educations, colors }) {
                       <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-black/5 shrink-0 ml-2" style={{ color: mutedColor }}>{edu.startDate} - {edu.endDate}</span>
                     </div>
                     {edu.description && (
-                      <p className="text-[11px] leading-[1.4] line-clamp-2 mt-1" style={{ color: mutedColor }}>{edu.description}</p>
+                      <p className="text-[11px] leading-[1.4] mt-1" style={{ color: mutedColor }}>{edu.description}</p>
                     )}
                   </article>
                 ))}
@@ -729,7 +729,7 @@ function LayoutMediaKit({ template, cvData, colors, onPhotoUpload, onPhotoRemove
 
       <div className="p-6 flex-1 flex flex-col gap-4">
         <section className="text-center">
-          <p className="text-[11px] leading-[1.4] font-medium max-w-2xl mx-auto line-clamp-3" style={{ color: mutedColor }}>
+          <p className="text-[11px] leading-[1.4] font-medium max-w-2xl mx-auto" style={{ color: mutedColor }}>
             {cvData.summary}
           </p>
         </section>
