@@ -168,7 +168,7 @@ export default function PrintPortfolioPage() {
       {/* Affichage : Scalé pour le mobile, désactivé à l'impression */}
       <div className="w-full flex justify-center">
         <MobileScaler>
-          <div className="bg-white w-[794px] overflow-visible">
+          <div className="bg-white w-[794px] min-h-[1123px] overflow-visible">
             <PortfolioPreview
               template={template}
               data={portfolioData}
