@@ -199,7 +199,7 @@ export default function CVEditor() {
   const templateId = searchParams.get('template') || 'midnight-executive';
   const cvId = searchParams.get('cvId');
   const template = getTemplate(templateId);
-  const isMediaKit = template?.layout === 'media-kit';
+  const isMediaKit = template?.layout?.startsWith('media-kit');
   const isCoverLetter = template?.layout === 'cover-letter';
 
   const [mobileTab, setMobileTab] = useState('edit'); // 'edit' | 'preview'
@@ -870,11 +870,11 @@ export default function CVEditor() {
           </section>
 
           {/* Summary */}
-          {!isCoverLetter && !isMediaKit && (
+          {!isCoverLetter && (
             <section>
               <h3 className="text-lg font-bold text-[var(--color-ivory)] mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-serif)' }}>
                 <span className="w-7 h-7 rounded-lg bg-[rgba(201,169,110,0.15)] flex items-center justify-center text-xs text-[var(--color-champagne)] font-bold">2</span>
-                Accroche professionnelle
+                {isMediaKit ? 'À Propos de moi' : 'Accroche professionnelle'}
               </h3>
               <div className="relative">
                 <textarea
@@ -1226,11 +1226,17 @@ export default function CVEditor() {
               <section>
                 <h3 className="text-lg font-bold text-[var(--color-ivory)] mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-serif)' }}>
                   <span className="w-7 h-7 rounded-lg bg-[rgba(201,169,110,0.15)] flex items-center justify-center text-xs text-[var(--color-champagne)] font-bold">4</span>
-                  Ligne Éditoriale
+                  Ligne Éditoriale & Contact
                 </h3>
-                <div className="mb-4">
-                  <label className={labelClass}>Réseau Principal</label>
-                  <input type="text" value={cvData.mediaKitDetails?.primaryNetwork || ''} onChange={e => updateMediaKitDetail('primaryNetwork', e.target.value)} placeholder="Ex: TIKTOK" className={inputClass} />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className={labelClass}>Texte "Say Hello!"</label>
+                    <input type="text" value={cvData.mediaKitDetails?.sayHelloText || ''} onChange={e => updateMediaKitDetail('sayHelloText', e.target.value)} placeholder="Ex: Say Hello!" className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Réseau Principal</label>
+                    <input type="text" value={cvData.mediaKitDetails?.primaryNetwork || ''} onChange={e => updateMediaKitDetail('primaryNetwork', e.target.value)} placeholder="Ex: TIKTOK" className={inputClass} />
+                  </div>
                 </div>
                 <label className={labelClass}>Thèmes abordés (Entrée pour ajouter)</label>
                 <div className="flex flex-wrap gap-2 mb-3">
