@@ -229,10 +229,10 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
         {cvData.skills?.length > 0 && (
           <section className="mb-5">
             <h3 className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: accent }}>Expertise</h3>
-            <ul className="space-y-2">
+            <ul className="space-y-1">
               {cvData.skills.map((skill, i) => (
                 <li key={i}>
-                  <span className="text-[11px] font-medium block mb-1" style={{ color: mutedColor }}>{skill}</span>
+                  <span className="text-[10px] font-medium block mb-0.5" style={{ color: mutedColor }}>{skill}</span>
                   <div className="h-[2px] w-full rounded-full" style={{ background: `${accent}40` }}>
                     <div className="h-full rounded-full" style={{ width: '75%', background: accent }} />
                   </div>
@@ -244,7 +244,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
 
         {/* Langues */}
         {cvData.languages?.length > 0 && (
-          <section className="mt-8">
+          <section className="mt-3">
             <h3 className="text-[11px] font-bold uppercase tracking-widest mb-2.5" style={{ color: accent }}>Langues</h3>
             <ul className="space-y-1.5">
               {cvData.languages?.map((lang, i) => (
