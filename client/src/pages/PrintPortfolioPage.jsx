@@ -7,7 +7,7 @@ function MobileScaler({ children }) {
   const containerRef = useRef(null);
   const innerRef = useRef(null);
   const [scale, setScale] = useState(1);
-  const [innerHeight, setInnerHeight] = useState(1123);
+  const [innerHeight, setInnerHeight] = useState(0);
 
   useEffect(() => {
     const compute = () => {
@@ -16,7 +16,10 @@ function MobileScaler({ children }) {
         setScale(Math.min(1, available / 794));
       }
       if (innerRef.current) {
-        setInnerHeight(innerRef.current.scrollHeight);
+        const actualHeight = innerRef.current.scrollHeight;
+        if (actualHeight > 0) {
+          setInnerHeight(actualHeight);
+        }
       }
     };
     compute();
@@ -86,7 +89,7 @@ export default function PrintPortfolioPage() {
   const template = portfolioTemplates.find(t => t.id === templateId) || portfolioTemplates[0];
 
   return (
-    <div className="bg-[#f3f4f6] flex flex-col items-center p-4 print:p-0 print:bg-white print:block print:min-h-0">
+    <div className="bg-[#f3f4f6] flex flex-col items-center print:bg-white print:block print:min-h-0">
       {/* Bouton visible seulement à l'écran, masqué à l'impression */}
       <div className="mb-4 w-full no-print print:hidden flex flex-col items-center gap-3">
         <div className="text-center max-w-sm text-sm text-gray-600 bg-white p-3 rounded-xl shadow-sm border border-gray-200">
