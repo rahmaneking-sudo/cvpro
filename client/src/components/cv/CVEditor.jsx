@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Plus, Trash2, Wand2, Upload, Loader2, Save, Download, Camera, CheckCircle2, AlertCircle, Eye, Edit2 } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Wand2, Upload, Loader2, Save, Download, Camera, CheckCircle2, AlertCircle, Eye, Edit2, Link2 } from 'lucide-react';
 import { getTemplate } from '../../data/templates';
 import CVPreview from './CVPreview';
 import PaymentModal from '../shared/PaymentModal';
@@ -742,6 +742,31 @@ export default function CVEditor() {
             {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} 
             <span className="hidden sm:inline">{saving ? 'Sauvegarde...' : 'Sauvegarder'}</span>
           </button>
+          
+          <button 
+            onClick={async () => {
+              if (!cvId) {
+                showToast("Veuillez d'abord sauvegarder le document.", "error");
+                return;
+              }
+              try {
+                // Ensure CV is public
+                await api.put(`/cv/${cvId}`, { isPublic: true });
+                const publicUrl = `${window.location.origin}/cv/${cvId}`;
+                await navigator.clipboard.writeText(publicUrl);
+                showToast("Lien public copié dans le presse-papier !");
+              } catch (err) {
+                console.error("Erreur publication:", err);
+                showToast("Erreur lors de la publication.", "error");
+              }
+            }}
+            disabled={saving || !cvId}
+            className="btn-secondary !py-2 !px-3 lg:!px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50 bg-[rgba(201,169,110,0.1)] hover:bg-[rgba(201,169,110,0.2)] text-[var(--color-champagne)] rounded-xl border border-[rgba(201,169,110,0.3)] transition-colors"
+          >
+            <Link2 size={14} />
+            <span className="hidden sm:inline">Publier en ligne</span>
+          </button>
+
           <button 
             onClick={handleExport}
             disabled={saving || isLoadingCV || isCheckingPurchase}
@@ -1207,14 +1232,17 @@ export default function CVEditor() {
                   <div>
                     <label className={labelClass}>Abonnés Instagram</label>
                     <input type="text" value={cvData.socialStats?.instagram || ''} onChange={e => updateSocialStat('instagram', e.target.value)} placeholder="Ex: 10.5K" className={inputClass} />
+                    <input type="text" value={cvData.socialStats?.instagramUrl || ''} onChange={e => updateSocialStat('instagramUrl', e.target.value)} placeholder="Lien profil Instagram" className={`mt-2 ${inputClass}`} />
                   </div>
                   <div>
                     <label className={labelClass}>Abonnés TikTok</label>
                     <input type="text" value={cvData.socialStats?.tiktok || ''} onChange={e => updateSocialStat('tiktok', e.target.value)} placeholder="Ex: 50K" className={inputClass} />
+                    <input type="text" value={cvData.socialStats?.tiktokUrl || ''} onChange={e => updateSocialStat('tiktokUrl', e.target.value)} placeholder="Lien profil TikTok" className={`mt-2 ${inputClass}`} />
                   </div>
                   <div>
                     <label className={labelClass}>Abonnés YouTube</label>
                     <input type="text" value={cvData.socialStats?.youtube || ''} onChange={e => updateSocialStat('youtube', e.target.value)} placeholder="Ex: 5K" className={inputClass} />
+                    <input type="text" value={cvData.socialStats?.youtubeUrl || ''} onChange={e => updateSocialStat('youtubeUrl', e.target.value)} placeholder="Lien chaîne YouTube" className={`mt-2 ${inputClass}`} />
                   </div>
                   <div>
                     <label className={labelClass}>Taux d'Engagement</label>

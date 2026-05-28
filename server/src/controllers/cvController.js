@@ -134,6 +134,21 @@ export async function getCV(req, res) {
   }
 }
 
+// GET /api/cv/public/:id
+export async function getPublicCV(req, res) {
+  try {
+    const cv = await prisma.cV.findFirst({
+      where: { id: req.params.id, isPublic: true },
+      include: { experiences: { orderBy: { order: 'asc' } } },
+    });
+    if (!cv) return res.status(404).json({ error: 'CV public non trouvé ou privé' });
+    res.json({ cv });
+  } catch (err) {
+    console.error('Get Public CV error:', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+}
+
 // GET /api/cv/user
 export async function getUserCVs(req, res) {
   try {

@@ -24,6 +24,7 @@ const MyPurchasesPage = lazy(() => import('./pages/MyPurchasesPage'));
 const CVEnhancePage = lazy(() => import('./pages/CVEnhancePage'));
 const CVOnlineQuotePage = lazy(() => import('./pages/CVOnlineQuotePage'));
 const PublicPortfolioPage = lazy(() => import('./pages/PublicPortfolioPage'));
+const PublicCVPage = lazy(() => import('./pages/PublicCVPage'));
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
 const PrintCVPage = lazy(() => import('./pages/PrintCVPage'));
 const PrintPortfolioPage = lazy(() => import('./pages/PrintPortfolioPage'));
@@ -61,6 +62,7 @@ export default function App() {
             <Route path="/templates" element={<TemplateGalleryPage />} />
             <Route path="/portfolios" element={<PortfolioGalleryPage />} />
             <Route path="/p/:id" element={<PublicPortfolioPage />} />
+            <Route path="/cv/:id" element={<PublicCVPage />} />
             <Route path="/print-cv" element={<PrintCVPage />} />
             <Route path="/print-portfolio" element={<PrintPortfolioPage />} />
 

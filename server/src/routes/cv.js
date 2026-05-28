@@ -5,6 +5,7 @@ import {
   createCV,
   updateCV,
   getCV,
+  getPublicCV,
   getUserCVs,
   deleteCV,
   enhanceSection,
@@ -16,6 +17,7 @@ const router = Router();
 
 // Public
 router.get('/templates', getTemplates);
+router.get('/public/:id', getPublicCV);
 
 // Protected
 router.get('/purchase/:templateId', authMiddleware, checkPurchase);

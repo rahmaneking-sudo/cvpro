@@ -739,18 +739,39 @@ function LayoutMediaKitClassic({ template, cvData, colors, onPhotoUpload, onPhot
 
         {cvData.socialStats && (
           <section className="grid grid-cols-4 gap-3">
-            <div className="p-3 rounded-lg text-center border" style={{ borderColor: dividerColor, background: secondary }}>
-              <div className="text-lg font-black mb-0.5" style={{ color: text }}>{cvData.socialStats.instagram}</div>
-              <div className="text-[9px] font-bold uppercase tracking-wider" style={{ color: accent }}>Instagram</div>
-            </div>
-            <div className="p-3 rounded-lg text-center border" style={{ borderColor: dividerColor, background: secondary }}>
-              <div className="text-lg font-black mb-0.5" style={{ color: text }}>{cvData.socialStats.tiktok}</div>
-              <div className="text-[9px] font-bold uppercase tracking-wider" style={{ color: accent }}>TikTok</div>
-            </div>
-            <div className="p-3 rounded-lg text-center border" style={{ borderColor: dividerColor, background: secondary }}>
-              <div className="text-lg font-black mb-0.5" style={{ color: text }}>{cvData.socialStats.youtube}</div>
-              <div className="text-[9px] font-bold uppercase tracking-wider" style={{ color: accent }}>YouTube</div>
-            </div>
+            {cvData.socialStats.instagramUrl ? (
+              <a href={cvData.socialStats.instagramUrl} target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg text-center border block hover:opacity-80 transition-opacity" style={{ borderColor: dividerColor, background: secondary, textDecoration: 'none' }}>
+                <div className="text-lg font-black mb-0.5" style={{ color: text }}>{cvData.socialStats.instagram}</div>
+                <div className="text-[9px] font-bold uppercase tracking-wider" style={{ color: accent }}>Instagram</div>
+              </a>
+            ) : (
+              <div className="p-3 rounded-lg text-center border" style={{ borderColor: dividerColor, background: secondary }}>
+                <div className="text-lg font-black mb-0.5" style={{ color: text }}>{cvData.socialStats.instagram}</div>
+                <div className="text-[9px] font-bold uppercase tracking-wider" style={{ color: accent }}>Instagram</div>
+              </div>
+            )}
+            {cvData.socialStats.tiktokUrl ? (
+              <a href={cvData.socialStats.tiktokUrl} target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg text-center border block hover:opacity-80 transition-opacity" style={{ borderColor: dividerColor, background: secondary, textDecoration: 'none' }}>
+                <div className="text-lg font-black mb-0.5" style={{ color: text }}>{cvData.socialStats.tiktok}</div>
+                <div className="text-[9px] font-bold uppercase tracking-wider" style={{ color: accent }}>TikTok</div>
+              </a>
+            ) : (
+              <div className="p-3 rounded-lg text-center border" style={{ borderColor: dividerColor, background: secondary }}>
+                <div className="text-lg font-black mb-0.5" style={{ color: text }}>{cvData.socialStats.tiktok}</div>
+                <div className="text-[9px] font-bold uppercase tracking-wider" style={{ color: accent }}>TikTok</div>
+              </div>
+            )}
+            {cvData.socialStats.youtubeUrl ? (
+              <a href={cvData.socialStats.youtubeUrl} target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg text-center border block hover:opacity-80 transition-opacity" style={{ borderColor: dividerColor, background: secondary, textDecoration: 'none' }}>
+                <div className="text-lg font-black mb-0.5" style={{ color: text }}>{cvData.socialStats.youtube}</div>
+                <div className="text-[9px] font-bold uppercase tracking-wider" style={{ color: accent }}>YouTube</div>
+              </a>
+            ) : (
+              <div className="p-3 rounded-lg text-center border" style={{ borderColor: dividerColor, background: secondary }}>
+                <div className="text-lg font-black mb-0.5" style={{ color: text }}>{cvData.socialStats.youtube}</div>
+                <div className="text-[9px] font-bold uppercase tracking-wider" style={{ color: accent }}>YouTube</div>
+              </div>
+            )}
             <div className="p-3 rounded-lg text-center border" style={{ borderColor: dividerColor, background: accent }}>
               <div className="text-lg font-black mb-0.5" style={{ color: bg }}>{cvData.socialStats.engagement}</div>
               <div className="text-[9px] font-bold uppercase tracking-wider" style={{ color: bg }}>Engagement</div>
@@ -859,18 +880,39 @@ function LayoutMediaKitSplit({ template, cvData, colors, onPhotoUpload, onPhotoR
             SOCIALS
           </div>
           <div className="grid grid-cols-2 gap-4 pl-8">
-            <div className="text-center">
-              <div className="text-xl font-bold mb-1" style={{ color: bg }}>{cvData.socialStats?.instagram || '10K+'}</div>
-              <div className="text-[10px] font-bold uppercase" style={{ color: text }}>Instagram</div>
-            </div>
-            <div className="text-center">
-              <div className="text-xl font-bold mb-1" style={{ color: bg }}>{cvData.socialStats?.tiktok || '15K+'}</div>
-              <div className="text-[10px] font-bold uppercase" style={{ color: text }}>TikTok</div>
-            </div>
-            <div className="text-center">
-              <div className="text-xl font-bold mb-1" style={{ color: bg }}>{cvData.socialStats?.youtube || '5K+'}</div>
-              <div className="text-[10px] font-bold uppercase" style={{ color: text }}>YouTube</div>
-            </div>
+            {cvData.socialStats?.instagramUrl ? (
+              <a href={cvData.socialStats.instagramUrl} target="_blank" rel="noopener noreferrer" className="text-center block hover:opacity-80 transition-opacity" style={{ textDecoration: 'none' }}>
+                <div className="text-xl font-bold mb-1" style={{ color: bg }}>{cvData.socialStats?.instagram || '10K+'}</div>
+                <div className="text-[10px] font-bold uppercase" style={{ color: text }}>Instagram</div>
+              </a>
+            ) : (
+              <div className="text-center">
+                <div className="text-xl font-bold mb-1" style={{ color: bg }}>{cvData.socialStats?.instagram || '10K+'}</div>
+                <div className="text-[10px] font-bold uppercase" style={{ color: text }}>Instagram</div>
+              </div>
+            )}
+            {cvData.socialStats?.tiktokUrl ? (
+              <a href={cvData.socialStats.tiktokUrl} target="_blank" rel="noopener noreferrer" className="text-center block hover:opacity-80 transition-opacity" style={{ textDecoration: 'none' }}>
+                <div className="text-xl font-bold mb-1" style={{ color: bg }}>{cvData.socialStats?.tiktok || '15K+'}</div>
+                <div className="text-[10px] font-bold uppercase" style={{ color: text }}>TikTok</div>
+              </a>
+            ) : (
+              <div className="text-center">
+                <div className="text-xl font-bold mb-1" style={{ color: bg }}>{cvData.socialStats?.tiktok || '15K+'}</div>
+                <div className="text-[10px] font-bold uppercase" style={{ color: text }}>TikTok</div>
+              </div>
+            )}
+            {cvData.socialStats?.youtubeUrl ? (
+              <a href={cvData.socialStats.youtubeUrl} target="_blank" rel="noopener noreferrer" className="text-center block hover:opacity-80 transition-opacity" style={{ textDecoration: 'none' }}>
+                <div className="text-xl font-bold mb-1" style={{ color: bg }}>{cvData.socialStats?.youtube || '5K+'}</div>
+                <div className="text-[10px] font-bold uppercase" style={{ color: text }}>YouTube</div>
+              </a>
+            ) : (
+              <div className="text-center">
+                <div className="text-xl font-bold mb-1" style={{ color: bg }}>{cvData.socialStats?.youtube || '5K+'}</div>
+                <div className="text-[10px] font-bold uppercase" style={{ color: text }}>YouTube</div>
+              </div>
+            )}
             <div className="text-center">
               <div className="text-xl font-bold mb-1" style={{ color: bg }}>{cvData.socialStats?.engagement || '3%'}</div>
               <div className="text-[10px] font-bold uppercase" style={{ color: text }}>Engagement</div>
@@ -1046,18 +1088,39 @@ function LayoutMediaKitDark({ template, cvData, colors, onPhotoUpload, onPhotoRe
            <div className="p-6 rounded-2xl" style={{ background: secondary, border: `1px solid ${dividerColor}` }}>
               <h3 className="text-xs font-bold uppercase tracking-widest mb-6 text-center" style={{ color: mutedColor }}>Statistiques Sociales</h3>
               <div className="space-y-6">
-                <div className="text-center">
-                  <div className="text-3xl font-black mb-1" style={{ color: accent }}>{cvData.socialStats?.instagram || '0'}</div>
-                  <div className="text-[10px] uppercase tracking-widest">Instagram</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-black mb-1" style={{ color: accent }}>{cvData.socialStats?.tiktok || '0'}</div>
-                  <div className="text-[10px] uppercase tracking-widest">TikTok</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-black mb-1" style={{ color: accent }}>{cvData.socialStats?.youtube || '0'}</div>
-                  <div className="text-[10px] uppercase tracking-widest">YouTube</div>
-                </div>
+                {cvData.socialStats?.instagramUrl ? (
+                  <a href={cvData.socialStats.instagramUrl} target="_blank" rel="noopener noreferrer" className="text-center block hover:opacity-80 transition-opacity" style={{ textDecoration: 'none' }}>
+                    <div className="text-3xl font-black mb-1" style={{ color: accent }}>{cvData.socialStats?.instagram || '0'}</div>
+                    <div className="text-[10px] uppercase tracking-widest" style={{ color: text }}>Instagram</div>
+                  </a>
+                ) : (
+                  <div className="text-center">
+                    <div className="text-3xl font-black mb-1" style={{ color: accent }}>{cvData.socialStats?.instagram || '0'}</div>
+                    <div className="text-[10px] uppercase tracking-widest" style={{ color: text }}>Instagram</div>
+                  </div>
+                )}
+                {cvData.socialStats?.tiktokUrl ? (
+                  <a href={cvData.socialStats.tiktokUrl} target="_blank" rel="noopener noreferrer" className="text-center block hover:opacity-80 transition-opacity" style={{ textDecoration: 'none' }}>
+                    <div className="text-3xl font-black mb-1" style={{ color: accent }}>{cvData.socialStats?.tiktok || '0'}</div>
+                    <div className="text-[10px] uppercase tracking-widest" style={{ color: text }}>TikTok</div>
+                  </a>
+                ) : (
+                  <div className="text-center">
+                    <div className="text-3xl font-black mb-1" style={{ color: accent }}>{cvData.socialStats?.tiktok || '0'}</div>
+                    <div className="text-[10px] uppercase tracking-widest" style={{ color: text }}>TikTok</div>
+                  </div>
+                )}
+                {cvData.socialStats?.youtubeUrl ? (
+                  <a href={cvData.socialStats.youtubeUrl} target="_blank" rel="noopener noreferrer" className="text-center block hover:opacity-80 transition-opacity" style={{ textDecoration: 'none' }}>
+                    <div className="text-3xl font-black mb-1" style={{ color: accent }}>{cvData.socialStats?.youtube || '0'}</div>
+                    <div className="text-[10px] uppercase tracking-widest" style={{ color: text }}>YouTube</div>
+                  </a>
+                ) : (
+                  <div className="text-center">
+                    <div className="text-3xl font-black mb-1" style={{ color: accent }}>{cvData.socialStats?.youtube || '0'}</div>
+                    <div className="text-[10px] uppercase tracking-widest" style={{ color: text }}>YouTube</div>
+                  </div>
+                )}
                 <div className="text-center pt-6 border-t" style={{ borderColor: dividerColor }}>
                   <div className="text-2xl font-black mb-1 text-white">{cvData.socialStats?.engagement || '0%'}</div>
                   <div className="text-[10px] uppercase tracking-widest" style={{ color: mutedColor }}>Engagement</div>
