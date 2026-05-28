@@ -281,79 +281,12 @@ export default function PortfolioEditor() {
   };
 
   const handleExport = async () => {
-    setIsPrinting(true);
-    setMobileTab('preview');
-    await new Promise(r => setTimeout(r, 800));
-
-    try {
-      const el = document.getElementById('portfolio-preview-container');
-      if (!el) throw new Error('Container introuvable');
-
-      const savedZoom = el.style.zoom;
-      el.style.zoom = '1';
-      await new Promise(r => setTimeout(r, 200));
-
-      const totalHeight = el.scrollHeight;
-      const canvas = await html2canvas(el, {
-        scale: 2,
-        useCORS: true,
-        width: 794,
-        height: totalHeight,
-        windowWidth: 794,
-        windowHeight: totalHeight,
-        backgroundColor: null,
-        onclone: (clonedDoc) => {
-          // Fix unsupported oklab colors for html2canvas
-          const convertColor = (colorStr) => {
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = 1; tempCanvas.height = 1;
-            const ctx = tempCanvas.getContext('2d', { willReadFrequently: true });
-            ctx.fillStyle = colorStr;
-            ctx.fillRect(0, 0, 1, 1);
-            const data = ctx.getImageData(0, 0, 1, 1).data;
-            return `rgba(${data[0]}, ${data[1]}, ${data[2]}, ${data[3]/255})`;
-          };
-          const elements = clonedDoc.querySelectorAll('*');
-          for (let i = 0; i < elements.length; i++) {
-            const node = elements[i];
-            const style = clonedDoc.defaultView ? clonedDoc.defaultView.getComputedStyle(node) : window.getComputedStyle(node);
-            const bg = style.backgroundColor;
-            const c = style.color;
-            const bc = style.borderColor;
-            if (bg && (bg.includes('okl') || bg.includes('color('))) node.style.backgroundColor = convertColor(bg);
-            if (c && (c.includes('okl') || c.includes('color('))) node.style.color = convertColor(c);
-            if (bc && (bc.includes('okl') || bc.includes('color('))) node.style.borderColor = convertColor(bc);
-          }
-        }
-      });
-
-      el.style.zoom = savedZoom;
-
-      const pdf = new jsPDF('portrait', 'mm', 'a4');
-      const imgWidth = 210;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const pageHeight = 297;
-      let position = 0;
-      let heightLeft = imgHeight;
-
-      pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft > 0) {
-        position -= pageHeight;
-        pdf.addPage();
-        pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
-      pdf.save(data.fullName ? `Portfolio_${data.fullName.replace(/\s+/g, '_')}.pdf` : 'Portfolio.pdf');
-      await ensureSaved();
-    } catch (err) {
-      console.error('Export error details:', err.message, err.stack);
-      showToast(`Erreur: ${err.message}`, 'error');
-    } finally {
-      setIsPrinting(false);
-    }
+    const currentId = await ensureSaved();
+    localStorage.setItem('portfolio-print-data', JSON.stringify({
+      templateId,
+      data: { ...data, projects },
+    }));
+    window.open('/print-portfolio', '_blank');
   };
 
   const handleShareLink = async () => {

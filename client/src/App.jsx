@@ -26,6 +26,7 @@ const CVOnlineQuotePage = lazy(() => import('./pages/CVOnlineQuotePage'));
 const PublicPortfolioPage = lazy(() => import('./pages/PublicPortfolioPage'));
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
 const PrintCVPage = lazy(() => import('./pages/PrintCVPage'));
+const PrintPortfolioPage = lazy(() => import('./pages/PrintPortfolioPage'));
 
 function VisitTracker() {
   useEffect(() => {
@@ -61,6 +62,7 @@ export default function App() {
             <Route path="/portfolios" element={<PortfolioGalleryPage />} />
             <Route path="/p/:id" element={<PublicPortfolioPage />} />
             <Route path="/print-cv" element={<PrintCVPage />} />
+            <Route path="/print-portfolio" element={<PrintPortfolioPage />} />
 
             {/* Protected — connexion requise */}
             <Route path="/admin" element={<AdminDashboardPage />} />
