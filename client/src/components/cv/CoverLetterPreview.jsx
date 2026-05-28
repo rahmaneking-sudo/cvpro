@@ -42,7 +42,7 @@ export default function CoverLetterPreview({ cvData, template }) {
 
       {/* SUBJECT LINE */}
       <div style={{ fontWeight: 700, fontSize: '14px', marginBottom: '40px' }}>
-        {cvData.subject || 'Objet de la lettre de motivation'}
+        Objet : {cvData.subject || 'Candidature pour le poste de...'}
       </div>
 
       {/* SALUTATION */}
