@@ -102,6 +102,7 @@ export default function PrintPortfolioPage() {
             const inner = document.querySelector('.mobile-scaler-inner');
             const savedTransform = inner.style.transform;
             const savedPosition = inner.style.position;
+            const savedHeight = inner.style.height;
             
             // Fix html2canvas cutoff bug: scroll to top
             window.scrollTo(0, 0);
@@ -113,7 +114,17 @@ export default function PrintPortfolioPage() {
             // Allow the browser to repaint and calculate layout
             await new Promise(r => setTimeout(r, 100));
             
-            const totalHeight = inner.offsetHeight;
+            const contentHeight = inner.offsetHeight;
+            const a4Height = 1123;
+            const pagesNeeded = Math.ceil(contentHeight / a4Height);
+            const totalHeight = pagesNeeded * a4Height;
+            
+            // Force the inner container to be an exact multiple of A4 height
+            // This ensures the background color extends uniformly to the bottom of the last PDF page!
+            inner.style.height = `${totalHeight}px`;
+            
+            // Allow DOM to apply the new height before capture
+            await new Promise(r => setTimeout(r, 50));
 
             const canvas = await html2canvas(inner, {
               scale: 2,
@@ -153,6 +164,7 @@ export default function PrintPortfolioPage() {
             // Restore original styles
             inner.style.transform = savedTransform;
             inner.style.position = savedPosition;
+            inner.style.height = savedHeight;
             
             const pdf = new jsPDF('portrait', 'mm', 'a4');
             const imgWidth = 210;
@@ -186,7 +198,7 @@ export default function PrintPortfolioPage() {
       {/* Affichage : Scalé pour le mobile, désactivé à l'impression */}
       <div className="w-full flex justify-center">
         <MobileScaler>
-          <div className="w-[794px]">
+          <div className="w-[794px] h-full flex flex-col" style={{ backgroundColor: template.bg }}>
             <PortfolioPreview
               template={template}
               data={portfolioData}
