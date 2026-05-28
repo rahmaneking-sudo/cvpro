@@ -349,8 +349,8 @@ export default function PortfolioEditor() {
       pdf.save(data.fullName ? `Portfolio_${data.fullName.replace(/\s+/g, '_')}.pdf` : 'Portfolio.pdf');
       await ensureSaved();
     } catch (err) {
-      console.error('Export error:', err);
-      showToast('Erreur lors de l\'export.', 'error');
+      console.error('Export error details:', err.message, err.stack);
+      showToast(`Erreur: ${err.message}`, 'error');
     } finally {
       setIsPrinting(false);
     }
