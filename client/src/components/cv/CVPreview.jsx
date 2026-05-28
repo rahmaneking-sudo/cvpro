@@ -904,7 +904,7 @@ function LayoutMediaKitSplit({ template, cvData, colors, onPhotoUpload, onPhotoR
       {/* Right Column */}
       <div className="flex-1 p-12 flex flex-col gap-10">
         <header className="text-center border-b pb-6" style={{ borderColor: dividerColor }}>
-          <h1 className="text-5xl font-bold tracking-[0.2em] uppercase mb-4" style={{ fontFamily: \`"\${fontTitle}", sans-serif\` }}>
+          <h1 className="text-5xl font-bold tracking-[0.2em] uppercase mb-4" style={{ fontFamily: `"${fontTitle}", sans-serif` }}>
             {cvData.fullName || 'VOTRE NOM'}
           </h1>
           <h2 className="text-sm font-medium tracking-wide" style={{ color: mutedColor }}>
@@ -1009,7 +1009,7 @@ function LayoutMediaKitDark({ template, cvData, colors, onPhotoUpload, onPhotoRe
             </h3>
             <div className="flex flex-wrap gap-3">
               {cvData.collaborations?.map((c, i) => (
-                <div key={i} className="px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider" style={{ background: secondary, border: \`1px solid \${dividerColor}\` }}>
+                <div key={i} className="px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider" style={{ background: secondary, border: `1px solid ${dividerColor}` }}>
                   {c}
                 </div>
               ))}
@@ -1025,7 +1025,7 @@ function LayoutMediaKitDark({ template, cvData, colors, onPhotoUpload, onPhotoRe
                 <div key={i} className="flex items-center gap-4">
                   <div className="w-24 text-xs font-bold uppercase">{demo.location}</div>
                   <div className="flex-1 h-2 rounded-full bg-black/20" style={{ background: secondary }}>
-                     <div className="h-full rounded-full" style={{ width: \`\${demo.percentage}%\`, background: accent }}></div>
+                     <div className="h-full rounded-full" style={{ width: `${demo.percentage}%`, background: accent }}></div>
                   </div>
                   <div className="w-10 text-right text-xs font-bold" style={{ color: accent }}>{demo.percentage}%</div>
                 </div>
@@ -1035,7 +1035,7 @@ function LayoutMediaKitDark({ template, cvData, colors, onPhotoUpload, onPhotoRe
         </div>
 
         <div className="space-y-6">
-           <div className="p-6 rounded-2xl" style={{ background: secondary, border: \`1px solid \${dividerColor}\` }}>
+           <div className="p-6 rounded-2xl" style={{ background: secondary, border: `1px solid ${dividerColor}` }}>
               <h3 className="text-xs font-bold uppercase tracking-widest mb-6 text-center" style={{ color: mutedColor }}>Statistiques Sociales</h3>
               <div className="space-y-6">
                 <div className="text-center">
