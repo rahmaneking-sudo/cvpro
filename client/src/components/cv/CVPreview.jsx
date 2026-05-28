@@ -90,7 +90,7 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
                 </div>
                 <div className="text-[11px] font-medium" style={{ color: text, opacity: 1 }}>{exp.company}</div>
                 {exp.description && (
-                  <p className="text-[11px] leading-[1.5] mt-1" style={{ color: mutedColor }}>{exp.description}</p>
+                  <p className="text-[11px] leading-[1.5] mt-1 font-medium" style={{ color: mutedColor }}>{exp.description}</p>
                 )}
               </article>
             ))}
@@ -115,7 +115,7 @@ function LayoutSingleColumn({ template, cvData, experiences, educations, colors 
                 </div>
                 <div className="text-[11px] font-medium" style={{ color: text, opacity: 1 }}>{edu.institution}</div>
                 {edu.description && (
-                  <p className="text-[11px] leading-[1.5] mt-1" style={{ color: mutedColor }}>{edu.description}</p>
+                  <p className="text-[11px] leading-[1.5] mt-1 font-medium" style={{ color: mutedColor }}>{edu.description}</p>
                 )}
               </article>
             ))}
@@ -165,7 +165,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
   return (
     <div className="flex flex-nowrap w-[794px] min-w-[794px] max-w-[794px]" style={{ minHeight: '1123px' }}>
       {/* Sidebar */}
-      <aside className="w-[238px] min-w-[238px] max-w-[238px] shrink-0 p-5 flex flex-col overflow-hidden" style={{ background: secondary }}>
+      <aside className="w-[238px] min-w-[238px] max-w-[238px] shrink-0 px-4 py-5 flex flex-col overflow-hidden" style={{ background: secondary }}>
         {/* Photo / Initiales avec upload */}
         <div className="relative shrink-0 group mx-auto mb-5">
           {cvData.photo && !isUploadingPhoto && onPhotoRemove && (
@@ -258,7 +258,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 w-[556px] min-w-[556px] max-w-[556px] p-6 flex flex-col gap-5 overflow-hidden">
+      <main className="flex-1 w-[556px] min-w-[556px] max-w-[556px] px-5 py-4 flex flex-col gap-4 overflow-hidden">
         {/* Nom + Titre */}
         <header className="mb-6">
           <h1 className="text-3xl font-bold tracking-tight mb-2" style={{ color: text, fontFamily: template.fontTitle ? `"${template.fontTitle}", serif` : undefined }}>
