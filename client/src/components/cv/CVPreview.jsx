@@ -21,8 +21,8 @@ function Initials({ name, accent }) {
 function ContactItem({ icon: Icon, value, color }) {
   if (!value) return null;
   return (
-    <div className="flex items-start gap-2 text-[11px] leading-[1.4]" style={{ color }}>
-      <Icon size={12} className="shrink-0 mt-[1.5px]" style={{ opacity: 0.7 }} />
+    <div className="flex items-center gap-2.5 text-[11px] leading-[1.4] font-medium" style={{ color }}>
+      <Icon size={14} className="shrink-0" />
       <span className="break-words flex-1">{value}</span>
     </div>
   );
@@ -302,7 +302,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
                       <span>{exp.startDate}{exp.endDate ? ` - ${exp.endDate}` : ''}</span>
                     </div>
                     {exp.description && (
-                      <p className="text-[11px] leading-[1.5]" style={{ color: mutedColor }}>{exp.description}</p>
+                      <p className="text-[11px] leading-[1.35] break-words font-medium" style={{ color: mutedColor }}>{exp.description}</p>
                     )}
                   </div>
                 </article>
@@ -323,14 +323,14 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
                 <article key={i} className="flex gap-3">
                   <Initials name={edu.institution} accent={accent} />
                   <div className="flex-1">
-                    <h4 className="font-bold text-[12px]" style={{ color: text }}>{edu.degree}</h4>
-                    <div className="flex items-center gap-2 text-[10px] mb-1" style={{ color: mutedColor }}>
-                      <span className="font-semibold" style={{ color: accent }}>{edu.institution}</span>
-                      <span>•</span>
+                    <h4 className="font-bold text-[13px] tracking-wide" style={{ color: text }}>{edu.degree}</h4>
+                    <div className="text-[11px] font-semibold flex items-center gap-2 mb-1" style={{ color: accent }}>
+                      <span>{edu.institution}</span>
+                      <span className="w-1 h-1 rounded-full" style={{ background: dividerColor }} />
                       <span>{edu.startDate}{edu.endDate ? ` - ${edu.endDate}` : ''}</span>
                     </div>
                     {edu.description && (
-                      <p className="text-[11px] leading-[1.5]" style={{ color: mutedColor }}>{edu.description}</p>
+                      <p className="text-[11px] leading-[1.35] break-words font-medium" style={{ color: mutedColor }}>{edu.description}</p>
                     )}
                   </div>
                 </article>
