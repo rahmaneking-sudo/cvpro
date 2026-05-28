@@ -15,8 +15,8 @@ export default function CoverLetterPreview({ cvData, template }) {
       }}
     >
       {/* SENDER INFO (Top Left) */}
-      <div style={{ fontSize: '13px', marginBottom: '40px', lineHeight: 1.6 }}>
-        <div style={{ fontWeight: 700, fontSize: '15px', marginBottom: '2px' }}>
+      <div style={{ fontSize: '14px', marginBottom: '40px', lineHeight: 1.6, fontWeight: 600 }}>
+        <div style={{ fontWeight: 800, fontSize: '16px', marginBottom: '4px' }}>
           {cvData.fullName || 'NOM et Prénom'}
         </div>
         {cvData.address && <div>{cvData.address}</div>}
@@ -26,8 +26,8 @@ export default function CoverLetterPreview({ cvData, template }) {
       </div>
 
       {/* RECIPIENT INFO (Right-aligned) */}
-      <div style={{ marginLeft: 'auto', width: '40%', fontSize: '13px', marginBottom: '45px', lineHeight: 1.6 }}>
-        <div style={{ fontWeight: 700, marginBottom: '2px' }}>
+      <div style={{ marginLeft: 'auto', width: '45%', fontSize: '14px', marginBottom: '45px', lineHeight: 1.6, fontWeight: 600 }}>
+        <div style={{ fontWeight: 800, marginBottom: '4px', fontSize: '15px' }}>
           {cvData.recipientCompany || "Nom de l'entreprise"}
         </div>
         {cvData.recipientName && <div>{cvData.recipientName}</div>}
@@ -35,7 +35,7 @@ export default function CoverLetterPreview({ cvData, template }) {
         {cvData.recipientCity && <div>{cvData.recipientCity}</div>}
         
         {/* DATE & LOCATION */}
-        <div style={{ marginTop: '20px' }}>
+        <div style={{ marginTop: '24px', fontWeight: 600 }}>
           {cvData.dateAndLocation || 'Lieu et date de rédaction'}
         </div>
       </div>
