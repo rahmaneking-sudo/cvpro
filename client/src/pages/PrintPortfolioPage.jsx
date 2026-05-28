@@ -86,7 +86,7 @@ export default function PrintPortfolioPage() {
   const template = portfolioTemplates.find(t => t.id === templateId) || portfolioTemplates[0];
 
   return (
-    <div className="min-h-screen bg-[#f3f4f6] flex flex-col items-center p-4 print:p-0 print:bg-white print:block print:min-h-0">
+    <div className="bg-[#f3f4f6] flex flex-col items-center p-4 print:p-0 print:bg-white print:block print:min-h-0">
       {/* Bouton visible seulement à l'écran, masqué à l'impression */}
       <div className="mb-4 w-full no-print print:hidden flex flex-col items-center gap-3">
         <div className="text-center max-w-sm text-sm text-gray-600 bg-white p-3 rounded-xl shadow-sm border border-gray-200">
@@ -168,7 +168,7 @@ export default function PrintPortfolioPage() {
       {/* Affichage : Scalé pour le mobile, désactivé à l'impression */}
       <div className="w-full flex justify-center">
         <MobileScaler>
-          <div className="bg-white w-[794px] min-h-[1123px] overflow-visible">
+          <div className="w-[794px]">
             <PortfolioPreview
               template={template}
               data={portfolioData}
