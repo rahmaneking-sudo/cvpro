@@ -746,7 +746,7 @@ export default function CVEditor() {
           <button 
             onClick={async () => {
               if (!cvId) {
-                showToast("Veuillez d'abord sauvegarder le document.", "error");
+                showToast("Veuillez d'abord cliquer sur Sauvegarder.", "error");
                 return;
               }
               try {
@@ -760,7 +760,7 @@ export default function CVEditor() {
                 showToast("Erreur lors de la publication.", "error");
               }
             }}
-            disabled={saving || !cvId}
+            disabled={saving}
             className="btn-secondary !py-2 !px-3 lg:!px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50 bg-[rgba(201,169,110,0.1)] hover:bg-[rgba(201,169,110,0.2)] text-[var(--color-champagne)] rounded-xl border border-[rgba(201,169,110,0.3)] transition-colors"
           >
             <Link2 size={14} />
