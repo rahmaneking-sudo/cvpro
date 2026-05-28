@@ -283,9 +283,7 @@ export default function PortfolioEditor() {
   const handleExport = async () => {
     setIsPrinting(true);
     setMobileTab('preview');
-
-    // Attendre que React affiche le preview
-    await new Promise(resolve => setTimeout(resolve, 800));
+    await new Promise(r => setTimeout(r, 800));
 
     try {
       const el = document.getElementById('portfolio-preview-container');
@@ -293,14 +291,16 @@ export default function PortfolioEditor() {
 
       const savedZoom = el.style.zoom;
       el.style.zoom = '1';
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(r => setTimeout(r, 200));
 
+      const totalHeight = el.scrollHeight;
       const canvas = await html2canvas(el, {
         scale: 2,
         useCORS: true,
         width: 794,
-        height: el.scrollHeight,
+        height: totalHeight,
         windowWidth: 794,
+        windowHeight: totalHeight,
         backgroundColor: null,
         onclone: (clonedDoc) => {
           // Fix unsupported oklab colors for html2canvas
@@ -330,12 +330,11 @@ export default function PortfolioEditor() {
       el.style.zoom = savedZoom;
 
       const pdf = new jsPDF('portrait', 'mm', 'a4');
-      const pageWidth = 210;
-      const pageHeight = 297;
-      const imgWidth = pageWidth;
+      const imgWidth = 210;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
+      const pageHeight = 297;
       let position = 0;
+      let heightLeft = imgHeight;
 
       pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
@@ -347,8 +346,7 @@ export default function PortfolioEditor() {
         heightLeft -= pageHeight;
       }
 
-      const fileName = data.fullName ? `Portfolio_${data.fullName.replace(/\s+/g, '_')}.pdf` : 'Portfolio.pdf';
-      pdf.save(fileName);
+      pdf.save(data.fullName ? `Portfolio_${data.fullName.replace(/\s+/g, '_')}.pdf` : 'Portfolio.pdf');
       await ensureSaved();
     } catch (err) {
       console.error('Export error:', err);
