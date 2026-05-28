@@ -22,6 +22,11 @@ export const templates = [
   { id: 'midnight-executive', name: 'Midnight Executive', series: 'executive', tier: 'standard', accent: '#C9A96E', bg: '#0A0A0A', text: '#F5F0EB', secondary: '#1C1C1E', fontTitle: 'Playfair Display', fontBody: 'Source Sans Pro', layout: 'single-column' },
 
   // ============================
+  // LETTRE DE MOTIVATION (1 modèle)
+  // ============================
+  { id: 'cover-letter-standard', name: 'Lettre Standard', series: 'executive', tier: 'cover-letter', accent: '#1A1A1A', bg: '#FFFFFF', text: '#1A1A1A', secondary: '#F5F5F5', fontTitle: 'Arial', fontBody: 'Arial', layout: 'cover-letter' },
+
+  // ============================
   // PREMIUM – 15 modèles exclusifs (Pack Pro)
   // ============================
   { id: 'editorial-magazine', name: 'Editorial Magazine', series: 'creative', tier: 'premium', accent: '#1A1A1A', bg: '#F5F0EB', text: '#1A1A1A', secondary: '#E8E2DA', fontTitle: 'Bodoni Moda', fontBody: 'Inter', layout: 'asymmetric' },
