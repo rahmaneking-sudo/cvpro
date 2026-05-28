@@ -1,5 +1,6 @@
 import { useGoogleFont } from '../../hooks/useGoogleFont';
 import { Mail, Phone, MapPin, Globe, Link2, Camera, Trash2, Loader2 } from 'lucide-react';
+import WorldMap from './WorldMap';
 
 /* =========================================================
    UTILITIES & COMPONENTS
@@ -939,13 +940,13 @@ function LayoutMediaKitSplit({ template, cvData, colors, onPhotoUpload, onPhotoR
                 </div>
               ))}
             </div>
-            <div className="w-48 h-32 flex items-center justify-center relative">
-               <Globe className="w-24 h-24 absolute opacity-10 animate-[spin_10s_linear_infinite]" style={{ color: text }} strokeWidth={1} />
-               <Globe className="w-24 h-24 opacity-20" style={{ color: text }} strokeWidth={1} />
-               {/* Pulsing dots to simulate audience pins */}
-               <div className="absolute top-[30%] left-[30%] w-2 h-2 rounded-full animate-ping" style={{ background: accent }}></div>
-               <div className="absolute top-[40%] right-[30%] w-1.5 h-1.5 rounded-full animate-ping" style={{ background: accent, animationDelay: '0.5s' }}></div>
-               <div className="absolute bottom-[30%] left-[40%] w-2 h-2 rounded-full animate-ping" style={{ background: accent, animationDelay: '1s' }}></div>
+            <div className="w-48 h-32 flex items-center justify-center relative overflow-visible">
+               <WorldMap 
+                 demographics={cvData.mediaKitDetails?.demographics} 
+                 accent={accent} 
+                 text={text} 
+                 secondary={secondary} 
+               />
             </div>
           </div>
         </section>
