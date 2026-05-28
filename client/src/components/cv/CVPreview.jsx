@@ -165,7 +165,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
   return (
     <div className="flex flex-nowrap w-[794px] min-w-[794px] max-w-[794px]" style={{ minHeight: '1123px' }}>
       {/* Sidebar */}
-      <aside className="w-[238px] min-w-[238px] max-w-[238px] shrink-0 px-4 py-5 flex flex-col overflow-hidden" style={{ background: secondary }}>
+      <aside className="w-[238px] min-w-[238px] max-w-[238px] shrink-0 px-4 py-3 flex flex-col gap-2 overflow-hidden" style={{ background: secondary }}>
         {/* Photo / Initiales avec upload */}
         <div className="relative shrink-0 group mx-auto mb-5">
           {cvData.photo && !isUploadingPhoto && onPhotoRemove && (
@@ -244,7 +244,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
 
         {/* Langues */}
         {cvData.languages?.length > 0 && (
-          <section>
+          <section className="mt-8">
             <h3 className="text-[11px] font-bold uppercase tracking-widest mb-2.5" style={{ color: accent }}>Langues</h3>
             <ul className="space-y-1.5">
               {cvData.languages?.map((lang, i) => (
@@ -258,9 +258,9 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 w-[556px] min-w-[556px] max-w-[556px] px-5 py-4 flex flex-col gap-4 overflow-hidden">
+      <main className="flex-1 w-[556px] min-w-[556px] max-w-[556px] px-5 py-2 flex flex-col gap-2 overflow-hidden">
         {/* Nom + Titre */}
-        <header className="mb-6">
+        <header className="mb-2">
           <h1 className="text-3xl font-bold tracking-tight mb-2" style={{ color: text, fontFamily: template.fontTitle ? `"${template.fontTitle}", serif` : undefined }}>
             {cvData.fullName || 'Votre Nom'}
           </h1>
@@ -284,7 +284,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
               Expériences
               <div className="flex-1 h-[1px]" style={{ background: dividerColor }} />
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-6">
               {(experiences || []).filter(e => e.company || e.position).map((exp, i) => (
                 <article key={i} className="flex gap-3">
                   {exp.logoUrl ? (
@@ -311,12 +311,12 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
 
         {/* Formation */}
         {educations?.length > 0 && (
-          <section>
+          <section className="mt-8">
             <h3 className="text-sm font-bold uppercase tracking-widest mb-4 flex items-center gap-3" style={{ color: text, fontFamily: template.fontTitle ? `"${template.fontTitle}", serif` : undefined }}>
               Formation
               <div className="flex-1 h-[1px]" style={{ background: dividerColor }} />
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-6">
               {(educations || []).filter(e => e.institution || e.degree).map((edu, i) => (
                 <article key={i} className="flex gap-3">
                   <Initials name={edu.institution} accent={accent} />
