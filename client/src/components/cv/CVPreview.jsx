@@ -21,9 +21,9 @@ function Initials({ name, accent }) {
 function ContactItem({ icon: Icon, value, color }) {
   if (!value) return null;
   return (
-    <div className="flex items-center gap-2 text-[11px]" style={{ color }}>
-      <Icon size={12} style={{ opacity: 0.7 }} />
-      <span>{value}</span>
+    <div className="flex items-start gap-2 text-[11px] leading-[1.4]" style={{ color }}>
+      <Icon size={12} className="shrink-0 mt-[1.5px]" style={{ opacity: 0.7 }} />
+      <span className="break-words flex-1">{value}</span>
     </div>
   );
 }
@@ -233,8 +233,10 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
               {cvData.skills.map((skill, i) => (
                 <li key={i}>
                   <span className="text-[10px] font-medium block mb-0.5" style={{ color: mutedColor }}>{skill}</span>
-                  <div className="h-[2px] w-full rounded-full" style={{ background: `${accent}40` }}>
-                    <div className="h-full rounded-full" style={{ width: '75%', background: accent }} />
+                  <div className="flex gap-[2px] mt-1.5">
+                    {[1, 2, 3, 4, 5].map(level => (
+                      <div key={level} className="h-[3px] flex-1 rounded-sm" style={{ background: accent, opacity: level <= 4 ? 1 : 0.2 }} />
+                    ))}
                   </div>
                 </li>
               ))}
