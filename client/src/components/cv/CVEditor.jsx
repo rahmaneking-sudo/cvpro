@@ -302,10 +302,10 @@ export default function CVEditor() {
     }
   };
   const handleExport = async () => {
-    // if (!hasPurchased) {
-    //   setShowPaymentModal(true);
-    //   return;
-    // }
+    if (!hasPurchased) {
+      setShowPaymentModal(true);
+      return;
+    }
 
     // Utiliser la largeur de l'écran car Safari iOS peut se faire passer pour un Mac
     const isMobileDevice = window.innerWidth <= 1024 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -747,6 +747,10 @@ export default function CVEditor() {
             onClick={async () => {
               if (!cvId) {
                 showToast("Veuillez d'abord cliquer sur Sauvegarder.", "error");
+                return;
+              }
+              if (!hasPurchased) {
+                setShowPaymentModal(true);
                 return;
               }
               try {

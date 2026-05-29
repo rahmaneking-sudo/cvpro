@@ -71,6 +71,8 @@ export default function MediaKitEditor() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
   const [isLoading, setIsLoading] = useState(!!portfolioId);
+  const [isCheckingPayment, setIsCheckingPayment] = useState(false);
+  const [hasPurchased, setHasPurchased] = useState(false);
 
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
@@ -131,19 +133,45 @@ export default function MediaKitEditor() {
     }
   };
 
-  const handleShareLink = () => {
+  const handleShareLink = async () => {
     if (!portfolioId) {
       showToast('Veuillez sauvegarder le Media Kit d\'abord.', 'error');
       return;
+    }
+    setIsCheckingPayment(true);
+    try {
+      const res = await api.get(`/cv/purchase/${templateId}`);
+      if (!res.data.purchased) {
+        setShowPaymentModal(true);
+        return;
+      }
+    } catch (err) {
+      showToast('Erreur de vérification.', 'error');
+      return;
+    } finally {
+      setIsCheckingPayment(false);
     }
     navigator.clipboard.writeText(`${window.location.origin}/p/${portfolioId}`);
     showToast('Lien public copié dans le presse-papier !');
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
     if (!portfolioId) {
       showToast('Veuillez sauvegarder le Media Kit avant de l\'exporter.', 'error');
       return;
+    }
+    setIsCheckingPayment(true);
+    try {
+      const res = await api.get(`/cv/purchase/${templateId}`);
+      if (!res.data.purchased) {
+        setShowPaymentModal(true);
+        return;
+      }
+    } catch (err) {
+      showToast('Erreur de vérification.', 'error');
+      return;
+    } finally {
+      setIsCheckingPayment(false);
     }
     localStorage.setItem('portfolio-print-data', JSON.stringify({
       templateId,
@@ -219,12 +247,14 @@ export default function MediaKitEditor() {
             <span className="hidden sm:inline">Sauvegarder</span>
           </button>
           
-          <button onClick={handleShareLink} disabled={saving || isLoading} className="btn-ghost !py-2 !px-3 lg:!px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50">
-            <Globe size={14} /> <span className="hidden sm:inline">Lien public</span>
+          <button onClick={handleShareLink} disabled={saving || isLoading || isCheckingPayment} className="btn-ghost !py-2 !px-3 lg:!px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50">
+            {isCheckingPayment ? <Loader2 size={14} className="animate-spin" /> : <Globe size={14} />} 
+            <span className="hidden sm:inline">Lien public</span>
           </button>
 
-          <button onClick={handleExport} disabled={saving || isLoading} className="btn-primary !py-2 !px-3 lg:!px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50">
-            <Download size={14} /> <span className="hidden sm:inline">Exporter PDF</span>
+          <button onClick={handleExport} disabled={saving || isLoading || isCheckingPayment} className="btn-primary !py-2 !px-3 lg:!px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50">
+            {isCheckingPayment ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} 
+            <span className="hidden sm:inline">Exporter PDF</span>
           </button>
         </div>
       </div>
@@ -363,6 +393,21 @@ export default function MediaKitEditor() {
         </AnimatePresence>,
         document.body
       )}
+
+      {/* Payment Modal */}
+      <PaymentModal 
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        onSuccess={() => {
+          setHasPurchased(true);
+          setShowPaymentModal(false);
+          showToast('Paiement réussi ! Vous pouvez maintenant exporter et partager.');
+        }}
+        templateId={templateId}
+        templateName={template?.name}
+        price={template?.tier === 'premium' ? 5000 : 2000}
+        productType="portfolio_premium"
+      />
 
       {/* Mobile Nav */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-[var(--color-charcoal)] border-t border-white/10 flex items-center z-[100]">

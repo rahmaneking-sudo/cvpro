@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, Smartphone, Lock, CheckCircle2 } from 'lucide-react';
 import api from '../../services/api';
+import { getUserCurrency, convertFromXOF, parseBasePrice } from '../../utils/currency';
 
 export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, templateName, price, productType = 'cv_template' }) {
   const [step, setStep] = useState(1);
@@ -12,6 +13,20 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
   const [cardCvc, setCardCvc] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
+  const [displayPrice, setDisplayPrice] = useState(null);
+
+  // Fetch dynamic currency on open
+  useEffect(() => {
+    if (isOpen) {
+      const fetchCurrency = async () => {
+        const basePrice = parseBasePrice(price);
+        const userCurr = await getUserCurrency();
+        const converted = await convertFromXOF(basePrice, userCurr);
+        setDisplayPrice(converted);
+      };
+      fetchCurrency();
+    }
+  }, [isOpen, price]);
 
   // Reset state when opened
   useEffect(() => {
@@ -42,8 +57,9 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
       
       const descPrefix = productType === 'portfolio_premium' ? 'Achat Portfolio Premium' : 'Achat CV Premium';
       
+      const basePrice = parseBasePrice(price);
       const response = await api.post('/payments/create-invoice', {
-        amount: price || 5000,
+        amount: basePrice || 5000,
         description: `${descPrefix} : ${templateName || 'Modèle'}`,
         templateId,
         productType
@@ -182,6 +198,11 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                       Pour des raisons de sécurité, nous ne stockons aucune donnée de paiement sur notre site.
                       <br/><br/>
                       En cliquant sur "Payer", vous serez redirigé vers la page certifiée de <strong>PayDunya</strong> pour finaliser votre transaction en toute sécurité avec le moyen de paiement de votre choix.
+                      {displayPrice && displayPrice.currency !== 'XOF' && (
+                        <span className="block mt-2 text-[#082f1f] font-semibold">
+                          (La transaction sera effectuée en Francs CFA pour un montant équivalent via PayDunya)
+                        </span>
+                      )}
                     </p>
                   </div>
 
@@ -248,7 +269,11 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
           
           <div className="mb-8 lg:mb-12">
             <div className="text-sm text-[#a0b2a8] mb-2">Total de la commande</div>
-            <div className="text-4xl lg:text-5xl font-semibold tracking-tight">{price} F</div>
+            {displayPrice ? (
+              <div className="text-4xl lg:text-5xl font-semibold tracking-tight">{displayPrice.amount} {displayPrice.symbol}</div>
+            ) : (
+              <div className="text-4xl lg:text-5xl font-semibold tracking-tight"><Loader2 className="animate-spin inline" size={32} /></div>
+            )}
           </div>
 
           <div className="space-y-4 mb-8">
@@ -263,7 +288,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
             <div className="h-px bg-white/10 my-4" />
             <div className="flex justify-between font-semibold text-lg">
               <span>Total à payer</span>
-              <span>{price} F</span>
+              <span>{displayPrice ? `${displayPrice.amount} ${displayPrice.symbol}` : '...'}</span>
             </div>
           </div>
 
@@ -278,7 +303,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
               ) : step === 4 ? (
                 <>Validé !</>
               ) : (
-                <>Payer {price} F</>
+                <>Payer {displayPrice ? `${displayPrice.amount} ${displayPrice.symbol}` : ''}</>
               )}
             </button>
             <div className="flex items-center justify-center gap-2 text-xs text-[#a0b2a8] mt-4">

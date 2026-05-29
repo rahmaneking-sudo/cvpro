@@ -282,6 +282,23 @@ export default function PortfolioEditor() {
 
   const handleExport = async () => {
     const currentId = await ensureSaved();
+    if (!currentId) return;
+
+    setIsCheckingPayment(true);
+    try {
+      const res = await api.get(`/cv/purchase/${templateId}`);
+      if (!res.data.purchased) {
+        setShowPaymentModal(true);
+        return;
+      }
+    } catch (err) {
+      console.error('Check purchase error:', err);
+      showToast('Erreur de vérification des droits.', 'error');
+      return;
+    } finally {
+      setIsCheckingPayment(false);
+    }
+
     localStorage.setItem('portfolio-print-data', JSON.stringify({
       templateId,
       data: { ...data, projects },
