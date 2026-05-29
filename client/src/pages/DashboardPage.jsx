@@ -10,6 +10,7 @@ const modules = [
   { id: 'cv-online', icon: Globe, label: 'CV en ligne', desc: 'Page web publique animée', color: '#43A047', route: '/dashboard/cv/online' },
   { id: 'portfolio-premium', icon: Briefcase, label: 'Portfolio Premium', desc: '8 modèles cinématographiques', color: '#6366F1', route: '/dashboard/portfolio/templates' },
   { id: 'portfolio-simple', icon: Layout, label: 'Portfolio Simple', desc: '8 modèles avec export PDF', color: '#FF6B35', route: '/dashboard/portfolio/templates' },
+  { id: 'mediakit-pro', icon: Briefcase, label: 'Media Kits Pro', desc: '3 modèles pour créateurs', color: '#FF4D6D', route: '/dashboard/portfolio/templates', state: { filter: 'mediakit' } },
 ];
 
 export default function DashboardPage() {
@@ -17,8 +18,8 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const handleNav = (route) => {
-    navigate(route);
+  const handleNav = (route, state = null) => {
+    navigate(route, { state });
     setSidebarOpen(false);
   };
 
@@ -65,7 +66,7 @@ export default function DashboardPage() {
           {modules.map((mod, i) => (
             <motion.button
               key={mod.id}
-              onClick={() => handleNav(mod.route)}
+              onClick={() => handleNav(mod.route, mod.state)}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.08, duration: 0.4 }}
@@ -154,7 +155,7 @@ export default function DashboardPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 + i * 0.1, duration: 0.5 }}
                   whileHover={{ y: -4, borderColor: `${mod.color}40` }}
-                  onClick={() => handleNav(mod.route)}
+                  onClick={() => handleNav(mod.route, mod.state)}
                   className="glass-card p-5 sm:p-6 cursor-pointer group"
                 >
                   <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-3 sm:mb-4" style={{ background: `${mod.color}15` }}>

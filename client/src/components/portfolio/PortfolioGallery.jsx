@@ -273,12 +273,12 @@ export default function PortfolioGallery() {
   const isFromDashboard = location.pathname.startsWith('/dashboard');
 
   const [selectedId, setSelectedId] = useState(null);
-  const [activeSeries, setActiveSeries] = useState('all');
+  const [activeSeries, setActiveSeries] = useState(location.state?.filter || 'all');
   const [activeTier, setActiveTier] = useState('all');
   const [search, setSearch] = useState('');
   const [previewTemplate, setPreviewTemplate] = useState(null);
 
-  const series = ['all', 'premium', 'creative', 'tech', 'african'];
+  const series = ['all', 'premium', 'creative', 'tech', 'african', 'mediakit'];
   const tiers = ['all', 'standard', 'premium'];
 
   const filtered = useMemo(() => portfolioTemplates.filter(t => {

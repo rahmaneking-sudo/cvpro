@@ -115,17 +115,17 @@ export const portfolioTemplates = [
     description: 'Haute couture digitale. Luxe parisien absolu.',
   },
   {
-    id: 'portfolio-mediakit-influencer', name: 'Media Kit Influencer', series: 'creative', tier: 'premium', type: 'mediakit',
+    id: 'portfolio-mediakit-influencer', name: 'Media Kit Influencer', series: 'mediakit', tier: 'premium', type: 'mediakit',
     accent: '#FF4D6D', bg: '#FFF0F3', text: '#2B2D42', secondary: '#FFE5EC',
     description: 'Design vibrant et féminin. Idéal pour les créateurs de contenu et influenceurs.',
   },
   {
-    id: 'portfolio-mediakit-agency', name: 'Media Kit Agency', series: 'premium', tier: 'premium', type: 'mediakit',
+    id: 'portfolio-mediakit-agency', name: 'Media Kit Agency', series: 'mediakit', tier: 'premium', type: 'mediakit',
     accent: '#00F0FF', bg: '#0A0B10', text: '#FFFFFF', secondary: '#12141D',
     description: 'Ultra-moderne et technologique. Parfait pour les agences et freelances digitaux.',
   },
   {
-    id: 'portfolio-mediakit-creator', name: 'Media Kit Creator', series: 'creative', tier: 'premium', type: 'mediakit',
+    id: 'portfolio-mediakit-creator', name: 'Media Kit Creator', series: 'mediakit', tier: 'premium', type: 'mediakit',
     accent: '#F9A03F', bg: '#F8F9FA', text: '#212529', secondary: '#E9ECEF',
     description: 'Style éditorial épuré avec des touches chaleureuses. Met en valeur vos statistiques.',
   },
@@ -136,6 +136,7 @@ export const portfolioSeriesLabels = {
   creative: { fr: 'Créatif', en: 'Creative' },
   tech: { fr: 'Tech', en: 'Tech' },
   african: { fr: 'Africain', en: 'African' },
+  mediakit: { fr: 'Media Kit', en: 'Media Kit' },
 };
 
 export const portfolioTierLabels = {
