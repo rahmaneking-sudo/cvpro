@@ -20,6 +20,8 @@ const TemplateGalleryPage = lazy(() => import('./pages/TemplateGalleryPage'));
 const CVEditorPage = lazy(() => import('./pages/CVEditorPage'));
 const PortfolioGalleryPage = lazy(() => import('./pages/PortfolioGalleryPage'));
 const PortfolioEditorPage = lazy(() => import('./pages/PortfolioEditorPage'));
+const MediaKitGalleryPage = lazy(() => import('./pages/MediaKitGalleryPage'));
+const MediaKitEditorPage = lazy(() => import('./pages/MediaKitEditorPage'));
 const MyPurchasesPage = lazy(() => import('./pages/MyPurchasesPage'));
 const CVEnhancePage = lazy(() => import('./pages/CVEnhancePage'));
 const CVOnlineQuotePage = lazy(() => import('./pages/CVOnlineQuotePage'));
@@ -76,6 +78,8 @@ export default function App() {
             <Route path="/dashboard/cv/online" element={<PrivateRoute><CVOnlineQuotePage /></PrivateRoute>} />
             <Route path="/dashboard/portfolio/templates" element={<PrivateRoute><PortfolioGalleryPage /></PrivateRoute>} />
             <Route path="/dashboard/portfolio/editor" element={<PrivateRoute><PortfolioEditorPage /></PrivateRoute>} />
+            <Route path="/dashboard/mediakit/templates" element={<PrivateRoute><MediaKitGalleryPage /></PrivateRoute>} />
+            <Route path="/dashboard/mediakit/editor" element={<PrivateRoute><MediaKitEditorPage /></PrivateRoute>} />
           </Routes>
           </Suspense>
       </AuthProvider>

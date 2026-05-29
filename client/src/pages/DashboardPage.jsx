@@ -10,7 +10,7 @@ const modules = [
   { id: 'cv-online', icon: Globe, label: 'CV en ligne', desc: 'Page web publique animée', color: '#43A047', route: '/dashboard/cv/online' },
   { id: 'portfolio-premium', icon: Briefcase, label: 'Portfolio Premium', desc: '8 modèles cinématographiques', color: '#6366F1', route: '/dashboard/portfolio/templates' },
   { id: 'portfolio-simple', icon: Layout, label: 'Portfolio Simple', desc: '8 modèles avec export PDF', color: '#FF6B35', route: '/dashboard/portfolio/templates' },
-  { id: 'mediakit-pro', icon: Briefcase, label: 'Media Kits Pro', desc: '3 modèles pour créateurs', color: '#FF4D6D', route: '/dashboard/portfolio/templates', state: { filter: 'mediakit' } },
+  { id: 'mediakit-pro', icon: Briefcase, label: 'Media Kits Pro', desc: '4 modèles d\'influenceurs', color: '#FF4D6D', route: '/dashboard/mediakit/templates' },
 ];
 
 export default function DashboardPage() {
