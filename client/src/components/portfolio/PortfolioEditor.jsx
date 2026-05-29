@@ -312,8 +312,8 @@ export default function PortfolioEditor() {
   };
 
 
-  const inputClass = "w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-[var(--color-ivory)] placeholder:text-[var(--color-white-muted)] focus:outline-none focus:border-[var(--color-champagne)] transition-all text-sm";
-  const labelClass = "block text-sm font-medium text-[var(--color-white-muted)] mb-1.5";
+  const inputClass = "w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-medium placeholder:text-[var(--color-white-muted)] focus:outline-none focus:border-[var(--color-champagne)] transition-all text-base";
+  const labelClass = "block text-base font-bold text-white mb-2 tracking-wide";
 
   return (
     <div className={`min-h-screen ${isPrinting ? 'bg-white' : 'bg-[var(--color-obsidian)]'} flex flex-col print:bg-white print:min-h-0 print:block`}>
