@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { portfolioTemplates } from '../data/portfolioTemplates';
+import { mediaKitTemplates } from '../data/mediaKitTemplates';
 import PortfolioPreview from '../components/portfolio/PortfolioPreview';
+import MediaKitPreview from '../components/mediakit/MediaKitPreview';
 import { Download } from 'lucide-react';
 
 function MobileScaler({ children }) {
@@ -85,8 +87,13 @@ export default function PrintPortfolioPage() {
     );
   }
 
-  const { templateId, data: portfolioData } = data;
-  const template = portfolioTemplates.find(t => t.id === templateId) || portfolioTemplates[0];
+  const { templateId, data: portfolioData, type } = data;
+  let template;
+  if (type === 'mediakit') {
+    template = mediaKitTemplates.find(t => t.id === templateId) || mediaKitTemplates[0];
+  } else {
+    template = portfolioTemplates.find(t => t.id === templateId) || portfolioTemplates[0];
+  }
 
   return (
     <div className="bg-[#f3f4f6] flex flex-col items-center print:bg-white print:block print:min-h-0">
@@ -199,10 +206,11 @@ export default function PrintPortfolioPage() {
       <div className="w-full flex justify-center">
         <MobileScaler>
           <div className="w-[794px] h-full flex flex-col" style={{ backgroundColor: template.bg }}>
-            <PortfolioPreview
-              template={template}
-              data={portfolioData}
-            />
+            {type === 'mediakit' ? (
+              <MediaKitPreview template={template} data={portfolioData} />
+            ) : (
+              <PortfolioPreview template={template} data={portfolioData} />
+            )}
           </div>
         </MobileScaler>
       </div>

@@ -131,6 +131,28 @@ export default function MediaKitEditor() {
     }
   };
 
+  const handleShareLink = () => {
+    if (!portfolioId) {
+      showToast('Veuillez sauvegarder le Media Kit d\'abord.', 'error');
+      return;
+    }
+    navigator.clipboard.writeText(`${window.location.origin}/p/${portfolioId}`);
+    showToast('Lien public copié dans le presse-papier !');
+  };
+
+  const handleExport = () => {
+    if (!portfolioId) {
+      showToast('Veuillez sauvegarder le Media Kit avant de l\'exporter.', 'error');
+      return;
+    }
+    localStorage.setItem('portfolio-print-data', JSON.stringify({
+      templateId,
+      type: 'mediakit',
+      data: data,
+    }));
+    window.open('/print-portfolio', '_blank');
+  };
+
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const handlePhotoUpload = async (e) => {
     const file = e.target.files[0];
@@ -197,8 +219,12 @@ export default function MediaKitEditor() {
             <span className="hidden sm:inline">Sauvegarder</span>
           </button>
           
-          <button onClick={() => portfolioId ? navigator.clipboard.writeText(`${window.location.origin}/p/${portfolioId}`) : handleSave()} className="btn-primary !py-2 !px-3 lg:!px-4 !text-xs flex items-center gap-1.5">
+          <button onClick={handleShareLink} disabled={saving || isLoading} className="btn-ghost !py-2 !px-3 lg:!px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50">
             <Globe size={14} /> <span className="hidden sm:inline">Lien public</span>
+          </button>
+
+          <button onClick={handleExport} disabled={saving || isLoading} className="btn-primary !py-2 !px-3 lg:!px-4 !text-xs flex items-center gap-1.5 disabled:opacity-50">
+            <Download size={14} /> <span className="hidden sm:inline">Exporter PDF</span>
           </button>
         </div>
       </div>
