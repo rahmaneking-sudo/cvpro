@@ -44,7 +44,7 @@ const emptyMediaKitData = {
   location: '',
   photo: '',
   stats: [
-    { platform: 'Instagram', followers: '', engagement: '' }
+    { platform: 'Instagram', followers: '', engagement: '', url: '' }
   ],
   demographics: {
     age: '',
@@ -148,7 +148,7 @@ export default function MediaKitEditor() {
   };
 
   // Stats arrays handlers
-  const addStat = () => setData(prev => ({ ...prev, stats: [...prev.stats, { platform: '', followers: '', engagement: '' }] }));
+  const addStat = () => setData(prev => ({ ...prev, stats: [...prev.stats, { platform: '', followers: '', engagement: '', url: '' }] }));
   const updateStat = (i, field, val) => setData(prev => {
     const newStats = [...prev.stats];
     newStats[i][field] = val;
@@ -248,19 +248,25 @@ export default function MediaKitEditor() {
           <section>
             <h3 className="text-lg font-bold text-[var(--color-ivory)] mb-4 flex items-center gap-2">Statistiques & Réseaux</h3>
             {data.stats.map((stat, i) => (
-              <div key={i} className="flex gap-2 items-end mb-4 bg-white/5 p-4 rounded-xl border border-white/10 relative group">
+              <div key={i} className="mb-4 bg-white/5 p-4 rounded-xl border border-white/10 relative group">
                 <button onClick={() => removeStat(i)} className="absolute top-2 right-2 text-white/40 hover:text-red-400 opacity-0 group-hover:opacity-100"><Trash2 size={14} /></button>
-                <div className="flex-1">
-                  <label className="text-xs font-bold text-white mb-1 block">Plateforme</label>
-                  <input type="text" value={stat.platform} onChange={e => updateStat(i, 'platform', e.target.value)} placeholder="Instagram" className={inputClass} />
+                <div className="flex flex-wrap gap-4 mb-3">
+                  <div className="flex-1 min-w-[120px]">
+                    <label className="text-xs font-bold text-white mb-1 block">Plateforme</label>
+                    <input type="text" value={stat.platform} onChange={e => updateStat(i, 'platform', e.target.value)} placeholder="Instagram" className={inputClass} />
+                  </div>
+                  <div className="flex-1 min-w-[120px]">
+                    <label className="text-xs font-bold text-white mb-1 block">Abonnés</label>
+                    <input type="text" value={stat.followers} onChange={e => updateStat(i, 'followers', e.target.value)} placeholder="ex: 150K" className={inputClass} />
+                  </div>
+                  <div className="flex-1 min-w-[120px]">
+                    <label className="text-xs font-bold text-white mb-1 block">Engagement</label>
+                    <input type="text" value={stat.engagement} onChange={e => updateStat(i, 'engagement', e.target.value)} placeholder="ex: 4.5%" className={inputClass} />
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <label className="text-xs font-bold text-white mb-1 block">Abonnés</label>
-                  <input type="text" value={stat.followers} onChange={e => updateStat(i, 'followers', e.target.value)} placeholder="ex: 150K" className={inputClass} />
-                </div>
-                <div className="flex-1">
-                  <label className="text-xs font-bold text-white mb-1 block">Engagement</label>
-                  <input type="text" value={stat.engagement} onChange={e => updateStat(i, 'engagement', e.target.value)} placeholder="ex: 4.5%" className={inputClass} />
+                <div>
+                  <label className="text-xs font-bold text-white mb-1 block">Lien du profil (URL)</label>
+                  <input type="url" value={stat.url || ''} onChange={e => updateStat(i, 'url', e.target.value)} placeholder="https://instagram.com/..." className={inputClass} />
                 </div>
               </div>
             ))}

@@ -61,16 +61,26 @@ export default function MediaKitPreview({ template, data, isPlaceholder = false 
         <section className="mb-16">
           <h3 className="text-sm font-bold uppercase tracking-[0.3em] mb-8 text-center" style={{ color: accent }}>Audience & Chiffres Clés</h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {stats.map((stat, i) => (
-              <div key={i} className="p-6 rounded-2xl text-center border shadow-lg transition-transform hover:-translate-y-2" style={{ background: secondary, borderColor: `${text}10` }}>
-                <p className="text-sm font-bold opacity-70 uppercase tracking-widest mb-4">{stat.platform}</p>
-                <div className="text-4xl font-black mb-2" style={{ color: accent }}>{stat.followers}</div>
-                <p className="text-sm font-medium uppercase tracking-wider opacity-80">Abonnés</p>
-                <div className="mt-4 pt-4 border-t" style={{ borderColor: `${text}10` }}>
-                  <p className="text-lg font-bold">{stat.engagement} <span className="text-xs opacity-60">d'engagement</span></p>
+            {stats.map((stat, i) => {
+              const BlockContent = (
+                <div className="p-6 rounded-2xl text-center border shadow-lg transition-transform hover:-translate-y-2 h-full" style={{ background: secondary, borderColor: `${text}10` }}>
+                  <p className="text-sm font-bold opacity-70 uppercase tracking-widest mb-4">{stat.platform}</p>
+                  <div className="text-4xl font-black mb-2" style={{ color: accent }}>{stat.followers}</div>
+                  <p className="text-sm font-medium uppercase tracking-wider opacity-80">Abonnés</p>
+                  <div className="mt-4 pt-4 border-t" style={{ borderColor: `${text}10` }}>
+                    <p className="text-lg font-bold">{stat.engagement} <span className="text-xs opacity-60">d'engagement</span></p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+
+              return stat.url ? (
+                <a key={i} href={stat.url.startsWith('http') ? stat.url : `https://${stat.url}`} target="_blank" rel="noopener noreferrer" className="block outline-none focus:ring-2 focus:ring-opacity-50 rounded-2xl" style={{ focusRingColor: accent }}>
+                  {BlockContent}
+                </a>
+              ) : (
+                <div key={i}>{BlockContent}</div>
+              );
+            })}
           </div>
         </section>
 
