@@ -373,15 +373,15 @@ function LayoutStandard({ template, data }) {
         <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight mb-3 sm:mb-4 uppercase break-words" style={{ fontFamily: 'var(--font-serif)' }}>
           {fullName || 'Votre Nom'}
         </h1>
-        <h2 className="text-base sm:text-xl tracking-[0.15em] sm:tracking-[0.3em] uppercase mb-4 sm:mb-8" style={{ color: accent }}>
+        <h2 className="text-base sm:text-xl font-bold tracking-[0.15em] sm:tracking-[0.3em] uppercase mb-4 sm:mb-8" style={{ color: accent }}>
           {jobTitle || 'Votre Spécialité'}
         </h2>
         {bio && (
-          <p className="max-w-2xl text-sm leading-loose opacity-80 mb-8">
+          <p className="max-w-2xl text-base font-medium leading-loose opacity-90 mb-8">
             {bio}
           </p>
         )}
-        <div className="flex flex-wrap justify-center gap-3 sm:gap-6 text-[10px] sm:text-xs tracking-widest uppercase opacity-60 mb-4 sm:mb-6">
+        <div className="flex flex-wrap justify-center gap-3 sm:gap-6 text-[11px] sm:text-sm font-bold tracking-widest uppercase opacity-80 mb-4 sm:mb-6">
           {email && <span>{email}</span>}
           {phone && <span>{phone}</span>}
           {location && <span>{location}</span>}
@@ -540,14 +540,14 @@ function LayoutStandard({ template, data }) {
                   </>
                 )}
               </div>
-              <p className="text-xs leading-relaxed opacity-70 mb-4">
+              <p className="text-sm font-medium leading-relaxed opacity-90 mb-4">
                 {proj.description || 'Une description détaillée de ce projet, les défis rencontrés et les solutions apportées.'}
               </p>
               
               {/* Tags */}
               <div className="flex gap-2 flex-wrap">
                 {(proj.tags?.length > 0 ? proj.tags : ['Design', 'Développement'])?.map((tag, j) => (
-                  <span key={j} className="text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-sm" style={{ border: `1px solid ${accent}30`, color: accent }}>
+                  <span key={j} className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-sm" style={{ border: `1px solid ${accent}30`, color: accent }}>
                     {tag}
                   </span>
                 ))}
