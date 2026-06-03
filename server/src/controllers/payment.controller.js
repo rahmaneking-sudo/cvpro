@@ -158,8 +158,7 @@ export const createManualWavePayment = async (req, res) => {
       const message = `🔔 <b>Nouveau Paiement Wave (En Attente)</b> 🔔\n\n` +
                       `📞 Numéro Client: <code>${phone}</code>\n` +
                       `💰 Montant: <b>${parsedAmount} FCFA</b>\n` +
-                      `🛍 Produit: ${productType.replace('_', ' ')} (${templateName || templateId})\n\n` +
-                      `👉 <a href="${validateUrl}"><b>CLIQUER ICI POUR VALIDER LE PAIEMENT ET DÉBLOQUER LE CV</b></a>`;
+                      `🛍 Produit: ${productType.replace('_', ' ')} (${templateName || templateId})`;
 
       // Dans un environnement Serverless (Vercel), IL FAUT await sinon la requête est tuée
       const tgRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
@@ -168,7 +167,12 @@ export const createManualWavePayment = async (req, res) => {
         body: JSON.stringify({
           chat_id: chatId,
           text: message,
-          parse_mode: 'HTML'
+          parse_mode: 'HTML',
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: "✅ APPROUVER ET DÉBLOQUER LE DOCUMENT", url: validateUrl }]
+            ]
+          }
         })
       });
       
