@@ -75,6 +75,22 @@ export const checkPaymentStatus = async (req, res) => {
   try {
     const { token } = req.params;
     
+    // D'abord, on vérifie dans NOTRE base de données (pour le mode manuel Wave)
+    const purchase = await prisma.purchase.findFirst({
+      where: { webhookId: token }
+    });
+
+    if (purchase) {
+      if (purchase.status === 'completed') {
+        return res.json({ success: true, status: 'completed' });
+      } else if (purchase.status === 'failed' || purchase.status === 'cancelled') {
+        return res.json({ success: false, status: purchase.status });
+      } else {
+        return res.json({ success: true, status: 'pending' });
+      }
+    }
+    
+    // Sinon, on tente PayDunya (ancien comportement)
     const data = await checkInvoiceStatus(token);
     
     if (data.status === 'completed') {

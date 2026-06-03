@@ -14,11 +14,36 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
   const [displayPrice, setDisplayPrice] = useState(null);
+  const [pollingToken, setPollingToken] = useState(null);
 
   // FEATURE FLAG: Mettre à false pour utiliser Wave Manuel, true pour PayDunya
   const USE_PAYDUNYA = false;
   // Numéro Wave Business (à remplacer par ton vrai numéro)
   const WAVE_BUSINESS_NUMBER = "SN 84 67 03 97";
+
+  // Polling effect pour vérifier si l'admin a validé sur Telegram
+  useEffect(() => {
+    let interval;
+    if (step === 4 && pollingToken) {
+      interval = setInterval(async () => {
+        try {
+          const res = await api.get(`/payments/status/${pollingToken}`);
+          if (res.data.status === 'completed') {
+            clearInterval(interval);
+            onSuccess(); // Débloque le document
+            onClose();   // Ferme la modale
+          } else if (res.data.status === 'failed' || res.data.status === 'cancelled') {
+            clearInterval(interval);
+            setError("Le paiement a été refusé ou annulé.");
+            setStep(1);
+          }
+        } catch (err) {
+          console.error("Erreur polling status:", err);
+        }
+      }, 3000); // Check toutes les 3 secondes
+    }
+    return () => clearInterval(interval);
+  }, [step, pollingToken, onSuccess, onClose]);
 
   // Fetch dynamic currency on open
   useEffect(() => {
@@ -45,6 +70,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
       setCardCvc('');
       setError('');
       setIsProcessing(false);
+      setPollingToken(null);
     }
   }, [isOpen]);
 
@@ -88,6 +114,9 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
         });
 
         if (response.data.success) {
+          if (response.data.token) {
+            setPollingToken(response.data.token);
+          }
           setStep(4); // Success screen (pending verification)
         } else {
           throw new Error(response.data.message || 'Erreur lors du paiement.');
