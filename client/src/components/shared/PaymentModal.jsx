@@ -216,19 +216,26 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                       <div className="w-16 h-16 bg-[#15d0f6] rounded-full flex items-center justify-center mx-auto mb-4">
                         <Smartphone size={32} className="text-white" />
                       </div>
-                      <h3 className="text-lg font-bold text-gray-900 mb-2">Paiement via Wave Business</h3>
+                      <h3 className="text-lg font-bold text-gray-900 mb-2">Paiement Sécurisé Wave</h3>
                       <p className="text-gray-600 mb-4">
-                        Veuillez transférer le montant de <span className="font-bold text-[#082f1f]">{displayPrice ? `${displayPrice.amount} FCFA` : '...'}</span> au numéro ci-dessous :
+                        Cliquez sur le bouton ci-dessous pour payer <span className="font-bold text-[#082f1f]">{displayPrice ? `${displayPrice.amount} FCFA` : '...'}</span> via l'application Wave :
                       </p>
-                      <div className="bg-white py-3 px-6 rounded-lg shadow-sm inline-block border border-gray-200 mb-4">
-                        <span className="text-2xl font-black tracking-wider text-[#15d0f6]">{WAVE_BUSINESS_NUMBER}</span>
-                      </div>
-                      <p className="text-sm text-gray-500">Nom du compte : <span className="font-medium">Sama CV Pro</span></p>
+                      <a 
+                        href={`https://pay.wave.com/m/M_sn_gsBAcsJlO1IE/c/sn/?amount=${parseBasePrice(price) || 1500}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-[#15d0f6] hover:bg-[#12b8d9] text-white font-bold py-3 px-8 rounded-full shadow-md inline-block transition-colors mb-4"
+                      >
+                        Payer avec Wave
+                      </a>
+                      <p className="text-sm text-gray-500 italic mb-4">
+                        Une fois le paiement effectué sur Wave, revenez ici pour valider.
+                      </p>
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Numéro de téléphone utilisé pour le paiement
+                        Vérification : Numéro de téléphone utilisé
                       </label>
                       <input 
                         type="tel" 
@@ -238,7 +245,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                         className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-[#082f1f] focus:ring-1 focus:ring-[#082f1f]"
                         required
                       />
-                      <p className="text-xs text-gray-500 mt-2">Nous utiliserons ce numéro pour vérifier votre transaction.</p>
+                      <p className="text-xs text-gray-500 mt-2">Saisissez le numéro avec lequel vous avez payé pour débloquer votre document.</p>
                     </div>
                   </div>
                 )}
