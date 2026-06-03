@@ -149,11 +149,10 @@ export const createManualWavePayment = async (req, res) => {
     const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
     
     if (botToken && chatId) {
-      // Use process.env.CLIENT_URL or APP_URL
-      const baseUrl = process.env.CLIENT_URL || 'https://samacvpro.com';
-      // Mettre l'URL complète vers le backend, attention en local ça peut être le port du backend
-      const backendUrl = baseUrl.includes('localhost') ? 'http://localhost:5000' : 'https://samacvpro.com';
-      const validateUrl = `${backendUrl}/api/payments/validate-manual/${magicToken}`;
+      // Toujours utiliser l'URL de production pour le bouton Telegram car
+      // l'API de Telegram REFUSE formellement les URLs "localhost" dans les boutons (Erreur 400).
+      // Comme la base de données est la même (Supabase), le lien marchera même pour les tests locaux !
+      const validateUrl = `https://samacvpro.com/api/payments/validate-manual/${magicToken}`;
       
       const message = `🔔 <b>Nouveau Paiement Wave (En Attente)</b> 🔔\n\n` +
                       `📞 Numéro Client: <code>${phone}</code>\n` +
