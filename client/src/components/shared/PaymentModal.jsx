@@ -326,20 +326,22 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                     <CheckCircle2 size={48} className="text-green-500" />
                   </div>
                 </motion.div>
-                <h3 className="text-3xl font-bold text-gray-900 mb-3">Dernière étape !</h3>
-                <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 mb-4 text-left">
-                  <h4 className="font-semibold text-gray-900 mb-2">Comment finaliser votre achat avec Wave :</h4>
-                  <ol className="list-decimal pl-5 text-gray-700 space-y-2 text-sm">
-                    <li>Ouvrez votre application <strong>Wave</strong> sur votre téléphone.</li>
-                    <li>Allez dans la rubrique <strong>Paiements</strong>.</li>
-                    <li>Choisissez <strong>Paiement Marchand</strong>.</li>
-                    <li>Recherchez et sélectionnez <strong>Kayfessprod</strong>.</li>
-                    <li>Versez la somme exacte de <strong>{parseBasePrice(price) || 5000} FCFA</strong>.</li>
-                  </ol>
+                <h3 className="text-3xl font-bold text-gray-900 mb-3">Vérification en cours...</h3>
+                <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 mb-6 text-left">
+                  <p className="text-gray-700 text-sm leading-relaxed text-center">
+                    Nous avons bien reçu votre demande de validation pour le numéro <strong className="text-gray-900">{phone}</strong>.
+                  </p>
                 </div>
-                <p className="text-gray-600 text-sm">
-                  Dès que vous aurez validé le paiement sur votre application, nous le vérifierons grâce au numéro que vous avez fourni. Votre document sera débloqué en quelques minutes.
+                <p className="text-gray-600 text-sm max-w-sm mb-8">
+                  Dès que le paiement sera confirmé sur notre compte, votre document sera <strong>automatiquement débloqué</strong> (généralement en moins d'une minute). Vous pouvez fermer cette fenêtre, la page se mettra à jour.
                 </p>
+                
+                <button 
+                  onClick={onClose}
+                  className="bg-[#082f1f] text-white py-3 px-8 rounded-full font-semibold shadow-md hover:bg-[#062015] transition-colors"
+                >
+                  Fermer
+                </button>
               </motion.div>
             )}
           </AnimatePresence>
