@@ -18,10 +18,10 @@ export default function PrivateRoute({ children }) {
     return <Navigate to="/login" replace />;
   }
 
-  // Si l'utilisateur n'est pas actif et qu'il n'est pas sur la page d'activation, on le redirige
-  if (user && !user.isActive && location.pathname !== '/activation') {
-    return <Navigate to="/activation" replace />;
-  }
+  // Désactivé temporairement pour ne pas bloquer les utilisateurs :
+  // if (user && !user.isActive && location.pathname !== '/activation') {
+  //   return <Navigate to="/activation" replace />;
+  // }
 
   return children;
 }
