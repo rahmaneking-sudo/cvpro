@@ -133,11 +133,32 @@ export default function MediaKitEditor() {
     }
   };
 
-  const handleShareLink = async () => {
-    if (!portfolioId) {
-      showToast('Veuillez sauvegarder le Media Kit d\'abord.', 'error');
-      return;
+  const ensureSaved = async () => {
+    if (portfolioId) return portfolioId;
+    setSaving(true);
+    try {
+      const payload = {
+        templateId,
+        type: 'mediakit',
+        title: `Media Kit - ${data.fullName || 'Sans titre'}`,
+        data: data
+      };
+      const res = await api.post('/portfolios', payload);
+      const newId = res.data.portfolio.id;
+      navigate(`/dashboard/mediakit/editor?template=${templateId}&id=${newId}`, { replace: true });
+      return newId;
+    } catch (err) {
+      showToast('Erreur lors de la préparation.', 'error');
+      return null;
+    } finally {
+      setSaving(false);
     }
+  };
+
+  const handleShareLink = async () => {
+    const currentId = await ensureSaved();
+    if (!currentId) return;
+    
     setIsCheckingPayment(true);
     try {
       const res = await api.get(`/cv/purchase/${templateId}`);
@@ -151,15 +172,14 @@ export default function MediaKitEditor() {
     } finally {
       setIsCheckingPayment(false);
     }
-    navigator.clipboard.writeText(`${window.location.origin}/p/${portfolioId}`);
+    navigator.clipboard.writeText(`${window.location.origin}/p/${currentId}`);
     showToast('Lien public copié dans le presse-papier !');
   };
 
   const handleExport = async () => {
-    if (!portfolioId) {
-      showToast('Veuillez sauvegarder le Media Kit avant de l\'exporter.', 'error');
-      return;
-    }
+    const currentId = await ensureSaved();
+    if (!currentId) return;
+
     setIsCheckingPayment(true);
     try {
       const res = await api.get(`/cv/purchase/${templateId}`);
