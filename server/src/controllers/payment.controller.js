@@ -161,8 +161,8 @@ export const createManualWavePayment = async (req, res) => {
                       `🛍 Produit: ${productType} (${templateName || templateId})\n\n` +
                       `👉 *[CLIQUER ICI POUR VALIDER LE PAIEMENT ET DÉBLOQUER LE CV]*(${validateUrl})`;
 
-      // We don't await this to not block the response
-      fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      // Dans un environnement Serverless (Vercel), IL FAUT await sinon la requête est tuée
+      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -205,7 +205,7 @@ export const validateManualPayment = async (req, res) => {
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
     const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
     if (botToken && chatId) {
-      fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -213,7 +213,7 @@ export const validateManualPayment = async (req, res) => {
           text: `✅ *Paiement Validé avec succès!*\nLe CV a été débloqué pour ce client.`,
           parse_mode: 'Markdown'
         })
-      }).catch(err => {});
+      }).catch(err => console.error(err));
     }
 
     res.send(`
