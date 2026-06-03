@@ -155,22 +155,27 @@ export const createManualWavePayment = async (req, res) => {
       const backendUrl = baseUrl.includes('localhost') ? 'http://localhost:5000' : 'https://samacvpro.com';
       const validateUrl = `${backendUrl}/api/payments/validate-manual/${magicToken}`;
       
-      const message = `🔔 *Nouveau Paiement Wave (En Attente)* 🔔\n\n` +
-                      `📞 Numéro Client: \`${phone}\`\n` +
-                      `💰 Montant: *${parsedAmount} FCFA*\n` +
-                      `🛍 Produit: ${productType} (${templateName || templateId})\n\n` +
-                      `👉 *[CLIQUER ICI POUR VALIDER LE PAIEMENT ET DÉBLOQUER LE CV]*(${validateUrl})`;
+      const message = `🔔 <b>Nouveau Paiement Wave (En Attente)</b> 🔔\n\n` +
+                      `📞 Numéro Client: <code>${phone}</code>\n` +
+                      `💰 Montant: <b>${parsedAmount} FCFA</b>\n` +
+                      `🛍 Produit: ${productType.replace('_', ' ')} (${templateName || templateId})\n\n` +
+                      `👉 <a href="${validateUrl}"><b>CLIQUER ICI POUR VALIDER LE PAIEMENT ET DÉBLOQUER LE CV</b></a>`;
 
       // Dans un environnement Serverless (Vercel), IL FAUT await sinon la requête est tuée
-      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      const tgRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           chat_id: chatId,
           text: message,
-          parse_mode: 'Markdown'
+          parse_mode: 'HTML'
         })
-      }).catch(err => console.error('Telegram error:', err));
+      });
+      
+      if (!tgRes.ok) {
+        const tgErr = await tgRes.text();
+        console.error('Telegram API Error:', tgErr);
+      }
     }
 
     res.json({
@@ -205,13 +210,13 @@ export const validateManualPayment = async (req, res) => {
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
     const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
     if (botToken && chatId) {
-      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      const tgRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           chat_id: chatId,
-          text: `✅ *Paiement Validé avec succès!*\nLe CV a été débloqué pour ce client.`,
-          parse_mode: 'Markdown'
+          text: `✅ <b>Paiement Validé avec succès!</b>\nLe CV a été débloqué pour ce client.`,
+          parse_mode: 'HTML'
         })
       }).catch(err => console.error(err));
     }
