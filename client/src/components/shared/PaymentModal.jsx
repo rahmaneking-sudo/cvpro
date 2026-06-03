@@ -16,7 +16,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
   const [displayPrice, setDisplayPrice] = useState(null);
 
   // FEATURE FLAG: Mettre à false pour utiliser Wave Manuel, true pour PayDunya
-  const USE_PAYDUNYA = true;
+  const USE_PAYDUNYA = false;
   // Numéro Wave Business (à remplacer par ton vrai numéro)
   const WAVE_BUSINESS_NUMBER = "SN 84 67 03 97";
 
