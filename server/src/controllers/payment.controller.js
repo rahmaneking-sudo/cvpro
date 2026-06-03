@@ -153,16 +153,16 @@ export const createManualWavePayment = async (req, res) => {
       const baseUrl = process.env.CLIENT_URL || 'https://samacvpro.com';
       // Mettre l'URL complète vers le backend, attention en local ça peut être le port du backend
       const backendUrl = baseUrl.includes('localhost') ? 'http://localhost:5000' : 'https://samacvpro.com';
-      const validateUrl = \`\${backendUrl}/api/payments/validate-manual/\${magicToken}\`;
+      const validateUrl = `${backendUrl}/api/payments/validate-manual/${magicToken}`;
       
-      const message = \`🔔 *Nouveau Paiement Wave (En Attente)* 🔔\\n\\n\` +
-                      \`📞 Numéro Client: \\\`\${phone}\\\`\\n\` +
-                      \`💰 Montant: *\${parsedAmount} FCFA*\\n\` +
-                      \`🛍 Produit: \${productType} (\${templateName || templateId})\\n\\n\` +
-                      \`👉 *[CLIQUER ICI POUR VALIDER LE PAIEMENT ET DÉBLOQUER LE CV]*(\${validateUrl})\`;
+      const message = `🔔 *Nouveau Paiement Wave (En Attente)* 🔔\n\n` +
+                      `📞 Numéro Client: \`${phone}\`\n` +
+                      `💰 Montant: *${parsedAmount} FCFA*\n` +
+                      `🛍 Produit: ${productType} (${templateName || templateId})\n\n` +
+                      `👉 *[CLIQUER ICI POUR VALIDER LE PAIEMENT ET DÉBLOQUER LE CV]*(${validateUrl})`;
 
       // We don't await this to not block the response
-      fetch(\`https://api.telegram.org/bot\${botToken}/sendMessage\`, {
+      fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -205,18 +205,18 @@ export const validateManualPayment = async (req, res) => {
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
     const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
     if (botToken && chatId) {
-      fetch(\`https://api.telegram.org/bot\${botToken}/sendMessage\`, {
+      fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           chat_id: chatId,
-          text: \`✅ *Paiement Validé avec succès!*\\nLe CV a été débloqué pour ce client.\`,
+          text: `✅ *Paiement Validé avec succès!*\nLe CV a été débloqué pour ce client.`,
           parse_mode: 'Markdown'
         })
       }).catch(err => {});
     }
 
-    res.send(\`
+    res.send(`
       <div style="font-family: sans-serif; text-align: center; padding: 50px; color: #082f1f; background: #f4f5f5; min-height: 100vh;">
         <div style="background: white; max-width: 500px; margin: 0 auto; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
           <div style="font-size: 64px; margin-bottom: 20px;">✅</div>
@@ -225,7 +225,7 @@ export const validateManualPayment = async (req, res) => {
           <p style="color: #999; font-size: 14px; margin-top: 40px;">Tu peux fermer cette page et retourner sur Telegram.</p>
         </div>
       </div>
-    \`);
+    `);
   } catch (error) {
     console.error('Erreur Validation Wave Manuel:', error);
     res.status(500).send('Erreur lors de la validation.');
