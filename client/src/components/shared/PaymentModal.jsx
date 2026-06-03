@@ -15,6 +15,11 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
   const [error, setError] = useState('');
   const [displayPrice, setDisplayPrice] = useState(null);
 
+  // FEATURE FLAG: Mettre à false pour utiliser Wave Manuel, true pour PayDunya
+  const USE_PAYDUNYA = true;
+  // Numéro Wave Business (à remplacer par ton vrai numéro)
+  const WAVE_BUSINESS_NUMBER = "SN 84 67 03 97";
+
   // Fetch dynamic currency on open
   useEffect(() => {
     if (isOpen) {
@@ -48,27 +53,45 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
   const handleProcessPayment = async () => {
     setIsProcessing(true);
     setError('');
-    setStep(3); // Go to processing screen
     
     try {
-      // Suite à un problème avec l'API SoftPay (Direct Push) de PayDunya qui renvoie 
-      // des erreurs 500, nous redirigeons TOUTES les méthodes vers la page sécurisée 
-      // officielle de PayDunya qui gère correctement Wave/Orange.
-      
-      const descPrefix = productType === 'portfolio_premium' ? 'Achat Portfolio Premium' : 'Achat CV Premium';
-      
-      const basePrice = parseBasePrice(price);
-      const response = await api.post('/payments/create-invoice', {
-        amount: basePrice || 5000,
-        description: `${descPrefix} : ${templateName || 'Modèle'}`,
-        templateId,
-        productType
-      });
-      
-      if (response.data.success && response.data.url) {
-        window.location.href = response.data.url;
+      if (USE_PAYDUNYA) {
+        setStep(3);
+        const descPrefix = productType === 'portfolio_premium' ? 'Achat Portfolio Premium' : 'Achat CV Premium';
+        const basePrice = parseBasePrice(price);
+        const response = await api.post('/payments/create-invoice', {
+          amount: basePrice || 5000,
+          description: `${descPrefix} : ${templateName || 'Modèle'}`,
+          templateId,
+          productType
+        });
+        
+        if (response.data.success && response.data.url) {
+          window.location.href = response.data.url;
+        } else {
+          throw new Error('Impossible de générer le lien de paiement sécurisé.');
+        }
       } else {
-        throw new Error('Impossible de générer le lien de paiement sécurisé.');
+        // Mode Manuel Wave
+        if (!phone || phone.length < 9) {
+          throw new Error("Veuillez entrer un numéro de téléphone valide.");
+        }
+        
+        setStep(3);
+        const basePrice = parseBasePrice(price);
+        const response = await api.post('/payments/manual-wave', {
+          amount: basePrice || 5000,
+          phone,
+          templateId,
+          productType,
+          templateName
+        });
+
+        if (response.data.success) {
+          setStep(4); // Success screen (pending verification)
+        } else {
+          throw new Error(response.data.message || 'Erreur lors du paiement.');
+        }
       }
     } catch (err) {
       console.error('Payment error:', err);
@@ -79,7 +102,8 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
   };
 
   const isFormValid = () => {
-    return true; // La saisie se fera sur la page PayDunya pour toutes les méthodes
+    if (USE_PAYDUNYA) return true;
+    return phone && phone.trim().length >= 9;
   };
 
   return (
@@ -109,102 +133,139 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
               >
                 <h2 className="text-xl lg:text-2xl font-bold text-gray-900 mb-6 pr-10 lg:pr-0">Choisissez un moyen de paiement</h2>
                 
-                <div className="space-y-3 mb-8">
-                  {/* Wave Option */}
-                  <label className={`flex items-center p-4 bg-white border ${method === 'wave' ? 'border-[#082f1f] ring-1 ring-[#082f1f]' : 'border-gray-200'} rounded-xl cursor-pointer transition-all hover:border-gray-300 shadow-sm`}>
-                    <input type="radio" name="method" value="wave" checked={method === 'wave'} onChange={() => setMethod('wave')} className="hidden" />
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-4 ${method === 'wave' ? 'border-[#082f1f]' : 'border-gray-300'}`}>
-                      {method === 'wave' && <div className="w-2.5 h-2.5 bg-[#082f1f] rounded-full" />}
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-semibold text-gray-900 text-sm lg:text-base">Wave Mobile Money</div>
-                    </div>
-                    <div className="w-[70px] lg:w-20">
-                      <svg viewBox="0 0 100 40" className="w-full h-auto">
-                        <rect width="100" height="40" rx="6" fill="#15d0f6" />
-                        <text x="50" y="26" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="18" textAnchor="middle">wave</text>
-                      </svg>
-                    </div>
-                  </label>
+                {USE_PAYDUNYA ? (
+                  <div className="space-y-3 mb-8">
+                    {/* Wave Option */}
+                    <label className={`flex items-center p-4 bg-white border ${method === 'wave' ? 'border-[#082f1f] ring-1 ring-[#082f1f]' : 'border-gray-200'} rounded-xl cursor-pointer transition-all hover:border-gray-300 shadow-sm`}>
+                      <input type="radio" name="method" value="wave" checked={method === 'wave'} onChange={() => setMethod('wave')} className="hidden" />
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-4 ${method === 'wave' ? 'border-[#082f1f]' : 'border-gray-300'}`}>
+                        {method === 'wave' && <div className="w-2.5 h-2.5 bg-[#082f1f] rounded-full" />}
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-gray-900 text-sm lg:text-base">Wave Mobile Money</div>
+                      </div>
+                      <div className="w-[70px] lg:w-20">
+                        <svg viewBox="0 0 100 40" className="w-full h-auto">
+                          <rect width="100" height="40" rx="6" fill="#15d0f6" />
+                          <text x="50" y="26" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="18" textAnchor="middle">wave</text>
+                        </svg>
+                      </div>
+                    </label>
 
-                  {/* Orange Money Option */}
-                  <label className={`flex items-center p-4 bg-white border ${method === 'orange' ? 'border-[#082f1f] ring-1 ring-[#082f1f]' : 'border-gray-200'} rounded-xl cursor-pointer transition-all hover:border-gray-300 shadow-sm`}>
-                    <input type="radio" name="method" value="orange" checked={method === 'orange'} onChange={() => setMethod('orange')} className="hidden" />
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-4 ${method === 'orange' ? 'border-[#082f1f]' : 'border-gray-300'}`}>
-                      {method === 'orange' && <div className="w-2.5 h-2.5 bg-[#082f1f] rounded-full" />}
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-semibold text-gray-900 text-sm lg:text-base">Orange Money</div>
-                    </div>
-                    <div className="w-[70px] lg:w-20">
-                      <svg viewBox="0 0 100 40" className="w-full h-auto">
-                        <rect width="100" height="40" rx="6" fill="black" />
-                        <rect width="28" height="28" x="6" y="6" rx="4" fill="#ff7900" />
-                        <text x="65" y="20" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="10" textAnchor="middle">Orange</text>
-                        <text x="65" y="30" fill="#ff7900" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="10" textAnchor="middle">Money</text>
-                      </svg>
-                    </div>
-                  </label>
+                    {/* Orange Money Option */}
+                    <label className={`flex items-center p-4 bg-white border ${method === 'orange' ? 'border-[#082f1f] ring-1 ring-[#082f1f]' : 'border-gray-200'} rounded-xl cursor-pointer transition-all hover:border-gray-300 shadow-sm`}>
+                      <input type="radio" name="method" value="orange" checked={method === 'orange'} onChange={() => setMethod('orange')} className="hidden" />
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-4 ${method === 'orange' ? 'border-[#082f1f]' : 'border-gray-300'}`}>
+                        {method === 'orange' && <div className="w-2.5 h-2.5 bg-[#082f1f] rounded-full" />}
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-gray-900 text-sm lg:text-base">Orange Money</div>
+                      </div>
+                      <div className="w-[70px] lg:w-20">
+                        <svg viewBox="0 0 100 40" className="w-full h-auto">
+                          <rect width="100" height="40" rx="6" fill="black" />
+                          <rect width="28" height="28" x="6" y="6" rx="4" fill="#ff7900" />
+                          <text x="65" y="20" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="10" textAnchor="middle">Orange</text>
+                          <text x="65" y="30" fill="#ff7900" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="10" textAnchor="middle">Money</text>
+                        </svg>
+                      </div>
+                    </label>
 
-                  {/* Free Money Option */}
-                  <label className={`flex items-center p-4 bg-white border ${method === 'free' ? 'border-[#082f1f] ring-1 ring-[#082f1f]' : 'border-gray-200'} rounded-xl cursor-pointer transition-all hover:border-gray-300 shadow-sm`}>
-                    <input type="radio" name="method" value="free" checked={method === 'free'} onChange={() => setMethod('free')} className="hidden" />
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-4 ${method === 'free' ? 'border-[#082f1f]' : 'border-gray-300'}`}>
-                      {method === 'free' && <div className="w-2.5 h-2.5 bg-[#082f1f] rounded-full" />}
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-semibold text-gray-900 text-sm lg:text-base">Free Money</div>
-                    </div>
-                    <div className="w-[70px] lg:w-20">
-                      <svg viewBox="0 0 100 40" className="w-full h-auto">
-                        <rect width="100" height="40" rx="6" fill="#E3000F" />
-                        <text x="50" y="26" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="16" textAnchor="middle">Free</text>
-                      </svg>
-                    </div>
-                  </label>
+                    {/* Free Money Option */}
+                    <label className={`flex items-center p-4 bg-white border ${method === 'free' ? 'border-[#082f1f] ring-1 ring-[#082f1f]' : 'border-gray-200'} rounded-xl cursor-pointer transition-all hover:border-gray-300 shadow-sm`}>
+                      <input type="radio" name="method" value="free" checked={method === 'free'} onChange={() => setMethod('free')} className="hidden" />
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-4 ${method === 'free' ? 'border-[#082f1f]' : 'border-gray-300'}`}>
+                        {method === 'free' && <div className="w-2.5 h-2.5 bg-[#082f1f] rounded-full" />}
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-gray-900 text-sm lg:text-base">Free Money</div>
+                      </div>
+                      <div className="w-[70px] lg:w-20">
+                        <svg viewBox="0 0 100 40" className="w-full h-auto">
+                          <rect width="100" height="40" rx="6" fill="#E3000F" />
+                          <text x="50" y="26" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="16" textAnchor="middle">Free</text>
+                        </svg>
+                      </div>
+                    </label>
 
-                  {/* Visa/Mastercard Option */}
-                  <label className={`flex items-center p-4 bg-white border ${method === 'card' ? 'border-[#082f1f] ring-1 ring-[#082f1f]' : 'border-gray-200'} rounded-xl cursor-pointer transition-all hover:border-gray-300 shadow-sm`}>
-                    <input type="radio" name="method" value="card" checked={method === 'card'} onChange={() => setMethod('card')} className="hidden" />
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-4 ${method === 'card' ? 'border-[#082f1f]' : 'border-gray-300'}`}>
-                      {method === 'card' && <div className="w-2.5 h-2.5 bg-[#082f1f] rounded-full" />}
+                    {/* Visa/Mastercard Option */}
+                    <label className={`flex items-center p-4 bg-white border ${method === 'card' ? 'border-[#082f1f] ring-1 ring-[#082f1f]' : 'border-gray-200'} rounded-xl cursor-pointer transition-all hover:border-gray-300 shadow-sm`}>
+                      <input type="radio" name="method" value="card" checked={method === 'card'} onChange={() => setMethod('card')} className="hidden" />
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-4 ${method === 'card' ? 'border-[#082f1f]' : 'border-gray-300'}`}>
+                        {method === 'card' && <div className="w-2.5 h-2.5 bg-[#082f1f] rounded-full" />}
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-gray-900 text-sm lg:text-base">Carte bancaire</div>
+                      </div>
+                      <div className="flex gap-1 lg:gap-2 w-[70px] lg:w-20">
+                        <svg viewBox="0 0 40 24" className="w-1/2 h-auto">
+                          <rect width="40" height="24" rx="4" fill="#f0f2f5" />
+                          <text x="20" y="16" fill="#1434CB" fontFamily="Arial, sans-serif" fontStyle="italic" fontWeight="bold" fontSize="10" textAnchor="middle">VISA</text>
+                        </svg>
+                        <svg viewBox="0 0 40 24" className="w-1/2 h-auto">
+                          <rect width="40" height="24" rx="4" fill="#f0f2f5" />
+                          <circle cx="15" cy="12" r="7" fill="#EB001B" />
+                          <circle cx="25" cy="12" r="7" fill="#F79E1B" fillOpacity="0.8" />
+                        </svg>
+                      </div>
+                    </label>
+                  </div>
+                ) : (
+                  <div className="space-y-6 mb-8">
+                    <div className="bg-blue-50 border border-blue-100 p-6 rounded-xl text-center">
+                      <div className="w-16 h-16 bg-[#15d0f6] rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Smartphone size={32} className="text-white" />
+                      </div>
+                      <h3 className="text-lg font-bold text-gray-900 mb-2">Paiement via Wave Business</h3>
+                      <p className="text-gray-600 mb-4">
+                        Veuillez transférer le montant de <span className="font-bold text-[#082f1f]">{displayPrice ? `${displayPrice.amount} FCFA` : '...'}</span> au numéro ci-dessous :
+                      </p>
+                      <div className="bg-white py-3 px-6 rounded-lg shadow-sm inline-block border border-gray-200 mb-4">
+                        <span className="text-2xl font-black tracking-wider text-[#15d0f6]">{WAVE_BUSINESS_NUMBER}</span>
+                      </div>
+                      <p className="text-sm text-gray-500">Nom du compte : <span className="font-medium">Sama CV Pro</span></p>
                     </div>
-                    <div className="flex-1">
-                      <div className="font-semibold text-gray-900 text-sm lg:text-base">Carte bancaire</div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Numéro de téléphone utilisé pour le paiement
+                      </label>
+                      <input 
+                        type="tel" 
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="Ex: 77 123 45 67"
+                        className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-[#082f1f] focus:ring-1 focus:ring-[#082f1f]"
+                        required
+                      />
+                      <p className="text-xs text-gray-500 mt-2">Nous utiliserons ce numéro pour vérifier votre transaction.</p>
                     </div>
-                    <div className="flex gap-1 lg:gap-2 w-[70px] lg:w-20">
-                      <svg viewBox="0 0 40 24" className="w-1/2 h-auto">
-                        <rect width="40" height="24" rx="4" fill="#f0f2f5" />
-                        <text x="20" y="16" fill="#1434CB" fontFamily="Arial, sans-serif" fontStyle="italic" fontWeight="bold" fontSize="10" textAnchor="middle">VISA</text>
-                      </svg>
-                      <svg viewBox="0 0 40 24" className="w-1/2 h-auto">
-                        <rect width="40" height="24" rx="4" fill="#f0f2f5" />
-                        <circle cx="15" cy="12" r="7" fill="#EB001B" />
-                        <circle cx="25" cy="12" r="7" fill="#F79E1B" fillOpacity="0.8" />
-                      </svg>
-                    </div>
-                  </label>
-                </div>
+                  </div>
+                )}
 
                 {/* Dynamic Inputs */}
                 <div className="mt-auto">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Détails du paiement</h3>
-                  <div className="space-y-4 text-center py-6">
-                    <div className="mx-auto w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4">
-                      <Lock size={32} className="text-[#082f1f]" />
-                    </div>
-                    <h4 className="text-lg font-medium text-gray-900">Paiement 100% Sécurisé</h4>
-                    <p className="text-gray-500 text-sm max-w-sm mx-auto leading-relaxed">
-                      Pour des raisons de sécurité, nous ne stockons aucune donnée de paiement sur notre site.
-                      <br/><br/>
-                      En cliquant sur "Payer", vous serez redirigé vers la page certifiée de <strong>PayDunya</strong> pour finaliser votre transaction en toute sécurité avec le moyen de paiement de votre choix.
-                      {displayPrice && displayPrice.currency !== 'XOF' && (
-                        <span className="block mt-2 text-[#082f1f] font-semibold">
-                          (La transaction sera effectuée en Francs CFA pour un montant équivalent via PayDunya)
-                        </span>
-                      )}
-                    </p>
-                  </div>
+                  {USE_PAYDUNYA && (
+                    <>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Détails du paiement</h3>
+                      <div className="space-y-4 text-center py-6">
+                        <div className="mx-auto w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4">
+                          <Lock size={32} className="text-[#082f1f]" />
+                        </div>
+                        <h4 className="text-lg font-medium text-gray-900">Paiement 100% Sécurisé</h4>
+                        <p className="text-gray-500 text-sm max-w-sm mx-auto leading-relaxed">
+                          Pour des raisons de sécurité, nous ne stockons aucune donnée de paiement sur notre site.
+                          <br/><br/>
+                          En cliquant sur "Payer", vous serez redirigé vers la page certifiée de <strong>PayDunya</strong> pour finaliser votre transaction en toute sécurité avec le moyen de paiement de votre choix.
+                          {displayPrice && displayPrice.currency !== 'XOF' && (
+                            <span className="block mt-2 text-[#082f1f] font-semibold">
+                              (La transaction sera effectuée en Francs CFA pour un montant équivalent via PayDunya)
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                    </>
+                  )}
 
                   {error && (
                     <div className="mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm font-medium">
@@ -228,11 +289,15 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                     <Loader2 size={32} className="animate-spin text-white" />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">Paiement en cours...</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">Traitement en cours...</h3>
                 <p className="text-gray-600 max-w-[280px]">
-                  {method === 'card' 
-                    ? "Veuillez patienter pendant que nous sécurisons votre transaction bancaire." 
-                    : `Une notification a été envoyée sur votre téléphone. Veuillez valider le paiement ${method === 'wave' ? 'Wave' : method === 'orange' ? 'Orange Money' : 'Free Money'}.`}
+                  {USE_PAYDUNYA ? (
+                    method === 'card' 
+                      ? "Veuillez patienter pendant que nous sécurisons votre transaction bancaire." 
+                      : `Une notification a été envoyée sur votre téléphone. Veuillez valider le paiement ${method === 'wave' ? 'Wave' : method === 'orange' ? 'Orange Money' : 'Free Money'}.`
+                  ) : (
+                    "Veuillez patienter pendant que nous envoyons votre demande de validation..."
+                  )}
                 </p>
               </motion.div>
             )}
@@ -254,9 +319,9 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                     <CheckCircle2 size={48} className="text-green-500" />
                   </div>
                 </motion.div>
-                <h3 className="text-3xl font-bold text-gray-900 mb-3">Paiement réussi !</h3>
+                <h3 className="text-3xl font-bold text-gray-900 mb-3">Demande envoyée !</h3>
                 <p className="text-gray-600">
-                  Merci pour votre confiance. Le modèle est débloqué.
+                  Votre paiement est en cours de vérification. Vous recevrez l'accès à votre modèle dès sa validation (généralement en moins de 5 minutes). Vous pouvez fermer cette fenêtre.
                 </p>
               </motion.div>
             )}
@@ -301,9 +366,9 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
               {isProcessing ? (
                 <><Loader2 className="animate-spin" size={20} /> Traitement...</>
               ) : step === 4 ? (
-                <>Validé !</>
+                <>En cours de vérification</>
               ) : (
-                <>Payer {displayPrice ? `${displayPrice.amount} ${displayPrice.symbol}` : ''}</>
+                <>Valider le paiement de {displayPrice ? `${displayPrice.amount} ${displayPrice.symbol}` : ''}</>
               )}
             </button>
             <div className="flex items-center justify-center gap-2 text-xs text-[#a0b2a8] mt-4">

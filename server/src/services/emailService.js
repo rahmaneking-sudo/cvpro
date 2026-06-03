@@ -87,3 +87,21 @@ export async function sendResetPasswordEmail(email, token) {
     ),
   });
 }
+
+export async function sendActivationEmail(email, name) {
+  const url = `${APP_URL}/dashboard`;
+  await transporter.sendMail({
+    from: `"${APP_NAME}" <${process.env.SMTP_USER}>`,
+    to: email,
+    subject: `${APP_NAME} — Votre compte a été activé ! 🎉`,
+    html: emailTemplate(
+      'Compte Activé !',
+      `<p>Bonjour ${name || ''},</p>
+       <p>Bonne nouvelle ! Votre compte <strong>${APP_NAME}</strong> vient d'être activé par l'administrateur.</p>
+       <p>Vous avez maintenant un forfait actif. Vous pouvez dès à présent vous connecter et profiter de tous nos services pour créer un CV et un portfolio exceptionnels.</p>`,
+      'Accéder à mon Dashboard',
+      url
+    ),
+  });
+}
+

@@ -193,4 +193,66 @@ router.put('/chats/:sessionId/close', requireAdmin, async (req, res) => {
   }
 });
 
+// ==========================================
+// USER MANAGEMENT ADMIN ROUTES
+// ==========================================
+
+// GET /api/admin/users
+router.get('/users', requireAdmin, async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        provider: true,
+        isActive: true,
+        createdAt: true,
+      }
+    });
+    res.json({ success: true, users });
+  } catch (error) {
+    console.error('Admin Users Error:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// PATCH /api/admin/users/:userId/status
+router.patch('/users/:userId/status', requireAdmin, async (req, res) => {
+  try {
+    const { isActive } = req.body;
+    
+    // Get current user to check if status changed from false to true
+    const userBefore = await prisma.user.findUnique({
+      where: { id: req.params.userId }
+    });
+
+    if (!userBefore) {
+      return res.status(404).json({ error: 'Utilisateur introuvable' });
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: req.params.userId },
+      data: { isActive }
+    });
+
+    // If activated, send email
+    if (isActive === true && userBefore.isActive === false) {
+      try {
+        const { sendActivationEmail } = await import('../services/emailService.js');
+        await sendActivationEmail(updatedUser.email, updatedUser.name);
+      } catch (emailErr) {
+        console.error('Activation email error:', emailErr);
+        // Continue even if email fails
+      }
+    }
+
+    res.json({ success: true, user: updatedUser });
+  } catch (error) {
+    console.error('Update User Status Error:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
 export default router;

@@ -24,6 +24,7 @@ model User {
   avatar        String?
   provider      String    @default("email") // "email" | "google"
   emailVerified Boolean   @default(false)
+  isActive      Boolean   @default(false)
   verifyToken   String?
   resetToken    String?
   resetExpires  DateTime?

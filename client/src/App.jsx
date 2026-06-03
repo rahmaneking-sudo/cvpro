@@ -30,6 +30,7 @@ const PublicCVPage = lazy(() => import('./pages/PublicCVPage'));
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
 const PrintCVPage = lazy(() => import('./pages/PrintCVPage'));
 const PrintPortfolioPage = lazy(() => import('./pages/PrintPortfolioPage'));
+const ActivationRequiredPage = lazy(() => import('./pages/ActivationRequiredPage'));
 
 function VisitTracker() {
   useEffect(() => {
@@ -70,6 +71,7 @@ export default function App() {
 
             {/* Protected — connexion requise */}
             <Route path="/admin" element={<AdminDashboardPage />} />
+            <Route path="/activation" element={<ActivationRequiredPage />} />
             <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
             <Route path="/dashboard/purchases" element={<PrivateRoute><MyPurchasesPage /></PrivateRoute>} />
             <Route path="/dashboard/cv/templates" element={<PrivateRoute><TemplateGalleryPage /></PrivateRoute>} />

@@ -15,6 +15,7 @@ export default function AdminDashboardPage() {
   const [adminToken, setAdminToken] = useState(localStorage.getItem('cvpro-admin-token'));
   
   const [stats, setStats] = useState(null);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -29,10 +30,12 @@ export default function AdminDashboardPage() {
     try {
       setLoading(true);
       // We use standard axios to bypass the main api.js interceptor which might mess up tokens
-      const res = await axios.get('/api/admin/stats', {
-        headers: { Authorization: `Bearer ${adminToken}` }
-      });
-      setStats(res.data);
+      const [statsRes, usersRes] = await Promise.all([
+        axios.get('/api/admin/stats', { headers: { Authorization: `Bearer ${adminToken}` } }),
+        axios.get('/api/admin/users', { headers: { Authorization: `Bearer ${adminToken}` } })
+      ]);
+      setStats(statsRes.data);
+      setUsers(usersRes.data.users || []);
       setError('');
     } catch (err) {
       console.error('Erreur chargement admin:', err);
@@ -74,6 +77,22 @@ export default function AdminDashboardPage() {
   const handleLogout = () => {
     localStorage.removeItem('cvpro-admin-token');
     setAdminToken(null);
+  };
+
+  const toggleUserStatus = async (userId, currentStatus) => {
+    try {
+      const res = await axios.patch(
+        `/api/admin/users/${userId}/status`,
+        { isActive: !currentStatus },
+        { headers: { Authorization: `Bearer ${adminToken}` } }
+      );
+      if (res.data.success) {
+        setUsers(users.map(u => u.id === userId ? { ...u, isActive: res.data.user.isActive } : u));
+      }
+    } catch (err) {
+      console.error('Erreur lors du changement de statut:', err);
+      alert('Erreur lors de la modification du statut');
+    }
   };
 
   // Not logged in -> Show Admin Login Form
@@ -273,13 +292,13 @@ export default function AdminDashboardPage() {
           ))}
         </div>
 
-        {/* Recent Users Table */}
-        <div className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden">
+        {/* Users Management Table */}
+        <div className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden mb-12">
           <div className="p-6 border-b border-white/10 flex justify-between items-center">
             <h3 className="text-xl font-bold text-[var(--color-ivory)]" style={{ fontFamily: 'var(--font-serif)' }}>
-              Dernières Inscriptions
+              Gestion des Utilisateurs
             </h3>
-            <span className="text-xs font-medium px-3 py-1 bg-white/10 rounded-full text-white">5 plus récents</span>
+            <span className="text-xs font-medium px-3 py-1 bg-white/10 rounded-full text-white">{users.length} total</span>
           </div>
           
           <div className="overflow-x-auto">
@@ -289,36 +308,45 @@ export default function AdminDashboardPage() {
                   <th className="px-6 py-4 font-medium">Utilisateur</th>
                   <th className="px-6 py-4 font-medium">Email</th>
                   <th className="px-6 py-4 font-medium">Date d'inscription</th>
+                  <th className="px-6 py-4 font-medium">Statut</th>
                   <th className="px-6 py-4 font-medium text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {stats?.recentUsers?.length > 0 ? (
-                  stats.recentUsers.map((u) => (
+                {users.length > 0 ? (
+                  users.map((u) => (
                     <tr key={u.id} className="hover:bg-white/5 transition-colors group">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-[var(--color-champagne)]/20 flex items-center justify-center text-[var(--color-champagne)] font-bold text-xs">
                             {(u.name || u.email).charAt(0).toUpperCase()}
                           </div>
-                          <span className="font-medium text-white">{u.name || 'Utilisateur sans nom'}</span>
+                          <span className="font-medium text-white">{u.name || 'Sans nom'}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-sm text-[var(--color-white-muted)]">{u.email}</td>
                       <td className="px-6 py-4 text-sm text-[var(--color-white-muted)]">
-                        {new Date(u.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        {new Date(u.createdAt).toLocaleDateString('fr-FR')}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${u.isActive ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}`}>
+                          {u.isActive ? 'Actif' : 'Inactif'}
+                        </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[var(--color-white-muted)] hover:text-white hover:bg-white/10 transition-colors ml-auto">
-                          <ArrowUpRight size={16} />
+                        <button 
+                          onClick={() => toggleUserStatus(u.id, u.isActive)}
+                          className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${u.isActive ? 'bg-white/5 text-[var(--color-white-muted)] hover:bg-white/10 hover:text-white' : 'bg-[var(--color-champagne)] text-black hover:bg-[var(--color-gold-light)]'}`}
+                        >
+                          {u.isActive ? 'Désactiver' : 'Activer'}
                         </button>
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="px-6 py-8 text-center text-[var(--color-white-muted)]">
-                      Aucun utilisateur récent trouvé.
+                    <td colSpan="5" className="px-6 py-8 text-center text-[var(--color-white-muted)]">
+                      Aucun utilisateur trouvé.
                     </td>
                   </tr>
                 )}

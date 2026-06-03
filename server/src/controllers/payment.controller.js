@@ -1,5 +1,6 @@
 import { createInvoice, createDirectPay, checkInvoiceStatus } from '../services/paydunya.service.js';
 import prisma from '../utils/prisma.js';
+import crypto from 'crypto';
 
 // Route pour le paiement par carte (Redirection)
 export const createCardPayment = async (req, res) => {
@@ -115,5 +116,118 @@ export const handleWebhook = async (req, res) => {
     console.error('Erreur Webhook PayDunya:', error);
     // Return 200 anyway so PayDunya doesn't crash the user's frontend redirect
     res.status(200).send('Erreur processée');
+  }
+};
+
+// --- Wave Business (Manuel) ---
+
+export const createManualWavePayment = async (req, res) => {
+  try {
+    const { amount, phone, templateId, productType, templateName } = req.body;
+    
+    const parsedAmount = amount ? Number(String(amount).replace(/[^\d]/g, '')) : 5000;
+    
+    // Generate a unique token for magic link
+    const magicToken = crypto.randomBytes(32).toString('hex');
+    
+    // Save pending purchase
+    const purchase = await prisma.purchase.create({
+      data: {
+        userId: req.userId,
+        product: productType || 'cv_template',
+        productId: templateId,
+        provider: 'wave_manual',
+        currency: 'XOF',
+        amount: parsedAmount,
+        status: 'pending_verification',
+        webhookId: magicToken // We use webhookId field to store our magic token
+      }
+    });
+
+    // Send Telegram Notification
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
+    
+    if (botToken && chatId) {
+      // Use process.env.CLIENT_URL or APP_URL
+      const baseUrl = process.env.CLIENT_URL || 'https://samacvpro.com';
+      // Mettre l'URL complète vers le backend, attention en local ça peut être le port du backend
+      const backendUrl = baseUrl.includes('localhost') ? 'http://localhost:5000' : 'https://samacvpro.com';
+      const validateUrl = \`\${backendUrl}/api/payments/validate-manual/\${magicToken}\`;
+      
+      const message = \`🔔 *Nouveau Paiement Wave (En Attente)* 🔔\\n\\n\` +
+                      \`📞 Numéro Client: \\\`\${phone}\\\`\\n\` +
+                      \`💰 Montant: *\${parsedAmount} FCFA*\\n\` +
+                      \`🛍 Produit: \${productType} (\${templateName || templateId})\\n\\n\` +
+                      \`👉 *[CLIQUER ICI POUR VALIDER LE PAIEMENT ET DÉBLOQUER LE CV]*(\${validateUrl})\`;
+
+      // We don't await this to not block the response
+      fetch(\`https://api.telegram.org/bot\${botToken}/sendMessage\`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: message,
+          parse_mode: 'Markdown'
+        })
+      }).catch(err => console.error('Telegram error:', err));
+    }
+
+    res.json({
+      success: true,
+      message: "Votre demande a été prise en compte. Elle sera validée dans quelques minutes.",
+      token: magicToken
+    });
+  } catch (error) {
+    console.error('Erreur Wave Manuel:', error);
+    res.status(500).json({ success: false, message: "Erreur lors de la création de la demande." });
+  }
+};
+
+export const validateManualPayment = async (req, res) => {
+  try {
+    const { token } = req.params;
+    
+    const purchase = await prisma.purchase.findFirst({
+      where: { webhookId: token, status: 'pending_verification' }
+    });
+
+    if (!purchase) {
+      return res.status(404).send('<h1>Lien invalide ou paiement déjà validé.</h1>');
+    }
+
+    await prisma.purchase.update({
+      where: { id: purchase.id },
+      data: { status: 'completed' }
+    });
+
+    // Send success message to Telegram
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
+    if (botToken && chatId) {
+      fetch(\`https://api.telegram.org/bot\${botToken}/sendMessage\`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: \`✅ *Paiement Validé avec succès!*\\nLe CV a été débloqué pour ce client.\`,
+          parse_mode: 'Markdown'
+        })
+      }).catch(err => {});
+    }
+
+    res.send(\`
+      <div style="font-family: sans-serif; text-align: center; padding: 50px; color: #082f1f; background: #f4f5f5; min-height: 100vh;">
+        <div style="background: white; max-width: 500px; margin: 0 auto; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+          <div style="font-size: 64px; margin-bottom: 20px;">✅</div>
+          <h1 style="color: #16a34a; margin-top: 0;">Paiement Validé !</h1>
+          <p style="font-size: 18px; color: #666; line-height: 1.5;">Le paiement a bien été enregistré. Le CV est maintenant débloqué pour le client.</p>
+          <p style="color: #999; font-size: 14px; margin-top: 40px;">Tu peux fermer cette page et retourner sur Telegram.</p>
+        </div>
+      </div>
+    \`);
+  } catch (error) {
+    console.error('Erreur Validation Wave Manuel:', error);
+    res.status(500).send('Erreur lors de la validation.');
   }
 };

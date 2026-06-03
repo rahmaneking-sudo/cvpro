@@ -1,5 +1,5 @@
 import express from 'express';
-import { createCardPayment, processMobilePayment, handleWebhook, checkPaymentStatus } from '../controllers/payment.controller.js';
+import { createCardPayment, processMobilePayment, handleWebhook, checkPaymentStatus, createManualWavePayment, validateManualPayment } from '../controllers/payment.controller.js';
 import { authMiddleware } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -15,5 +15,9 @@ router.get('/status/:token', authMiddleware, checkPaymentStatus);
 
 // Webhook appelé par PayDunya pour confirmer le paiement en arrière-plan
 router.post('/webhook', handleWebhook);
+
+// --- Wave Business (Manuel) ---
+router.post('/manual-wave', authMiddleware, createManualWavePayment);
+router.get('/validate-manual/:token', validateManualPayment);
 
 export default router;
