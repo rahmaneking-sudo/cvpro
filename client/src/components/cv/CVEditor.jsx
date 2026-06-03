@@ -1403,7 +1403,7 @@ export default function CVEditor() {
         }}
         templateId={templateId}
         templateName={`Modèle: ${template?.name || templateId}`}
-        price={template?.tier === 'premium' ? "5 000" : (isMediaKit ? "2 000" : "1 500")}
+        price={template?.tier === 'premium' ? "5 000" : (isMediaKit ? "2 000" : (isCoverLetter ? "1 000" : "1 500"))}
       />
 
       {/* Mobile Bottom Navigation Bar */}

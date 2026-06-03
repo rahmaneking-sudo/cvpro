@@ -62,7 +62,7 @@ export const seriesLabels = {
 
 export const tierLabels = {
   standard: { fr: 'CV Standard (1 500 F)', shortFr: 'Standard', en: 'Standard', color: '#43A047', tooltip: 'Forfait 1 500 FCFA : Téléchargement unique d\'un design standard.' },
-  'cover-letter': { fr: 'Lettre de Motivation (1 500 F)', shortFr: 'Lettre de Motivation', en: 'Cover Letter', color: '#3B82F6', tooltip: 'Forfait 1 500 FCFA : Téléchargement unique d\'une Lettre de motivation.' },
+  'cover-letter': { fr: 'Lettre de Motivation (1 000 F)', shortFr: 'Lettre de Motivation', en: 'Cover Letter', color: '#3B82F6', tooltip: 'Forfait 1 000 FCFA : Téléchargement unique d\'une Lettre de motivation.' },
   premium: { fr: 'Pack Premium (5 000 F - CV illimités)', shortFr: 'Premium', en: 'Premium', color: '#C9A96E', tooltip: 'Forfait 5 000 FCFA : Accès illimité à tous les modèles premiums.' },
   'media-kit': { fr: 'Media Kit Pro (2 000 F)', shortFr: 'Media Kit', en: 'Media Kit', color: '#8B5CF6', tooltip: 'Forfait 2 000 FCFA : Téléchargement d\'un Media Kit professionnel pour influenceurs.' },
 };
