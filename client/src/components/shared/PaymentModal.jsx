@@ -24,7 +24,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
   // Polling effect pour vérifier si l'admin a validé sur Telegram
   useEffect(() => {
     let interval;
-    if (step === 4 && pollingToken) {
+    if (isOpen && step === 4 && pollingToken) {
       interval = setInterval(async () => {
         try {
           const res = await api.get(`/payments/status/${pollingToken}`);
@@ -43,7 +43,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
       }, 3000); // Check toutes les 3 secondes
     }
     return () => clearInterval(interval);
-  }, [step, pollingToken, onSuccess, onClose]);
+  }, [isOpen, step, pollingToken, onSuccess, onClose]);
 
   // Fetch dynamic currency on open
   useEffect(() => {
