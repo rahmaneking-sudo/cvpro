@@ -160,7 +160,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
         
         {/* Left Panel */}
         <div className="flex-1 p-6 lg:p-10 flex flex-col relative min-h-[500px]">
-          {step === 1 && !isProcessing && (
+          {step === 1 && !isProcessing && (!hasClickedWave || USE_PAYDUNYA) && (
             <button onClick={onClose} className="absolute top-4 right-4 lg:top-6 lg:left-6 lg:right-auto text-gray-500 hover:text-gray-900 transition-colors z-50 font-medium text-sm flex items-center gap-2 bg-white/80 lg:bg-transparent px-3 py-1.5 lg:p-0 rounded-full shadow-sm lg:shadow-none">
               ✕ Fermer
             </button>
@@ -175,7 +175,9 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                 exit={{ opacity: 0, x: 20 }} 
                 className="flex flex-col h-full mt-6 lg:mt-6"
               >
-                <h2 className="text-xl lg:text-2xl font-bold text-gray-900 mb-6 pr-10 lg:pr-0">Choisissez un moyen de paiement</h2>
+                <h2 className="text-xl lg:text-2xl font-bold text-gray-900 mb-6 pr-10 lg:pr-0">
+                  {!USE_PAYDUNYA && hasClickedWave ? "Validez votre paiement" : "Choisissez un moyen de paiement"}
+                </h2>
                 
                 {USE_PAYDUNYA ? (
                   <div className="space-y-3 mb-8">
