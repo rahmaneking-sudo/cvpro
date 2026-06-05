@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Smartphone, Lock, CheckCircle2 } from 'lucide-react';
+import { Loader2, Smartphone, Lock, CheckCircle2, AlertTriangle, DownloadCloud } from 'lucide-react';
 import api from '../../services/api';
 import { getUserCurrency, convertFromXOF, parseBasePrice } from '../../utils/currency';
 
@@ -15,11 +15,25 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
   const [error, setError] = useState('');
   const [displayPrice, setDisplayPrice] = useState(null);
   const [pollingToken, setPollingToken] = useState(null);
+  const [hasClickedWave, setHasClickedWave] = useState(false);
 
   // FEATURE FLAG: Mettre à false pour utiliser Wave Manuel, true pour PayDunya
   const USE_PAYDUNYA = false;
   // Numéro Wave Business (à remplacer par ton vrai numéro)
   const WAVE_BUSINESS_NUMBER = "SN 84 67 03 97";
+
+  // Bloquer la fermeture accidentelle si paiement entamé mais non validé
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (hasClickedWave && step < 4) {
+        e.preventDefault();
+        e.returnValue = ''; // Requis par la plupart des navigateurs modernes
+      }
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasClickedWave, step]);
 
   // Polling effect pour vérifier si l'admin a validé sur Telegram
   useEffect(() => {
@@ -30,12 +44,12 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
           const res = await api.get(`/payments/status/${pollingToken}`);
           if (res.data.status === 'completed') {
             clearInterval(interval);
-            onSuccess(); // Débloque le document
-            onClose();   // Ferme la modale
+            setStep(5); // Affiche l'écran de succès interne avant de fermer
           } else if (res.data.status === 'failed' || res.data.status === 'cancelled') {
             clearInterval(interval);
             setError("Le paiement a été refusé ou annulé.");
             setStep(1);
+            setHasClickedWave(false);
           }
         } catch (err) {
           console.error("Erreur polling status:", err);
@@ -43,7 +57,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
       }, 3000); // Check toutes les 3 secondes
     }
     return () => clearInterval(interval);
-  }, [isOpen, step, pollingToken, onSuccess, onClose]);
+  }, [isOpen, step, pollingToken]);
 
   // Fetch dynamic currency on open
   useEffect(() => {
@@ -71,6 +85,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
       setError('');
       setIsProcessing(false);
       setPollingToken(null);
+      setHasClickedWave(false);
     }
   }, [isOpen]);
 
@@ -132,7 +147,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
 
   const isFormValid = () => {
     if (USE_PAYDUNYA) return true;
-    return phone && phone.trim().length >= 9;
+    return hasClickedWave && phone && phone.trim().length >= 9;
   };
 
   return (
@@ -241,41 +256,52 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                   </div>
                 ) : (
                   <div className="space-y-6 mb-8">
-                    <div className="bg-blue-50 border border-blue-100 p-6 rounded-xl text-center">
-                      <div className="w-16 h-16 bg-[#15d0f6] rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Smartphone size={32} className="text-white" />
+                    {!hasClickedWave ? (
+                      <div className="bg-blue-50 border border-blue-100 p-6 rounded-xl text-center">
+                        <div className="w-16 h-16 bg-[#15d0f6] rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                          <Smartphone size={32} className="text-white" />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">Paiement Sécurisé Wave</h3>
+                        <p className="text-gray-600 mb-6 text-sm">
+                          Cliquez sur le bouton ci-dessous pour payer <span className="font-bold text-[#082f1f] text-base">{displayPrice ? `${displayPrice.amount} FCFA` : '...'}</span> via l'application Wave :
+                        </p>
+                        <a 
+                          href={`https://pay.wave.com/m/M_sn_gsBAcsJlO1IE/c/sn/?amount=${parseBasePrice(price) || 1500}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={() => setHasClickedWave(true)}
+                          className="bg-[#15d0f6] hover:bg-[#12b8d9] text-white font-bold py-3.5 px-8 rounded-xl shadow-md inline-block transition-transform hover:scale-105 mb-2 w-full sm:w-auto"
+                        >
+                          1. Payer avec Wave
+                        </a>
                       </div>
-                      <h3 className="text-lg font-bold text-gray-900 mb-2">Paiement Sécurisé Wave</h3>
-                      <p className="text-gray-600 mb-4">
-                        Cliquez sur le bouton ci-dessous pour payer <span className="font-bold text-[#082f1f]">{displayPrice ? `${displayPrice.amount} FCFA` : '...'}</span> via l'application Wave :
-                      </p>
-                      <a 
-                        href={`https://pay.wave.com/m/M_sn_gsBAcsJlO1IE/c/sn/?amount=${parseBasePrice(price) || 1500}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-[#15d0f6] hover:bg-[#12b8d9] text-white font-bold py-3 px-8 rounded-full shadow-md inline-block transition-colors mb-4"
-                      >
-                        Payer avec Wave
-                      </a>
-                      <p className="text-sm text-gray-500 italic mb-4">
-                        Une fois le paiement effectué sur Wave, revenez ici pour valider.
-                      </p>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Vérification : Numéro de téléphone utilisé
-                      </label>
-                      <input 
-                        type="tel" 
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder="Ex: 77 123 45 67"
-                        className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-[#082f1f] focus:ring-1 focus:ring-[#082f1f]"
-                        required
-                      />
-                      <p className="text-xs text-gray-500 mt-2">Saisissez le numéro avec lequel vous avez payé pour débloquer votre document.</p>
-                    </div>
+                    ) : (
+                      <div className="bg-orange-50 border-2 border-orange-200 p-6 rounded-xl text-center shadow-md">
+                        <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 text-orange-500">
+                          <AlertTriangle size={32} />
+                        </div>
+                        <h3 className="text-xl font-bold text-orange-600 mb-2">Avez-vous terminé sur Wave ?</h3>
+                        <p className="text-gray-700 mb-6 text-sm">
+                          Pour débloquer votre document, veuillez nous indiquer le numéro de téléphone que vous avez utilisé.
+                        </p>
+                        <div className="text-left bg-white p-4 rounded-xl border border-orange-100">
+                          <label className="block text-sm font-bold text-gray-800 mb-2">
+                            2. Votre numéro de téléphone
+                          </label>
+                          <input 
+                            type="tel" 
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            placeholder="Ex: 77 123 45 67"
+                            className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all font-medium"
+                            required
+                          />
+                          <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                            <Lock size={10} /> Ce numéro est transmis de manière sécurisée.
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -373,6 +399,48 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                 </button>
               </motion.div>
             )}
+
+            {step === 5 && (
+              <motion.div 
+                key="step5" 
+                initial={{ opacity: 0, scale: 0.9 }} 
+                animate={{ opacity: 1, scale: 1 }} 
+                className="flex flex-col items-center justify-center h-full text-center px-4"
+              >
+                <motion.div 
+                  initial={{ scale: 0 }} 
+                  animate={{ scale: 1 }} 
+                  transition={{ type: "spring", bounce: 0.5 }}
+                  className="mb-6 relative"
+                >
+                  <div className="absolute inset-0 bg-green-500 rounded-full animate-ping opacity-20"></div>
+                  <div className="w-24 h-24 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center relative z-10 shadow-xl shadow-green-200">
+                    <CheckCircle2 size={48} className="text-white" />
+                  </div>
+                </motion.div>
+                <h3 className="text-3xl font-bold text-gray-900 mb-3">Paiement Validé !</h3>
+                <div className="bg-green-50 border border-green-100 rounded-xl p-5 mb-6 text-left w-full max-w-sm">
+                  <p className="text-green-800 text-sm leading-relaxed text-center font-medium flex flex-col items-center gap-2">
+                    <DownloadCloud size={24} className="text-green-600" />
+                    Le téléchargement ou l'exportation de votre document va démarrer.
+                  </p>
+                </div>
+                <p className="text-gray-600 text-sm max-w-sm mb-8 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <strong className="text-gray-900 block mb-1">✅ Sauvegarde automatique réussie</strong>
+                  Ce document est également sauvegardé en toute sécurité dans votre espace <span className="font-semibold text-[#082f1f]">"Mes Achats"</span>. Vous pourrez le modifier ou le retélécharger à tout moment.
+                </p>
+                
+                <button 
+                  onClick={() => {
+                    onSuccess();
+                    onClose();
+                  }}
+                  className="bg-[#082f1f] text-white py-4 px-10 rounded-xl font-bold text-lg shadow-xl shadow-[#082f1f]/20 hover:bg-[#062015] hover:-translate-y-1 transition-all"
+                >
+                  Télécharger mon document
+                </button>
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
 
@@ -407,14 +475,22 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
 
           <div className="mt-4 lg:mt-auto pt-6 lg:pt-0">
             <button 
-              disabled={isProcessing || step === 4 || !isFormValid()}
+              disabled={isProcessing || step === 4 || step === 5 || !isFormValid()}
               onClick={handleProcessPayment}
-              className="w-full py-4 lg:py-5 bg-white text-[#082f1f] rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-black/20"
+              className={`w-full py-4 lg:py-5 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-xl shadow-black/20 ${
+                isFormValid() && step !== 4 && step !== 5 && !isProcessing && (!USE_PAYDUNYA ? hasClickedWave : true)
+                  ? 'bg-orange-500 hover:bg-orange-600 text-white' 
+                  : 'bg-white text-[#082f1f] hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed'
+              }`}
             >
               {isProcessing ? (
                 <><Loader2 className="animate-spin" size={20} /> Traitement...</>
               ) : step === 4 ? (
                 <>En cours de vérification</>
+              ) : step === 5 ? (
+                <>Paiement réussi !</>
+              ) : !USE_PAYDUNYA && !hasClickedWave ? (
+                <>Cliquez sur le lien Wave d'abord</>
               ) : (
                 <>Valider le paiement de {displayPrice ? `${displayPrice.amount} ${displayPrice.symbol}` : ''}</>
               )}
