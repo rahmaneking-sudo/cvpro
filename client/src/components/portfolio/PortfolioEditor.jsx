@@ -650,7 +650,6 @@ export default function PortfolioEditor() {
           setHasPurchased(true);
           setShowPaymentModal(false);
           showToast('Paiement réussi ! Sauvegarde et préparation de votre document en cours...');
-          await handleSave();
           handleExport(true);
         }}
         templateId={templateId}
