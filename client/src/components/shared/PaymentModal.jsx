@@ -390,15 +390,8 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                   </p>
                 </div>
                 <p className="text-gray-600 text-sm max-w-sm mb-8">
-                  Dès que le paiement sera confirmé sur notre compte, votre document sera <strong>automatiquement débloqué</strong> (généralement en moins d'une minute). Vous pouvez fermer cette fenêtre, la page se mettra à jour.
+                  Dès que le paiement sera confirmé sur notre compte, votre document sera <strong>automatiquement débloqué et sauvegardé</strong> (généralement en moins d'une minute). Veuillez ne pas fermer cette fenêtre.
                 </p>
-                
-                <button 
-                  onClick={onClose}
-                  className="bg-[#082f1f] text-white py-3 px-8 rounded-full font-semibold shadow-md hover:bg-[#062015] transition-colors"
-                >
-                  Fermer
-                </button>
               </motion.div>
             )}
 

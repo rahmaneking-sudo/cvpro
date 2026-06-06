@@ -280,14 +280,14 @@ export default function PortfolioEditor() {
     }
   };
 
-  const handleExport = async () => {
+  const handleExport = async (force = false) => {
     const currentId = await ensureSaved();
     if (!currentId) return;
 
     setIsCheckingPayment(true);
     try {
       const res = await api.get(`/cv/purchase/${templateId}`);
-      if (!res.data.purchased) {
+      if (!res.data.purchased && force !== true) {
         setShowPaymentModal(true);
         return;
       }
@@ -644,10 +644,12 @@ export default function PortfolioEditor() {
       <PaymentModal 
         isOpen={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
-        onSuccess={() => {
+        onSuccess={async () => {
           setHasPurchased(true);
           setShowPaymentModal(false);
-          showToast('Paiement réussi ! Vous pouvez maintenant exporter et partager.');
+          showToast('Paiement réussi ! Sauvegarde et préparation de votre document en cours...');
+          await handleSave();
+          handleExport(true);
         }}
         templateId={templateId}
         templateName={template?.name}

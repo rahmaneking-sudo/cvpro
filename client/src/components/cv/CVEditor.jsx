@@ -301,8 +301,8 @@ export default function CVEditor() {
       setSaving(false);
     }
   };
-  const handleExport = async () => {
-    if (!hasPurchased) {
+  const handleExport = async (force = false) => {
+    if (!hasPurchased && force !== true) {
       setShowPaymentModal(true);
       return;
     }
@@ -1396,10 +1396,12 @@ export default function CVEditor() {
       <PaymentModal 
         isOpen={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
-        onSuccess={() => {
+        onSuccess={async () => {
           setHasPurchased(true);
           setShowPaymentModal(false);
-          showToast('Paiement réussi ! Vous pouvez maintenant exporter.');
+          showToast('Paiement réussi ! Sauvegarde et préparation de votre document en cours...');
+          await handleSave();
+          handleExport(true);
         }}
         templateId={templateId}
         templateName={`Modèle: ${template?.name || templateId}`}
