@@ -281,15 +281,12 @@ export default function PortfolioEditor() {
   };
 
   const handleExport = async (force = false) => {
-    const currentId = await ensureSaved();
-    if (!currentId) return;
-
     setIsCheckingPayment(true);
     try {
       const res = await api.get(`/cv/purchase/${templateId}`);
       if (!res.data.purchased && force !== true) {
         setShowPaymentModal(true);
-        return;
+        return; // Important: We stop here and DO NOT save the document yet.
       }
     } catch (err) {
       console.error('Check purchase error:', err);
@@ -299,6 +296,10 @@ export default function PortfolioEditor() {
       setIsCheckingPayment(false);
     }
 
+    // Le document est sauvegardé UNIQUEMENT si le paiement est déjà validé
+    const currentId = await ensureSaved();
+    if (!currentId) return;
+
     localStorage.setItem('portfolio-print-data', JSON.stringify({
       templateId,
       data: { ...data, projects },
@@ -307,13 +308,14 @@ export default function PortfolioEditor() {
   };
 
   const handleShareLink = async () => {
-    const currentId = await ensureSaved();
-    if (!currentId) return;
-
     setIsCheckingPayment(true);
     try {
       const res = await api.get(`/cv/purchase/${templateId}`);
       if (res.data.purchased) {
+        // Le document est sauvegardé UNIQUEMENT si le paiement est validé
+        const currentId = await ensureSaved();
+        if (!currentId) return;
+
         const link = `${window.location.origin}/p/${currentId}`;
         await navigator.clipboard.writeText(link);
         showToast('Lien public copié dans le presse-papier !');
