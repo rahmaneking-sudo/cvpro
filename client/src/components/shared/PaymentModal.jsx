@@ -429,7 +429,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess, templateId, t
                 </div>
                 <p className="text-gray-600 text-sm max-w-sm mb-8 bg-gray-50 p-4 rounded-lg border border-gray-200">
                   <strong className="text-gray-900 block mb-1">✅ Sauvegarde automatique réussie</strong>
-                  Ce document est également sauvegardé en toute sécurité dans votre espace <span className="font-semibold text-[#082f1f]">"Mes Achats"</span>. Vous pourrez le modifier ou le retélécharger à tout moment.
+                  Ce document est également sauvegardé en toute sécurité dans votre espace <span className="font-semibold text-[#082f1f]">"Mes Documents"</span>. Vous pourrez le modifier ou le retélécharger à tout moment.
                 </p>
                 
                 <button 

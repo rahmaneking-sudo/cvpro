@@ -74,7 +74,7 @@ export default function MyPurchasesPage() {
         </button>
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-ivory)]" style={{ fontFamily: 'var(--font-serif)' }}>
-            Mes Achats
+            Mes Documents
           </h1>
           <p className="text-sm text-[var(--color-white-muted)]">
             Retrouvez tous vos CV et portfolios sauvegardés.
