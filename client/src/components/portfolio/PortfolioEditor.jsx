@@ -304,7 +304,15 @@ export default function PortfolioEditor() {
       templateId,
       data: { ...data, projects },
     }));
-    window.open('/print-portfolio', '_blank');
+
+    // Utiliser la largeur de l'écran car Safari iOS peut se faire passer pour un Mac
+    const isMobileDevice = window.innerWidth <= 1024 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (isMobileDevice) {
+      window.location.href = '/print-portfolio';
+    } else {
+      window.open('/print-portfolio', '_blank');
+    }
   };
 
   const handleShareLink = async () => {
