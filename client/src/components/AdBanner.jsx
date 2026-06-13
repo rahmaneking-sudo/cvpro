@@ -30,7 +30,7 @@ const AdBanner = ({ format = 'auto', slot = 'XXXXXXXXXX' }) => {
         ref={adRef}
         className="adsbygoogle"
         style={{ display: 'block' }}
-        data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+        data-ad-client="ca-pub-9993346594195336"
         data-ad-slot={slot}
         data-ad-format={format}
         data-full-width-responsive="true"
