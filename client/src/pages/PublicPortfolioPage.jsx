@@ -6,6 +6,7 @@ import { portfolioTemplates } from '../data/portfolioTemplates';
 import { mediaKitTemplates } from '../data/mediaKitTemplates';
 import PortfolioPreview from '../components/portfolio/PortfolioPreview';
 import MediaKitPreview from '../components/mediakit/MediaKitPreview';
+import SEO from '../components/SEO';
 
 export default function PublicPortfolioPage() {
   const { id } = useParams();
@@ -64,6 +65,11 @@ export default function PublicPortfolioPage() {
 
   return (
     <div className="w-full min-h-screen">
+      <SEO 
+        title={portfolio?.title ? `${portfolio.title} - Samacvpro` : "Portfolio en ligne - Samacvpro"} 
+        description="Découvrez ce portfolio professionnel propulsé par Samacvpro." 
+        url={`https://samacvpro.com/p/${id}`} 
+      />
       {portfolio.type === 'mediakit' ? (
         <MediaKitPreview template={template} data={portfolio.data} />
       ) : (

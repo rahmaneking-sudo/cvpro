@@ -5,6 +5,7 @@ import api from '../services/api';
 import { getTemplate } from '../data/templates';
 import CVPreview from '../components/cv/CVPreview';
 import CoverLetterPreview from '../components/cv/CoverLetterPreview';
+import SEO from '../components/SEO';
 
 export default function PublicCVPage() {
   const { id } = useParams();
@@ -59,6 +60,11 @@ export default function PublicCVPage() {
 
   return (
     <div className="w-full min-h-screen bg-[var(--color-graphite)] flex justify-center py-10">
+      <SEO 
+        title={cv?.data?.personalInfo?.fullName ? `CV de ${cv.data.personalInfo.fullName} - Samacvpro` : "CV en ligne - Samacvpro"} 
+        description="Découvrez ce CV professionnel interactif propulsé par Samacvpro." 
+        url={`https://samacvpro.com/cv/${id}`} 
+      />
       <div className="shadow-[var(--shadow-cinematic)] rounded-lg overflow-hidden" style={{ width: '794px', minHeight: '1123px' }}>
         {template.layout === 'cover-letter' ? (
           <CoverLetterPreview template={template} cvData={cv.data} />

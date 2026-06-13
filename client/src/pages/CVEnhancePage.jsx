@@ -6,6 +6,7 @@ import api from '../services/api';
 import { templates, seriesLabels, tierLabels } from '../data/templates';
 import { sampleCVData, sampleExperiences, sampleEducation } from '../data/sampleCV';
 import CVPreview from '../components/cv/CVPreview';
+import SEO from '../components/SEO';
 
 export default function CVEnhancePage() {
   const navigate = useNavigate();
@@ -98,6 +99,11 @@ export default function CVEnhancePage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-obsidian)] text-[var(--color-ivory)] pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+      <SEO 
+        title="Améliorez votre CV avec l'IA - Samacvpro" 
+        description="Importez votre ancien CV, choisissez un design premium, et laissez notre Intelligence Artificielle l'améliorer automatiquement." 
+        url="https://samacvpro.com/dashboard/cv/enhance" 
+      />
       <div className="max-w-5xl mx-auto">
         <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-[var(--color-white-muted)] hover:text-[var(--color-champagne)] transition-colors mb-8">
           <ArrowLeft size={20} /> Retour au tableau de bord

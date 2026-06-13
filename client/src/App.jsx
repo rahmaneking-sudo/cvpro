@@ -32,6 +32,12 @@ const PrintCVPage = lazy(() => import('./pages/PrintCVPage'));
 const PrintPortfolioPage = lazy(() => import('./pages/PrintPortfolioPage'));
 const ActivationRequiredPage = lazy(() => import('./pages/ActivationRequiredPage'));
 
+// Legal & Blog
+const PolitiqueConfidentialite = lazy(() => import('./pages/PolitiqueConfidentialite'));
+const MentionsLegales = lazy(() => import('./pages/MentionsLegales'));
+const Blog = lazy(() => import('./pages/Blog'));
+const CommentRedigerCvSenegal = lazy(() => import('./pages/blog/CommentRedigerCvSenegal'));
+
 function VisitTracker() {
   useEffect(() => {
     // Prevent double counting in dev strict mode by checking session storage
@@ -68,6 +74,12 @@ export default function App() {
             <Route path="/cv/:id" element={<PublicCVPage />} />
             <Route path="/print-cv" element={<PrintCVPage />} />
             <Route path="/print-portfolio" element={<PrintPortfolioPage />} />
+            
+            {/* Legal & Blog */}
+            <Route path="/politique-de-confidentialite" element={<PolitiqueConfidentialite />} />
+            <Route path="/mentions-legales" element={<MentionsLegales />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/comment-rediger-cv-senegal" element={<CommentRedigerCvSenegal />} />
 
             {/* Protected — connexion requise */}
             <Route path="/admin" element={<AdminDashboardPage />} />

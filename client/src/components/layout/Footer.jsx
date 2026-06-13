@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Heart } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function Footer() {
   const { t } = useTranslation();
@@ -47,13 +48,18 @@ export default function Footer() {
               {t('footer.company')}
             </h4>
             <ul className="space-y-3">
-              {['about', 'contact', 'blog'].map(k => (
+              {['about', 'contact'].map(k => (
                 <li key={k}>
-                  <a href="#" className="text-sm text-[var(--color-white-muted)] hover:text-[var(--color-ivory)] transition-colors">
+                  <a href={`#${k}`} className="text-sm text-[var(--color-white-muted)] hover:text-[var(--color-ivory)] transition-colors">
                     {t(`footer.${k}`)}
                   </a>
                 </li>
               ))}
+              <li>
+                <Link to="/blog" className="text-sm text-[var(--color-white-muted)] hover:text-[var(--color-ivory)] transition-colors">
+                  Blog & Conseils
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -63,13 +69,16 @@ export default function Footer() {
               {t('footer.legal')}
             </h4>
             <ul className="space-y-3">
-              {['privacy', 'terms'].map(k => (
-                <li key={k}>
-                  <a href="#" className="text-sm text-[var(--color-white-muted)] hover:text-[var(--color-ivory)] transition-colors">
-                    {t(`footer.${k}`)}
-                  </a>
-                </li>
-              ))}
+              <li>
+                <Link to="/politique-de-confidentialite" className="text-sm text-[var(--color-white-muted)] hover:text-[var(--color-ivory)] transition-colors">
+                  Politique de confidentialité
+                </Link>
+              </li>
+              <li>
+                <Link to="/mentions-legales" className="text-sm text-[var(--color-white-muted)] hover:text-[var(--color-ivory)] transition-colors">
+                  Mentions légales
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

@@ -5,6 +5,8 @@ import { Mail, Lock, User, Eye, EyeOff, ArrowRight, Loader2, CheckCircle } from 
 import { useAuth } from '../store/AuthContext';
 import { useGoogleLogin } from '@react-oauth/google';
 
+import SEO from '../components/SEO';
+
 export default function RegisterPage() {
   const { register, googleLogin: contextGoogleLogin, user } = useAuth();
   const navigate = useNavigate();
@@ -90,6 +92,11 @@ export default function RegisterPage() {
   if (success) {
     return (
       <div className="min-h-screen bg-[var(--color-obsidian)] flex items-center justify-center px-4">
+        <SEO 
+          title="Inscription réussie - Samacvpro" 
+          description="Votre compte Samacvpro a été créé avec succès." 
+          url="https://samacvpro.com/register" 
+        />
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -116,6 +123,11 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-obsidian)] flex items-center justify-center px-4 relative overflow-hidden">
+      <SEO 
+        title="Créer un compte - Samacvpro" 
+        description="Inscrivez-vous sur Samacvpro pour créer votre CV en ligne et booster votre carrière professionnelle." 
+        url="https://samacvpro.com/register" 
+      />
       {/* Background effects */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-[radial-gradient(circle,rgba(201,169,110,0.08)_0%,transparent_70%)] blur-3xl" />

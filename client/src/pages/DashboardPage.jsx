@@ -3,6 +3,7 @@ import { useAuth } from '../store/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, Wand2, Globe, Briefcase, Layout, LogOut, User, ShoppingBag, ShieldAlert, Menu, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import SEO from '../components/SEO';
 
 const modules = [
   { id: 'cv-creator', icon: FileText, label: 'Créateur de CV', desc: '16 modèles cinématographiques', color: '#C9A96E', route: '/dashboard/cv/templates' },
@@ -25,6 +26,11 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-obsidian)] flex">
+      <SEO 
+        title="Tableau de bord - Samacvpro" 
+        description="Gérez vos CV, Portfolios et Media Kits depuis votre tableau de bord sécurisé." 
+        url="https://samacvpro.com/dashboard" 
+      />
       {/* Mobile overlay */}
       <AnimatePresence>
         {sidebarOpen && (

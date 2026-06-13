@@ -6,6 +6,8 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
 import { useAuth } from '../store/AuthContext';
 import { useGoogleLogin } from '@react-oauth/google';
 
+import SEO from '../components/SEO';
+
 export default function LoginPage() {
 
   const { login, googleLogin: contextGoogleLogin, user } = useAuth();
@@ -89,6 +91,11 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-obsidian)] flex items-center justify-center px-4 relative overflow-hidden">
+      <SEO 
+        title="Connexion - Samacvpro" 
+        description="Connectez-vous à votre espace Samacvpro pour accéder à vos CV et portfolios professionnels." 
+        url="https://samacvpro.com/login" 
+      />
       {/* Background effects */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/3 left-1/4 w-[400px] h-[400px] rounded-full bg-[radial-gradient(circle,rgba(201,169,110,0.08)_0%,transparent_70%)] blur-3xl" />

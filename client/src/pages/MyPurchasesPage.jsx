@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
 import { templates } from '../data/templates';
 import { portfolioTemplates } from '../data/portfolioTemplates';
+import SEO from '../components/SEO';
 
 export default function MyPurchasesPage() {
   const navigate = useNavigate();
@@ -64,6 +65,11 @@ export default function MyPurchasesPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-obsidian)] flex flex-col p-4 sm:p-8">
+      <SEO 
+        title="Mes Documents - Samacvpro" 
+        description="Retrouvez tous vos CV et portfolios sauvegardés sur Samacvpro." 
+        url="https://samacvpro.com/dashboard/purchases" 
+      />
       {/* Header */}
       <div className="flex items-center gap-4 sm:gap-6 mb-8 sm:mb-12">
         <button 

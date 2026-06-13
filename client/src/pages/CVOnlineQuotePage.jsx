@@ -1,12 +1,18 @@
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Globe, Mail, Phone } from 'lucide-react';
 import { motion } from 'framer-motion';
+import SEO from '../components/SEO';
 
 export default function CVOnlineQuotePage() {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-[var(--color-obsidian)] flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      <SEO 
+        title="CV en ligne animé - Samacvpro" 
+        description="Transformez votre CV PDF en une page web interactive et animée pour vous démarquer auprès des recruteurs." 
+        url="https://samacvpro.com/dashboard/cv/online" 
+      />
       {/* Background Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[var(--color-champagne)] rounded-full blur-[150px] opacity-10 pointer-events-none" />
       
