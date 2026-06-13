@@ -21,11 +21,20 @@ export default function Pricing() {
     if (plan.quote) {
       setShowContactModal(true);
     } else {
-      if (user) {
-        setSelectedPlan(plan);
-        setShowPaymentModal(true);
+      // Redirect to the appropriate templates page rather than taking payment blindly
+      if (plan.key.includes('portfolio')) {
+        navigate(user ? '/dashboard/portfolio/templates' : '/login', { 
+          state: { from: '/dashboard/portfolio/templates' } 
+        });
+      } else if (plan.key === 'aiEnhance') {
+        navigate(user ? '/dashboard/cv/enhance' : '/login', { 
+          state: { from: '/dashboard/cv/enhance' } 
+        });
       } else {
-        navigate('/login', { state: { from: location.pathname + location.hash } });
+        // default to CV templates
+        navigate(user ? '/dashboard/cv/templates' : '/login', { 
+          state: { from: '/dashboard/cv/templates' } 
+        });
       }
     }
   };
