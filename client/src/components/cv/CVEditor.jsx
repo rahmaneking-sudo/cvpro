@@ -753,15 +753,49 @@ export default function CVEditor() {
                 setShowPaymentModal(true);
                 return;
               }
+
+              // Build URL synchronously BEFORE any async call
+              // so the user gesture context is still active for clipboard API
+              const publicUrl = `${window.location.origin}/cv/${cvId}`;
+
+              // Step 1: Copy to clipboard FIRST (while gesture is still trusted)
+              let clipboardSuccess = false;
               try {
-                // Ensure CV is public
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                  await navigator.clipboard.writeText(publicUrl);
+                  clipboardSuccess = true;
+                } else {
+                  throw new Error('Clipboard API not available');
+                }
+              } catch (clipErr) {
+                // Fallback for mobile browsers (iOS Safari < 13.4, some Android)
+                try {
+                  const textarea = document.createElement('textarea');
+                  textarea.value = publicUrl;
+                  textarea.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none;';
+                  document.body.appendChild(textarea);
+                  textarea.focus();
+                  textarea.select();
+                  clipboardSuccess = document.execCommand('copy');
+                  document.body.removeChild(textarea);
+                } catch (fallbackErr) {
+                  console.error('Clipboard fallback also failed:', fallbackErr);
+                }
+              }
+
+              // Step 2: Publish CV via API AFTER clipboard (order matters on mobile)
+              try {
                 await api.put(`/cv/${cvId}`, { isPublic: true });
-                const publicUrl = `${window.location.origin}/cv/${cvId}`;
-                await navigator.clipboard.writeText(publicUrl);
-                showToast("Lien public copié dans le presse-papier !");
-              } catch (err) {
-                console.error("Erreur publication:", err);
+              } catch (apiErr) {
+                console.error("Erreur publication:", apiErr);
                 showToast("Erreur lors de la publication.", "error");
+                return;
+              }
+
+              if (clipboardSuccess) {
+                showToast("Lien public copié dans le presse-papier !");
+              } else {
+                showToast("CV publié ! Lien : " + publicUrl, "success");
               }
             }}
             disabled={saving}
