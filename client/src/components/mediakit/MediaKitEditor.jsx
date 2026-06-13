@@ -156,24 +156,65 @@ export default function MediaKitEditor() {
   };
 
   const handleShareLink = async () => {
-    const currentId = await ensureSaved();
-    if (!currentId) return;
-    
     setIsCheckingPayment(true);
+
+    // Step 1: Check purchase status
+    let purchased = false;
     try {
       const res = await api.get(`/cv/purchase/${templateId}`);
-      if (!res.data.purchased) {
-        setShowPaymentModal(true);
-        return;
-      }
+      purchased = res.data.purchased;
     } catch (err) {
       showToast('Erreur de vérification.', 'error');
-      return;
-    } finally {
       setIsCheckingPayment(false);
+      return;
     }
-    navigator.clipboard.writeText(`${window.location.origin}/p/${currentId}`);
-    showToast('Lien public copié dans le presse-papier !');
+
+    if (!purchased) {
+      setShowPaymentModal(true);
+      setIsCheckingPayment(false);
+      return;
+    }
+
+    // Step 2: Save if needed
+    const currentId = await ensureSaved();
+    if (!currentId) {
+      setIsCheckingPayment(false);
+      return;
+    }
+
+    setIsCheckingPayment(false);
+
+    // Step 3: Clipboard LAST (after all async calls, gesture still active)
+    const link = `${window.location.origin}/p/${currentId}`;
+    let clipboardSuccess = false;
+
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(link);
+        clipboardSuccess = true;
+      } else {
+        throw new Error('Clipboard API not available');
+      }
+    } catch (clipErr) {
+      try {
+        const textarea = document.createElement('textarea');
+        textarea.value = link;
+        textarea.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none;';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        clipboardSuccess = document.execCommand('copy');
+        document.body.removeChild(textarea);
+      } catch (fallbackErr) {
+        console.error('Clipboard fallback also failed:', fallbackErr);
+      }
+    }
+
+    if (clipboardSuccess) {
+      showToast('Lien public copié dans le presse-papier !');
+    } else {
+      showToast('Media Kit publié ! Lien : ' + link, 'success');
+    }
   };
 
   const handleExport = async () => {
