@@ -317,24 +317,66 @@ export default function PortfolioEditor() {
 
   const handleShareLink = async () => {
     setIsCheckingPayment(true);
+
+    // Step 1: Check purchase status
+    let purchased = false;
     try {
       const res = await api.get(`/cv/purchase/${templateId}`);
-      if (res.data.purchased) {
-        // Le document est sauvegardé UNIQUEMENT si le paiement est validé
-        const currentId = await ensureSaved();
-        if (!currentId) return;
-
-        const link = `${window.location.origin}/p/${currentId}`;
-        await navigator.clipboard.writeText(link);
-        showToast('Lien public copié dans le presse-papier !');
-      } else {
-        setShowPaymentModal(true);
-      }
+      purchased = res.data.purchased;
     } catch (err) {
       console.error('Check purchase error:', err);
       showToast('Erreur de vérification des droits.', 'error');
-    } finally {
       setIsCheckingPayment(false);
+      return;
+    }
+
+    if (!purchased) {
+      setShowPaymentModal(true);
+      setIsCheckingPayment(false);
+      return;
+    }
+
+    // Step 2: Save portfolio if needed
+    const currentId = await ensureSaved();
+    if (!currentId) {
+      setIsCheckingPayment(false);
+      return;
+    }
+
+    setIsCheckingPayment(false);
+
+    // Step 3: Build URL then copy to clipboard IMMEDIATELY
+    // (clipboard must be called as close to the user gesture as possible on mobile)
+    const link = `${window.location.origin}/p/${currentId}`;
+    let clipboardSuccess = false;
+
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(link);
+        clipboardSuccess = true;
+      } else {
+        throw new Error('Clipboard API not available');
+      }
+    } catch (clipErr) {
+      // Fallback for iOS Safari < 13.4 and some Android browsers
+      try {
+        const textarea = document.createElement('textarea');
+        textarea.value = link;
+        textarea.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none;';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        clipboardSuccess = document.execCommand('copy');
+        document.body.removeChild(textarea);
+      } catch (fallbackErr) {
+        console.error('Clipboard fallback also failed:', fallbackErr);
+      }
+    }
+
+    if (clipboardSuccess) {
+      showToast('Lien public copié dans le presse-papier !');
+    } else {
+      showToast('Portfolio publié ! Lien : ' + link, 'success');
     }
   };
 
