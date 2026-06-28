@@ -3,6 +3,9 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Calendar, User } from 'lucide-react';
 import SEO from '../../components/SEO';
 import AdBanner from '../../components/AdBanner';
+import Navbar from '../../components/layout/Navbar';
+import Footer from '../../components/layout/Footer';
+
 
 const ErreursCvAEviter = () => {
   return (
@@ -13,8 +16,10 @@ const ErreursCvAEviter = () => {
         url="https://samacvpro.com/blog/erreurs-cv-a-eviter"
         article={true}
       />
+      <Navbar />
 
       <div className="min-h-screen bg-[var(--color-obsidian)] text-[var(--color-ivory)] pt-24 pb-20 relative overflow-hidden">
+
         {/* Glow Effects */}
         <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-[var(--color-champagne)] opacity-[0.03] blur-[150px] rounded-full pointer-events-none" />
         
@@ -156,8 +161,10 @@ const ErreursCvAEviter = () => {
 
         </div>
       </div>
+      <Footer />
     </>
   );
 };
+
 
 export default ErreursCvAEviter;

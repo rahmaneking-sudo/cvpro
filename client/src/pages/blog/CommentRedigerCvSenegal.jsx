@@ -3,6 +3,9 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Calendar, User } from 'lucide-react';
 import SEO from '../../components/SEO';
 import AdBanner from '../../components/AdBanner';
+import Navbar from '../../components/layout/Navbar';
+import Footer from '../../components/layout/Footer';
+
 
 const CommentRedigerCvSenegal = () => {
   return (
@@ -13,8 +16,10 @@ const CommentRedigerCvSenegal = () => {
         url="https://samacvpro.com/blog/comment-rediger-cv-senegal"
         article={true}
       />
+      <Navbar />
 
       <div className="min-h-screen bg-[var(--color-obsidian)] text-[var(--color-ivory)] pt-24 pb-20 relative overflow-hidden">
+
         {/* Glow Effects */}
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[var(--color-champagne)] opacity-[0.03] blur-[150px] rounded-full pointer-events-none" />
         
@@ -169,8 +174,10 @@ const CommentRedigerCvSenegal = () => {
 
         </div>
       </div>
+      <Footer />
     </>
   );
 };
+
 
 export default CommentRedigerCvSenegal;

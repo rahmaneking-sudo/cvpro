@@ -3,6 +3,9 @@ import { motion } from 'framer-motion';
 import { Calendar, ArrowRight, BookOpen } from 'lucide-react';
 import SEO from '../components/SEO';
 import AdBanner from '../components/AdBanner';
+import Navbar from '../components/layout/Navbar';
+import Footer from '../components/layout/Footer';
+
 
 // Liste des articles avec images (Unsplash)
 const articles = [
@@ -43,8 +46,11 @@ const Blog = () => {
         description="Conseils pratiques pour créer un CV professionnel, trouver un emploi au Sénégal et réussir vos entretiens. Articles et guides gratuits."
         url="https://samacvpro.com/blog"
       />
+      
+      <Navbar />
 
       {/* Background Cinématique de base */}
+
       <div className="min-h-screen bg-[var(--color-obsidian)] text-[var(--color-ivory)] pt-24 pb-20 relative overflow-hidden">
         
         {/* Lueur d'arrière-plan */}
@@ -147,6 +153,7 @@ const Blog = () => {
 
         </div>
       </div>
+      <Footer />
     </>
   );
 };
