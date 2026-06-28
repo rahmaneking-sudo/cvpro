@@ -37,6 +37,8 @@ const PolitiqueConfidentialite = lazy(() => import('./pages/PolitiqueConfidentia
 const MentionsLegales = lazy(() => import('./pages/MentionsLegales'));
 const Blog = lazy(() => import('./pages/Blog'));
 const CommentRedigerCvSenegal = lazy(() => import('./pages/blog/CommentRedigerCvSenegal'));
+const ErreursCvAEviter = lazy(() => import('./pages/blog/ErreursCvAEviter'));
+const CvEtudiantStage = lazy(() => import('./pages/blog/CvEtudiantStage'));
 
 function VisitTracker() {
   useEffect(() => {
@@ -80,6 +82,8 @@ export default function App() {
             <Route path="/mentions-legales" element={<MentionsLegales />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/comment-rediger-cv-senegal" element={<CommentRedigerCvSenegal />} />
+            <Route path="/blog/erreurs-cv-a-eviter" element={<ErreursCvAEviter />} />
+            <Route path="/blog/cv-etudiant-stage" element={<CvEtudiantStage />} />
 
             {/* Protected — connexion requise */}
             <Route path="/admin" element={<AdminDashboardPage />} />

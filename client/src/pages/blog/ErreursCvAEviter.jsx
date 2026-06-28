@@ -4,19 +4,19 @@ import { ArrowLeft, ArrowRight, Calendar, User } from 'lucide-react';
 import SEO from '../../components/SEO';
 import AdBanner from '../../components/AdBanner';
 
-const CommentRedigerCvSenegal = () => {
+const ErreursCvAEviter = () => {
   return (
     <>
       <SEO
-        title="Comment rédiger un CV au Sénégal en 2026 : Guide complet - SamaCVPro"
-        description="Apprenez à créer un CV professionnel adapté au marché sénégalais. Conseils pratiques, structure idéale, erreurs à éviter et modèles gratuits sur SamaCVPro."
-        url="https://samacvpro.com/blog/comment-rediger-cv-senegal"
+        title="Les 10 erreurs fatales à éviter dans votre CV - SamaCVPro"
+        description="Découvrez les erreurs qui font rejeter votre CV immédiatement par les recruteurs et comment les corriger pour décrocher plus d'entretiens."
+        url="https://samacvpro.com/blog/erreurs-cv-a-eviter"
         article={true}
       />
 
       <div className="min-h-screen bg-[var(--color-obsidian)] text-[var(--color-ivory)] pt-24 pb-20 relative overflow-hidden">
         {/* Glow Effects */}
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[var(--color-champagne)] opacity-[0.03] blur-[150px] rounded-full pointer-events-none" />
+        <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-[var(--color-champagne)] opacity-[0.03] blur-[150px] rounded-full pointer-events-none" />
         
         <div className="max-w-4xl mx-auto px-6 lg:px-8 relative z-10">
           
@@ -44,16 +44,16 @@ const CommentRedigerCvSenegal = () => {
             className="mb-12"
           >
             <div className="inline-block px-3 py-1 mb-6 rounded-full bg-[rgba(201,169,110,0.1)] border border-[rgba(201,169,110,0.2)] text-[var(--color-champagne)] text-xs font-bold uppercase tracking-wider">
-              Guides CV
+              Conseils Pro
             </div>
             <h1 className="text-3xl md:text-5xl font-bold mb-6 tracking-tight leading-tight font-[var(--font-serif)]">
-              Comment rédiger un <span className="text-gradient-gold">CV au Sénégal</span> en 2026 : Guide complet
+              Les 10 erreurs fatales à <span className="text-gradient-gold">éviter dans votre CV</span>
             </h1>
             
             <div className="flex items-center gap-6 text-sm text-[var(--color-white-muted)] border-b border-[rgba(255,255,255,0.05)] pb-8">
               <div className="flex items-center gap-2">
                 <Calendar size={16} className="text-[var(--color-champagne)]" />
-                <span>15 Juin 2026</span>
+                <span>22 Juin 2026</span>
               </div>
               <div className="flex items-center gap-2">
                 <User size={16} className="text-[var(--color-champagne)]" />
@@ -70,8 +70,8 @@ const CommentRedigerCvSenegal = () => {
             className="w-full h-64 md:h-96 rounded-2xl overflow-hidden mb-12 border border-[rgba(255,255,255,0.05)]"
           >
             <img 
-              src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&q=80&w=1200" 
-              alt="Bureau de travail" 
+              src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=1200" 
+              alt="Personne examinant des documents" 
               className="w-full h-full object-cover"
             />
           </motion.div>
@@ -85,62 +85,49 @@ const CommentRedigerCvSenegal = () => {
             className="prose prose-invert prose-lg max-w-none text-[var(--color-white-muted)]"
           >
             <p className="text-xl leading-relaxed mb-8 text-[var(--color-ivory)]">
-              Que vous soyez jeune diplômé à la recherche de votre premier emploi à Dakar,
-              professionnel expérimenté souhaitant changer de poste, ou étudiant en quête
-              de stage, votre CV est votre premier ambassadeur auprès des recruteurs
-              sénégalais. Un CV bien rédigé peut faire la différence entre décrocher un
-              entretien et voir votre candidature ignorée.
+              Un recruteur passe en moyenne moins de 7 secondes à examiner un CV. Dans ce court laps de temps, la moindre erreur peut envoyer votre candidature directement à la corbeille.
             </p>
             <p className="mb-10">
-              Dans ce guide complet, nous vous montrons étape par étape comment créer un CV
-              professionnel adapté au marché de l'emploi au Sénégal.
+              Pour mettre toutes les chances de votre côté et décrocher l'entretien de vos rêves, nous avons listé les 10 erreurs les plus courantes et comment les éviter.
             </p>
 
             <AdBanner />
 
             <h2 className="text-2xl md:text-3xl font-semibold mt-12 mb-6 text-[var(--color-ivory)] border-l-4 border-[var(--color-champagne)] pl-4">
-              1. La structure idéale d'un CV sénégalais
-            </h2>
-            <p className="mb-4">
-              Les recruteurs au Sénégal, qu'il s'agisse d'entreprises privées, de la fonction
-              publique ou d'organisations internationales basées à Dakar, s'attendent à une
-              structure claire et professionnelle. Voici l'ordre recommandé :
-            </p>
-            <ul className="list-disc pl-6 mb-8 space-y-2">
-              <li><strong>Informations personnelles :</strong> nom, téléphone, email et quartier/ville. La photo est courante, assurez-vous qu'elle soit professionnelle.</li>
-              <li><strong>Titre professionnel :</strong> clair et précis (ex: "Comptable junior — 2 ans d'expérience").</li>
-              <li><strong>Expériences :</strong> de la plus récente à la plus ancienne.</li>
-              <li><strong>Formation & Compétences :</strong> techniques et linguistiques.</li>
-            </ul>
-
-            <h2 className="text-2xl md:text-3xl font-semibold mt-12 mb-6 text-[var(--color-ivory)] border-l-4 border-[var(--color-champagne)] pl-4">
-              2. Les compétences recherchées en 2026
-            </h2>
-            <p className="mb-4">
-              Le marché de l'emploi sénégalais évolue rapidement. En 2026, les compétences
-              les plus demandées incluent la maîtrise des outils informatiques, le marketing digital, 
-              le bilinguisme (français/anglais), et la gestion de projet. Les recruteurs apprécient 
-              particulièrement les candidats qui s'adaptent vite aux nouvelles technologies.
-            </p>
-
-            <h2 className="text-2xl md:text-3xl font-semibold mt-12 mb-6 text-[var(--color-ivory)] border-l-4 border-[var(--color-champagne)] pl-4">
-              3. Les erreurs à éviter absolument
+              1. Les fautes d'orthographe et de grammaire
             </h2>
             <p className="mb-8">
-              Évitez les CV trop longs (1 ou 2 pages maximum), les fautes d'orthographe (faites toujours relire), 
-              et l'absence de chiffres concrets. Au lieu d'écrire "responsable des ventes", écrivez "responsable 
-              d'une équipe de 5 commerciaux, augmentation du CA de 20%".
+              C'est l'erreur numéro un ! Une faute d'orthographe montre un manque de rigueur et d'attention aux détails. Relisez-vous plusieurs fois et faites relire votre CV par un proche ou utilisez des correcteurs en ligne.
+            </p>
+
+            <h2 className="text-2xl md:text-3xl font-semibold mt-12 mb-6 text-[var(--color-ivory)] border-l-4 border-[var(--color-champagne)] pl-4">
+              2. Un CV trop long et désordonné
+            </h2>
+            <p className="mb-8">
+              Un bon CV doit tenir sur une, voire deux pages maximum. Ne racontez pas toute votre vie, allez à l'essentiel et utilisez des puces pour rendre la lecture fluide. Les gros blocs de texte sont à proscrire.
+            </p>
+
+            <h2 className="text-2xl md:text-3xl font-semibold mt-12 mb-6 text-[var(--color-ivory)] border-l-4 border-[var(--color-champagne)] pl-4">
+              3. Une adresse email non professionnelle
+            </h2>
+            <p className="mb-8">
+              Les adresses du type "bg-du-75@gmail.com" ou "princesse-dakar@yahoo.fr" décrédibilisent immédiatement votre candidature. Créez une adresse simple au format <strong>prenom.nom@gmail.com</strong>.
             </p>
 
             <AdBanner />
 
             <h2 className="text-2xl md:text-3xl font-semibold mt-12 mb-6 text-[var(--color-ivory)] border-l-4 border-[var(--color-champagne)] pl-4">
-              4. Adapter votre CV au poste visé
+              4. Oublier de mettre un titre à son CV
+            </h2>
+            <p className="mb-8">
+              Le recruteur doit savoir immédiatement pour quel poste vous postulez ou quelle est votre spécialité. Mettez un titre clair sous votre nom, par exemple : "Développeur Web Full-Stack - 3 ans d'expérience".
+            </p>
+
+            <h2 className="text-2xl md:text-3xl font-semibold mt-12 mb-6 text-[var(--color-ivory)] border-l-4 border-[var(--color-champagne)] pl-4">
+              En conclusion
             </h2>
             <p className="mb-12">
-              N'envoyez jamais le même CV pour tous les postes. Identifiez les mots-clés de l'offre et 
-              intégrez-les. Si vous postulez dans une ONG, mettez en avant vos expériences de terrain et 
-              vos langues. Pour le secteur privé, insistez sur vos résultats chiffrés.
+              Créer un CV parfait demande du temps et de la méthode. En évitant ces erreurs classiques, vous sortirez déjà du lot et montrerez un grand professionnalisme aux yeux des recruteurs.
             </p>
           </motion.article>
 
@@ -153,16 +140,16 @@ const CommentRedigerCvSenegal = () => {
             className="mt-16 bg-[rgba(20,20,20,0.6)] backdrop-blur-md border border-[rgba(201,169,110,0.3)] rounded-2xl p-8 md:p-12 text-center shadow-[0_0_30px_rgba(201,169,110,0.05)]"
           >
             <h3 className="text-2xl font-bold mb-4 text-[var(--color-ivory)]">
-              Prêt à vous démarquer ?
+              Ne faites plus ces erreurs !
             </h3>
             <p className="text-[var(--color-white-muted)] mb-8 max-w-2xl mx-auto">
-              Ne perdez plus de temps sur Word. Choisissez parmi nos modèles professionnels adaptés au marché sénégalais, remplissez vos informations et téléchargez votre CV en PDF.
+              Évitez les faux pas de mise en page grâce à nos modèles de CV optimisés et professionnels. Laissez-nous gérer le design, concentrez-vous sur le contenu.
             </p>
             <Link
               to="/templates"
               className="inline-flex items-center gap-2 bg-gradient-to-r from-[#C9A96E] to-[#D4B878] text-[#0A0A0A] font-bold px-8 py-4 rounded-xl hover:shadow-[0_0_20px_rgba(201,169,110,0.4)] transition-all duration-300 hover:scale-105"
             >
-              Créer mon CV gratuitement
+              Voir les modèles de CV
               <ArrowRight size={20} />
             </Link>
           </motion.div>
@@ -173,4 +160,4 @@ const CommentRedigerCvSenegal = () => {
   );
 };
 
-export default CommentRedigerCvSenegal;
+export default ErreursCvAEviter;
