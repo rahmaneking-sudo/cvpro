@@ -63,6 +63,7 @@ export default function Navbar() {
     { label: 'Portfolios', href: '/portfolios' },
     { label: 'Fonctionnalités', href: '/#features' },
     { label: 'Tarifs', href: '/#pricing' },
+    { label: 'Blog', href: '/blog' },
   ];
 
   return (
