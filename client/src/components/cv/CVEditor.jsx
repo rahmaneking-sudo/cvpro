@@ -340,11 +340,13 @@ export default function CVEditor() {
         allowTaint: false,
         logging: false,
         width: 794,
+        height: 1123,
         x: 0,
         y: 0,
         scrollX: 0,
         scrollY: 0,
         windowWidth: 794,
+        windowHeight: 1123,
         backgroundColor: template.bg || '#ffffff',
         onclone: (clonedDoc, clonedEl) => {
           try {
@@ -362,9 +364,10 @@ export default function CVEditor() {
             // Pas de transform, taille A4 exacte, overflow caché → 1 page
             clonedEl.style.cssText = [
               'width:794px',
-              'height:auto',
+              'height:1123px',
               'min-height:1123px',
-              'overflow:visible',
+              'max-height:1123px',
+              'overflow:hidden',
               'transform:none',
               'position:static',
               'box-shadow:none',
@@ -450,20 +453,8 @@ export default function CVEditor() {
       pdf.setFillColor(bg.r, bg.g, bg.b);
       pdf.rect(0, 0, pdfW, pdfH, 'F');
 
-      // Image CV — Multi-pages si le CV dépasse la hauteur d'une page A4
-      const imgHeight = (canvas.height * pdfW) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      pdf.addImage(imgData, 'JPEG', 0, position, pdfW, imgHeight);
-      heightLeft -= pdfH;
-
-      while (heightLeft > 0) {
-        position -= pdfH;
-        pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, position, pdfW, imgHeight);
-        heightLeft -= pdfH;
-      }
+      // Image CV — 1 seule page A4
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH);
 
       // Couche ATS (texte invisible pour les parseurs)
       try {
@@ -1479,12 +1470,11 @@ export default function CVEditor() {
           zIndex: -9999,
           visibility: 'visible',
           width: '794px',
-          height: 'auto',
-          minHeight: '1123px',
-          overflow: 'visible'
+          height: '1123px',
+          overflow: 'hidden'
         }}
       >
-        <div id="cv-pdf-pristine-container" style={{ width: '794px', height: 'auto', minHeight: '1123px', position: 'relative' }}>
+        <div id="cv-pdf-pristine-container" style={{ width: '794px', height: '1123px', position: 'relative' }}>
           {template.layout === 'cover-letter' ? (
             <CoverLetterPreview template={template} cvData={cvData} />
           ) : (
