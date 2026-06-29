@@ -93,13 +93,15 @@ export default function PrintCVPage() {
             const inner = document.querySelector('.mobile-scaler-inner');
             const savedTransform = inner.style.transform;
             inner.style.transform = 'none';
+            const savedOverflow = inner.style.overflow;
+            inner.style.overflow = 'visible';
+            inner.style.height = 'auto';
+            inner.style.minHeight = '1123px';
             const canvas = await html2canvas(inner, {
               scale: 2,
               useCORS: true,
               width: 794,
-              height: 1123,
               windowWidth: 794,
-              windowHeight: 1123,
               onclone: (clonedDoc) => {
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.width = 1;
@@ -127,6 +129,9 @@ export default function PrintCVPage() {
               }
             });
             inner.style.transform = savedTransform;
+            inner.style.overflow = savedOverflow;
+            inner.style.height = '1123px';
+            inner.style.minHeight = '';
             const pdf = new jsPDF('portrait', 'mm', 'a4');
             pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, 210, 297);
             pdf.save('mon-cv.pdf');

@@ -340,13 +340,11 @@ export default function CVEditor() {
         allowTaint: false,
         logging: false,
         width: 794,
-        height: 1123,
         x: 0,
         y: 0,
         scrollX: 0,
         scrollY: 0,
         windowWidth: 794,
-        windowHeight: 1123,
         backgroundColor: template.bg || '#ffffff',
         onclone: (clonedDoc, clonedEl) => {
           try {
@@ -364,10 +362,8 @@ export default function CVEditor() {
             // Pas de transform, taille A4 exacte, overflow caché → 1 page
             clonedEl.style.cssText = [
               'width:794px',
-              'height:1123px',
               'min-height:1123px',
-              'max-height:1123px',
-              'overflow:hidden',
+              'overflow:visible',
               'transform:none',
               'position:static',
               'box-shadow:none',
@@ -453,7 +449,8 @@ export default function CVEditor() {
       pdf.setFillColor(bg.r, bg.g, bg.b);
       pdf.rect(0, 0, pdfW, pdfH, 'F');
 
-      // Image CV — 1 seule page A4
+      // Image CV — toujours 1 seule page A4
+      // Si le contenu dépasse 1123px, on le compresse pour qu'il tienne sur la page
       pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH);
 
       // Couche ATS (texte invisible pour les parseurs)
@@ -1470,11 +1467,11 @@ export default function CVEditor() {
           zIndex: -9999,
           visibility: 'visible',
           width: '794px',
-          height: '1123px',
-          overflow: 'hidden'
+          minHeight: '1123px',
+          overflow: 'visible'
         }}
       >
-        <div id="cv-pdf-pristine-container" style={{ width: '794px', height: '1123px', position: 'relative' }}>
+        <div id="cv-pdf-pristine-container" style={{ width: '794px', minHeight: '1123px', position: 'relative' }}>
           {template.layout === 'cover-letter' ? (
             <CoverLetterPreview template={template} cvData={cvData} />
           ) : (
