@@ -8,7 +8,9 @@ import { Download } from 'lucide-react';
 // tout en gardant le vrai rendu 794px pour l'impression
 function MobileScaler({ children }) {
   const containerRef = useRef(null);
+  const contentRef = useRef(null);
   const [scale, setScale] = useState(1);
+  const [contentHeight, setContentHeight] = useState(1123);
 
   useEffect(() => {
     const compute = () => {
@@ -16,14 +18,18 @@ function MobileScaler({ children }) {
         const available = containerRef.current.clientWidth;
         setScale(Math.min(1, available / 794));
       }
+      if (contentRef.current) {
+        setContentHeight(contentRef.current.offsetHeight);
+      }
     };
     compute();
     const ro = new ResizeObserver(compute);
     if (containerRef.current) ro.observe(containerRef.current);
+    if (contentRef.current) ro.observe(contentRef.current);
     return () => ro.disconnect();
   }, []);
 
-  const scaledHeight = 1123 * scale;
+  const scaledHeight = contentHeight * scale;
 
   return (
     <div ref={containerRef} className="w-full flex justify-center print:block print:w-auto">
@@ -31,16 +37,18 @@ function MobileScaler({ children }) {
       <div className="mobile-scaler-outer" style={{ width: `${794 * scale}px`, height: `${scaledHeight}px`, position: 'relative' }}>
         {/* Inner div is always 794px, scaled down visually */}
         <div
+          ref={contentRef}
           className="mobile-scaler-inner"
           style={{
             width: '794px',
-            height: '1123px',
+            minHeight: '1123px',
+            height: 'auto',
             transform: `scale(${scale})`,
             transformOrigin: 'top left',
             position: 'absolute',
             top: 0,
             left: 0,
-            overflow: 'hidden',
+            overflow: 'visible',
           }}
         >
           {children}
@@ -97,9 +105,7 @@ export default function PrintCVPage() {
               scale: 2,
               useCORS: true,
               width: 794,
-              height: 1123,
               windowWidth: 794,
-              windowHeight: 1123,
               onclone: (clonedDoc) => {
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.width = 1;
@@ -128,7 +134,22 @@ export default function PrintCVPage() {
             });
             inner.style.transform = savedTransform;
             const pdf = new jsPDF('portrait', 'mm', 'a4');
-            pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, 210, 297);
+            const pdfWidth = 210;
+            const pageHeight = 297;
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+            
+            let heightLeft = pdfHeight;
+            let position = 0;
+            
+            pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, position, pdfWidth, pdfHeight);
+            heightLeft -= pageHeight;
+            
+            while (heightLeft > 0) {
+              position -= pageHeight;
+              pdf.addPage();
+              pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, position, pdfWidth, pdfHeight);
+              heightLeft -= pageHeight;
+            }
             pdf.save('mon-cv.pdf');
           }}
           style={{ backgroundColor: '#c9a96e' }}
@@ -142,7 +163,7 @@ export default function PrintCVPage() {
       {/* Affichage : Scalé pour le mobile, désactivé à l'impression */}
       <div className="w-full flex justify-center">
         <MobileScaler>
-          <div className="bg-white w-[794px] h-[1123px] overflow-hidden">
+          <div className="bg-white w-[794px] min-h-[1123px] h-auto overflow-visible">
             {template?.layout === 'cover-letter' ? (
               <CoverLetterPreview template={template} cvData={cvData} />
             ) : (
