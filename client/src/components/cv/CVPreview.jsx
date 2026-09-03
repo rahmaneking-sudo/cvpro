@@ -166,9 +166,9 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
   return (
     <div className="flex flex-nowrap w-[794px] min-w-[794px] max-w-[794px]" style={{ minHeight: '1123px' }}>
       {/* Sidebar */}
-      <aside className="w-[238px] min-w-[238px] max-w-[238px] shrink-0 px-5 py-5 flex flex-col gap-3 overflow-hidden" style={{ background: secondary }}>
+      <aside className="w-[238px] min-w-[238px] max-w-[238px] shrink-0 px-6 py-10 flex flex-col gap-4 overflow-hidden" style={{ background: secondary }}>
         {/* Photo / Initiales avec upload */}
-        <div className="relative shrink-0 group mx-auto mb-5">
+        <div className="relative shrink-0 group mx-auto mb-6">
           {cvData.photo && !isUploadingPhoto && onPhotoRemove && (
             <button 
               onClick={onPhotoRemove}
@@ -178,14 +178,14 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
               <Trash2 size={12} />
             </button>
           )}
-          <div className="w-20 h-20 rounded-full flex items-center justify-center text-xl font-bold shadow-lg overflow-hidden relative"
+          <div className="w-24 h-24 rounded-full flex items-center justify-center text-2xl font-bold shadow-lg overflow-hidden relative"
             style={{ 
               background: `linear-gradient(135deg, ${accent}, ${accent}80)`, 
               color: secondary,
-              width: '80px',
-              height: '80px',
-              minWidth: '80px',
-              minHeight: '80px',
+              width: '96px',
+              height: '96px',
+              minWidth: '96px',
+              minHeight: '96px',
               borderRadius: '50%'
             }}>
             {isUploadingPhoto ? (
@@ -196,7 +196,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
                 crossOrigin="anonymous" 
                 alt={cvData.fullName} 
                 className="w-full h-full object-cover absolute inset-0 z-0" 
-                style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover' }}
+                style={{ width: '96px', height: '96px', borderRadius: '50%', objectFit: 'cover' }}
               />
             ) : (
               <span className="z-0 opacity-60">
@@ -218,7 +218,7 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
         </div>
 
         {/* Contact */}
-        <section className="space-y-2.5 mb-5">
+        <section className="space-y-3 mb-6">
           <ContactItem icon={Mail} value={cvData.email} color={mutedColor} />
           <ContactItem icon={Phone} value={cvData.phone} color={mutedColor} />
           <ContactItem icon={MapPin} value={cvData.location} color={mutedColor} />
@@ -228,12 +228,12 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
 
         {/* Compétences */}
         {cvData.skills?.length > 0 && (
-          <section className="mb-5">
-            <h3 className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: accent }}>Expertise</h3>
-            <ul className="space-y-1">
+          <section className="mb-6">
+            <h3 className="text-[11px] font-bold uppercase tracking-widest mb-4" style={{ color: accent }}>Expertise</h3>
+            <ul className="space-y-2">
               {cvData.skills.map((skill, i) => (
                 <li key={i}>
-                  <span className="text-[11px] font-medium block mb-0.5" style={{ color: mutedColor }}>{skill}</span>
+                  <span className="text-[11px] font-medium block mb-1" style={{ color: mutedColor }}>{skill}</span>
                   <div className="flex gap-[2px] mt-1.5">
                     {[1, 2, 3, 4, 5].map(level => (
                       <div key={level} className="h-[3px] flex-1 rounded-sm" style={{ background: accent, opacity: level <= 4 ? 1 : 0.2 }} />
@@ -247,9 +247,9 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
 
         {/* Langues */}
         {cvData.languages?.length > 0 && (
-          <section className="mt-3">
-            <h3 className="text-[11px] font-bold uppercase tracking-widest mb-2.5" style={{ color: accent }}>Langues</h3>
-            <ul className="space-y-1.5">
+          <section className="mt-4">
+            <h3 className="text-[11px] font-bold uppercase tracking-widest mb-3" style={{ color: accent }}>Langues</h3>
+            <ul className="space-y-2">
               {cvData.languages?.map((lang, i) => (
                 <li key={i} className="text-[11px]" style={{ color: mutedColor }}>
                   {lang} <span style={{ color: accent }}>•••</span>
@@ -261,49 +261,49 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 w-[556px] min-w-[556px] max-w-[556px] px-6 py-4 flex flex-col gap-3 overflow-hidden">
+      <main className="flex-1 w-[556px] min-w-[556px] max-w-[556px] px-10 py-10 flex flex-col gap-4 overflow-hidden">
         {/* Nom + Titre */}
-        <header className="mb-4">
-          <h1 className="text-3xl font-bold tracking-tight mb-2" style={{ color: text, fontFamily: template.fontTitle ? `"${template.fontTitle}", serif` : undefined }}>
+        <header className="mb-6">
+          <h1 className="text-4xl font-bold tracking-tight mb-2" style={{ color: text, fontFamily: template.fontTitle ? `"${template.fontTitle}", serif` : undefined }}>
             {cvData.fullName || 'Votre Nom'}
           </h1>
-          <h2 className="text-sm font-semibold tracking-widest uppercase" style={{ color: accent, fontFamily: template.fontTitle ? `"${template.fontTitle}", serif` : undefined }}>
+          <h2 className="text-sm font-semibold tracking-widest uppercase mt-3" style={{ color: accent, fontFamily: template.fontTitle ? `"${template.fontTitle}", serif` : undefined }}>
             {cvData.jobTitle || 'Votre Titre'}
           </h2>
         </header>
 
         {/* Profil */}
         {cvData.summary && (
-          <section className="mb-4">
-            <div className="w-8 h-0.5 mb-2" style={{ background: accent }} />
-            <p className="text-[12px] leading-[1.6]" style={{ color: mutedColor }}>{cvData.summary}</p>
+          <section className="mb-6">
+            <div className="w-10 h-0.5 mb-3" style={{ background: accent }} />
+            <p className="text-[13px] leading-[1.75]" style={{ color: mutedColor }}>{cvData.summary}</p>
           </section>
         )}
 
         {/* Expériences */}
         {experiences?.length > 0 && (
-          <section className="mb-6">
-            <h3 className="text-sm font-bold uppercase tracking-widest mb-4 flex items-center gap-3" style={{ color: text, fontFamily: template.fontTitle ? `"${template.fontTitle}", serif` : undefined }}>
+          <section className="mb-8">
+            <h3 className="text-sm font-bold uppercase tracking-widest mb-5 flex items-center gap-4" style={{ color: text, fontFamily: template.fontTitle ? `"${template.fontTitle}", serif` : undefined }}>
               Expériences
               <div className="flex-1 h-[1px]" style={{ background: dividerColor }} />
             </h3>
-            <div className="space-y-6">
+            <div className="space-y-7">
               {(experiences || []).filter(e => e.company || e.position).map((exp, i) => (
-                <article key={i} className="flex gap-3">
+                <article key={i} className="flex gap-4">
                   {exp.logoUrl ? (
-                    <img src={exp.logoUrl} crossOrigin="anonymous" alt="" className="w-9 h-9 rounded shadow-sm shrink-0 object-cover" />
+                    <img src={exp.logoUrl} crossOrigin="anonymous" alt="" className="w-10 h-10 rounded shadow-sm shrink-0 object-cover" />
                   ) : (
                     <Initials name={exp.company} accent={accent} />
                   )}
                   <div className="flex-1">
-                    <h4 className="font-bold text-[13px]" style={{ color: text }}>{exp.position}</h4>
-                    <div className="flex items-center gap-2 text-[11px] mb-1.5" style={{ color: mutedColor }}>
+                    <h4 className="font-bold text-[14px]" style={{ color: text }}>{exp.position}</h4>
+                    <div className="flex items-center gap-2 text-[12px] mb-2 mt-1" style={{ color: mutedColor }}>
                       <span className="font-semibold" style={{ color: accent }}>{exp.company}</span>
                       <span>•</span>
                       <span>{exp.startDate}{exp.endDate ? ` - ${exp.endDate}` : ''}</span>
                     </div>
                     {exp.description && (
-                      <p className="text-[12px] leading-[1.6] break-words font-medium" style={{ color: mutedColor }}>{exp.description}</p>
+                      <p className="text-[12px] leading-[1.75] break-words font-medium" style={{ color: mutedColor }}>{exp.description}</p>
                     )}
                   </div>
                 </article>
@@ -314,24 +314,24 @@ function LayoutTwoColumn({ template, cvData, experiences, educations, colors, on
 
         {/* Formation */}
         {educations?.length > 0 && (
-          <section className="mt-8">
-            <h3 className="text-sm font-bold uppercase tracking-widest mb-4 flex items-center gap-3" style={{ color: text, fontFamily: template.fontTitle ? `"${template.fontTitle}", serif` : undefined }}>
+          <section className="mt-10">
+            <h3 className="text-sm font-bold uppercase tracking-widest mb-5 flex items-center gap-4" style={{ color: text, fontFamily: template.fontTitle ? `"${template.fontTitle}", serif` : undefined }}>
               Formation
               <div className="flex-1 h-[1px]" style={{ background: dividerColor }} />
             </h3>
-            <div className="space-y-6">
+            <div className="space-y-7">
               {(educations || []).filter(e => e.institution || e.degree).map((edu, i) => (
-                <article key={i} className="flex gap-3">
+                <article key={i} className="flex gap-4">
                   <Initials name={edu.institution} accent={accent} />
                   <div className="flex-1">
                     <h4 className="font-bold text-[14px] tracking-wide" style={{ color: text }}>{edu.degree}</h4>
-                    <div className="text-[11px] font-semibold flex items-center gap-2 mb-1" style={{ color: accent }}>
+                    <div className="text-[12px] font-semibold flex items-center gap-2 mb-2 mt-1" style={{ color: accent }}>
                       <span>{edu.institution}</span>
                       <span className="w-1 h-1 rounded-full" style={{ background: dividerColor }} />
                       <span>{edu.startDate}{edu.endDate ? ` - ${edu.endDate}` : ''}</span>
                     </div>
                     {edu.description && (
-                      <p className="text-[12px] leading-[1.6] break-words font-medium" style={{ color: mutedColor }}>{edu.description}</p>
+                      <p className="text-[12px] leading-[1.75] break-words font-medium" style={{ color: mutedColor }}>{edu.description}</p>
                     )}
                   </div>
                 </article>
