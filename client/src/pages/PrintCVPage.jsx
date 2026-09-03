@@ -8,7 +8,9 @@ import { Download } from 'lucide-react';
 // tout en gardant le vrai rendu 794px pour l'impression
 function MobileScaler({ children }) {
   const containerRef = useRef(null);
+  const innerRef = useRef(null);
   const [scale, setScale] = useState(1);
+  const [innerHeight, setInnerHeight] = useState(1123);
 
   useEffect(() => {
     const compute = () => {
@@ -16,14 +18,25 @@ function MobileScaler({ children }) {
         const available = containerRef.current.clientWidth;
         setScale(Math.min(1, available / 794));
       }
+      if (innerRef.current) {
+        const actualHeight = innerRef.current.scrollHeight;
+        if (actualHeight > 0) {
+          setInnerHeight(actualHeight);
+        }
+      }
     };
     compute();
+    // Use a small timeout to ensure initial render is measured properly
+    setTimeout(compute, 100);
+    setTimeout(compute, 500);
+
     const ro = new ResizeObserver(compute);
     if (containerRef.current) ro.observe(containerRef.current);
+    if (innerRef.current) ro.observe(innerRef.current);
     return () => ro.disconnect();
   }, []);
 
-  const scaledHeight = 1123 * scale;
+  const scaledHeight = innerHeight * scale;
 
   return (
     <div ref={containerRef} className="w-full flex justify-center print:block print:w-auto">
@@ -31,16 +44,15 @@ function MobileScaler({ children }) {
       <div className="mobile-scaler-outer" style={{ width: `${794 * scale}px`, height: `${scaledHeight}px`, position: 'relative' }}>
         {/* Inner div is always 794px, scaled down visually */}
         <div
+          ref={innerRef}
           className="mobile-scaler-inner"
           style={{
             width: '794px',
-            height: '1123px',
             transform: `scale(${scale})`,
             transformOrigin: 'top left',
             position: 'absolute',
             top: 0,
             left: 0,
-            overflow: 'hidden',
           }}
         >
           {children}
@@ -92,16 +104,45 @@ export default function PrintCVPage() {
             const { default: jsPDF } = await import('jspdf');
             const inner = document.querySelector('.mobile-scaler-inner');
             const savedTransform = inner.style.transform;
-            inner.style.transform = 'none';
+            const savedPosition = inner.style.position;
             const savedOverflow = inner.style.overflow;
+            const savedHeight = inner.style.height;
+            const savedMinHeight = inner.style.minHeight;
+
+            // Fix html2canvas cutoff: scroll to top
+            window.scrollTo(0, 0);
+
+            // Temporarily remove transform/position to get accurate DOM dimensions
+            inner.style.transform = 'none';
+            inner.style.position = 'static';
             inner.style.overflow = 'visible';
             inner.style.height = 'auto';
             inner.style.minHeight = '1123px';
+
+            // Allow the browser to repaint and calculate layout
+            await new Promise(r => setTimeout(r, 100));
+
+            // Measure actual content height and round up to full A4 pages
+            const contentHeight = inner.offsetHeight;
+            const a4Height = 1123;
+            const pagesNeeded = Math.ceil(contentHeight / a4Height);
+            const totalHeight = pagesNeeded * a4Height;
+
+            // Force the inner container to be an exact multiple of A4 height
+            // This ensures the background color extends uniformly to the bottom of the last PDF page
+            inner.style.height = `${totalHeight}px`;
+
+            // Allow DOM to apply the new height before capture
+            await new Promise(r => setTimeout(r, 50));
+
             const canvas = await html2canvas(inner, {
               scale: 2,
               useCORS: true,
               width: 794,
+              height: totalHeight,
               windowWidth: 794,
+              windowHeight: totalHeight,
+              backgroundColor: null,
               onclone: (clonedDoc) => {
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.width = 1;
@@ -128,13 +169,35 @@ export default function PrintCVPage() {
                 }
               }
             });
+
+            // Restore original styles
             inner.style.transform = savedTransform;
+            inner.style.position = savedPosition;
             inner.style.overflow = savedOverflow;
-            inner.style.height = '1123px';
-            inner.style.minHeight = '';
+            inner.style.height = savedHeight;
+            inner.style.minHeight = savedMinHeight;
+
+            // Generate multi-page PDF
             const pdf = new jsPDF('portrait', 'mm', 'a4');
-            pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, 210, 297);
-            pdf.save('mon-cv.pdf');
+            const imgWidth = 210;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            const pageHeight = 297;
+            let position = 0;
+            let heightLeft = imgHeight;
+
+            pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            // Add extra pages if content exceeds one A4 page
+            while (heightLeft > 1) {
+              position -= pageHeight;
+              pdf.addPage();
+              pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, position, imgWidth, imgHeight);
+              heightLeft -= pageHeight;
+            }
+
+            const fileName = cvData.fullName ? `CV_${cvData.fullName.replace(/\s+/g, '_')}.pdf` : 'mon-cv.pdf';
+            pdf.save(fileName);
           }}
           style={{ backgroundColor: '#c9a96e' }}
           className="flex items-center gap-2 text-black px-8 py-3 rounded-xl font-bold shadow-lg active:scale-95 transition-transform text-base"
@@ -147,7 +210,7 @@ export default function PrintCVPage() {
       {/* Affichage : Scalé pour le mobile, désactivé à l'impression */}
       <div className="w-full flex justify-center">
         <MobileScaler>
-          <div className="bg-white w-[794px] h-[1123px] overflow-hidden">
+          <div className="bg-white w-[794px] min-h-[1123px]">
             {template?.layout === 'cover-letter' ? (
               <CoverLetterPreview template={template} cvData={cvData} />
             ) : (
