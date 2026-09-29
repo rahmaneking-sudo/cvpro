@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Plus, Trash2, Wand2, Upload, Loader2, Save, Download, Camera, CheckCircle2, AlertCircle, Eye, Edit2, Link2 } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Wand2, Upload, Loader2, Save, Download, Camera, CheckCircle2, AlertCircle, Eye, Edit2, Link2, ChevronUp, ChevronDown } from 'lucide-react';
 import { getTemplate } from '../../data/templates';
 import CVPreview from './CVPreview';
 import PaymentModal from '../shared/PaymentModal';
@@ -498,6 +498,18 @@ export default function CVEditor() {
   const removeExperience = (index) => {
     if (experiences.length <= 1) return;
     setExperiences(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const moveExperience = (index, direction) => {
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= experiences.length) return;
+    setExperiences(prev => {
+      const updated = [...prev];
+      const temp = updated[index];
+      updated[index] = updated[newIndex];
+      updated[newIndex] = temp;
+      return updated;
+    });
   };
 
   const addSkill = () => {
@@ -1088,11 +1100,31 @@ export default function CVEditor() {
                     </div>
                     <span className="text-sm font-medium text-[var(--color-ivory)]">Expérience {idx + 1}</span>
                   </div>
-                  {experiences.length > 1 && (
-                    <button onClick={() => removeExperience(idx)} className="text-[var(--color-white-muted)] hover:text-red-400 transition-colors">
-                      <Trash2 size={14} />
-                    </button>
-                  )}
+                  <div className="flex items-center gap-1">
+                    {experiences.length > 1 && (
+                      <>
+                        <button
+                          onClick={() => moveExperience(idx, -1)}
+                          disabled={idx === 0}
+                          className="p-1.5 rounded-lg text-[var(--color-white-muted)] hover:text-[var(--color-champagne)] hover:bg-[rgba(201,169,110,0.1)] transition-all disabled:opacity-25 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[var(--color-white-muted)]"
+                          title="Monter"
+                        >
+                          <ChevronUp size={14} />
+                        </button>
+                        <button
+                          onClick={() => moveExperience(idx, 1)}
+                          disabled={idx === experiences.length - 1}
+                          className="p-1.5 rounded-lg text-[var(--color-white-muted)] hover:text-[var(--color-champagne)] hover:bg-[rgba(201,169,110,0.1)] transition-all disabled:opacity-25 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[var(--color-white-muted)]"
+                          title="Descendre"
+                        >
+                          <ChevronDown size={14} />
+                        </button>
+                        <button onClick={() => removeExperience(idx)} className="p-1.5 rounded-lg text-[var(--color-white-muted)] hover:text-red-400 hover:bg-red-500/10 transition-all">
+                          <Trash2 size={14} />
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
